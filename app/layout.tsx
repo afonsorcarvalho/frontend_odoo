@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import { Toaster } from 'react-hot-toast'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { ErrorReporter } from '@/components/providers/ErrorReporter'
+import { AuthGuard } from '@/components/providers/AuthGuard'
 import './globals.css'
 
 const geistSans = localFont({
@@ -28,7 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} dark`}
       suppressHydrationWarning
     >
-      <body className="bg-dark-900 text-white antialiased min-h-screen">
+      <body
+        className="bg-dark-900 text-white antialiased min-h-screen"
+        suppressHydrationWarning
+      >
         <QueryProvider>
           <ErrorReporter />
           <div className="fixed inset-0 bg-dark-900 bg-mesh-gradient -z-10" />
@@ -42,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             aria-hidden
           />
 
-          {children}
+          <AuthGuard>{children}</AuthGuard>
 
           <Toaster
             position="bottom-right"

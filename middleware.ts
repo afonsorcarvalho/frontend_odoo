@@ -25,10 +25,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (sessionId && pathname === '/login') {
-    return NextResponse.redirect(new URL('/ciclos', request.url))
-  }
-
   return NextResponse.next()
 }
 
