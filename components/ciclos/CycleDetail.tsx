@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import {
-  Clock, Package, Activity, FileText,
+  Package, Activity, FileText,
   AlertCircle, CheckCircle2, Beaker, Gauge, FileDown, Signature,
   LineChart, Expand, Printer, Loader2, ChevronDown,
 } from 'lucide-react'
@@ -193,7 +193,7 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
               )}
             </div>
 
-            <PrintMenu cycle={cycle} onOpenReport={handleOpenReport} />
+            <PrintMenu onOpenReport={handleOpenReport} />
           </div>
 
           <div className="mt-5 pt-5 border-t border-white/10">
@@ -527,9 +527,8 @@ function TxtIcon() {
 }
 
 function PrintMenu({
-  cycle, onOpenReport,
+  onOpenReport,
 }: {
-  cycle: OdooCycle
   onOpenReport: (reportName: string, label: string, filenamePattern?: string) => void | Promise<void>
 }) {
   const [printing, setPrinting] = useState<string | null>(null)

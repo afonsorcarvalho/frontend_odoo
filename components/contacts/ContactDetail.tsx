@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import {
   Mail, Phone, Smartphone, Globe, MapPin, Building2,
-  Tag, FileText, Edit2, Archive, Calendar, Hash,
+  Tag, Edit2, Archive, Calendar, Hash,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Avatar } from '@/components/ui/Avatar'
@@ -274,7 +274,7 @@ function InfoItem({
 
 function ContactFormModal() {
   const { ui, closeFormModal } = useContactsStore()
-  const { isFormModalOpen, editingPartnerId } = ui
+  const { isFormModalOpen } = ui
 
   if (!isFormModalOpen) return null
 

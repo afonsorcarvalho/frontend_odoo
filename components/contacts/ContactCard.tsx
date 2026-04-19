@@ -7,7 +7,6 @@ import { GlassCard } from '@/components/ui/GlassCard'
 import { Avatar } from '@/components/ui/Avatar'
 import { NeonBadge } from '@/components/ui/NeonBadge'
 import type { OdooPartnerSummary } from '@/lib/types/partner'
-import { clsx } from 'clsx'
 import { ReactNode } from 'react'
 
 interface ContactCardProps {
