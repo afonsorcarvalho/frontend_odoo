@@ -1,0 +1,282 @@
+{
+  "model": "afr.supervisorio.cycle.materials.lines",
+  "server": "mb.fitadigital.com.br",
+  "db": "mb-odoo",
+  "generated_at": "2026-04-18T11:06:10.309Z",
+  "total_records": 489,
+  "fields": {
+    "ciclo_id": {
+      "help": "Ciclo de esterilização ao qual este material pertence",
+      "readonly": false,
+      "relation": "afr.supervisorio.ciclos",
+      "required": true,
+      "store": true,
+      "string": "Ciclo",
+      "type": "many2one"
+    },
+    "material_id": {
+      "help": "Material que foi esterilizado",
+      "readonly": false,
+      "relation": "afr.supervisorio.materials",
+      "required": true,
+      "store": true,
+      "string": "Material",
+      "type": "many2one"
+    },
+    "quantidade": {
+      "help": "Quantidade do material esterilizado",
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Quantidade",
+      "type": "float"
+    },
+    "unidade": {
+      "help": "Unidade de medida do material",
+      "readonly": false,
+      "required": true,
+      "selection": [
+        [
+          "caixa",
+          "Caixa"
+        ],
+        [
+          "unidade",
+          "Unidade"
+        ],
+        [
+          "pacote",
+          "Pacote"
+        ],
+        [
+          "envelope",
+          "Envelope"
+        ],
+        [
+          "kit",
+          "Kit"
+        ],
+        [
+          "outro",
+          "Outro"
+        ]
+      ],
+      "store": true,
+      "string": "Unidade",
+      "type": "selection"
+    },
+    "lote": {
+      "help": "Número do lote do material",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Lote",
+      "type": "char"
+    },
+    "fabricante_id": {
+      "help": "Fabricante do material (se diferente do padrão)",
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": true,
+      "string": "Fabricante",
+      "type": "many2one"
+    },
+    "validade": {
+      "help": "Data de validade do material",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Validade",
+      "type": "date"
+    },
+    "ciclo_nome": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Nome do Ciclo",
+      "type": "char"
+    },
+    "material_descricao": {
+      "help": "Descrição do material a ser esterilizado",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Descrição do Material",
+      "type": "char"
+    },
+    "fabricante_nome": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Nome do Fabricante",
+      "type": "char"
+    },
+    "active": {
+      "help": "Se desmarcado, a linha não aparecerá nas listas",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Ativo",
+      "type": "boolean"
+    },
+    "id": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "ID",
+      "type": "integer"
+    },
+    "__last_update": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Last Modified on",
+      "type": "datetime"
+    },
+    "display_name": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Display Name",
+      "type": "char"
+    },
+    "create_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Created by",
+      "type": "many2one"
+    },
+    "create_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Created on",
+      "type": "datetime"
+    },
+    "write_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Last Updated by",
+      "type": "many2one"
+    },
+    "write_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Last Updated on",
+      "type": "datetime"
+    }
+  },
+  "sample": [
+    {
+      "id": 498,
+      "__last_update": "2026-04-17 15:04:46",
+      "active": true,
+      "ciclo_id": [
+        184,
+        "201140426_20260414_150444"
+      ],
+      "ciclo_nome": "201140426_20260414_150444",
+      "create_date": "2026-04-17 15:04:46",
+      "create_uid": [
+        7,
+        "Elaine Cristina"
+      ],
+      "display_name": "POLIKIT 1000ML SEM DRENO - 63.0 unidade (Lote: PKD09042026)",
+      "fabricante_id": [
+        17,
+        "POLIPLAST INDUSTRIA COMERCIO E SERVICOS PLASTICOS EIRELI ME"
+      ],
+      "fabricante_nome": "POLIPLAST INDUSTRIA COMERCIO E SERVICOS PLASTICOS EIRELI ME",
+      "lote": "PKD09042026",
+      "material_descricao": "POLIKIT 1000ML SEM DRENO",
+      "material_id": [
+        99,
+        "POLIKIT 1000ML SEM DRENO (POLIPLAST INDUSTRIA COMERCIO E SERVICOS PLASTICOS EIRELI ME)"
+      ],
+      "quantidade": 63,
+      "unidade": "unidade",
+      "validade": false,
+      "write_date": "2026-04-17 15:04:46",
+      "write_uid": [
+        7,
+        "Elaine Cristina"
+      ]
+    },
+    {
+      "id": 497,
+      "__last_update": "2026-04-17 15:04:46",
+      "active": true,
+      "ciclo_id": [
+        184,
+        "201140426_20260414_150444"
+      ],
+      "ciclo_nome": "201140426_20260414_150444",
+      "create_date": "2026-04-17 15:04:46",
+      "create_uid": [
+        7,
+        "Elaine Cristina"
+      ],
+      "display_name": "BIO KIT 2000ML - 92.0 unidade (Lote: BK140426)",
+      "fabricante_id": [
+        1,
+        "MB Indústria Cirúrgica"
+      ],
+      "fabricante_nome": "MB Indústria Cirúrgica",
+      "lote": "BK140426",
+      "material_descricao": "BIO KIT 2000ML",
+      "material_id": [
+        12,
+        "BIO KIT 2000ML (MB Indústria Cirúrgica)"
+      ],
+      "quantidade": 92,
+      "unidade": "unidade",
+      "validade": "2029-04-14",
+      "write_date": "2026-04-17 15:04:46",
+      "write_uid": [
+        7,
+        "Elaine Cristina"
+      ]
+    },
+    {
+      "id": 496,
+      "__last_update": "2026-04-17 15:04:46",
+      "active": true,
+      "ciclo_id": [
+        184,
+        "201140426_20260414_150444"
+      ],
+      "ciclo_nome": "201140426_20260414_150444",
+      "create_date": "2026-04-17 15:04:46",
+      "create_uid": [
+        7,
+        "Elaine Cristina"
+      ],
+      "display_name": "BIO KIT 1000ML - 132.0 unidade (Lote: BK140426)",
+      "fabricante_id": [
+        1,
+        "MB Indústria Cirúrgica"
+      ],
+      "fabricante_nome": "MB Indústria Cirúrgica",
+      "lote": "BK140426",
+      "material_descricao": "BIO KIT 1000ML",
+      "material_id": [
+        17,
+        "BIO KIT 1000ML (MB Indústria Cirúrgica)"
+      ],
+      "quantidade": 132,
+      "unidade": "unidade",
+      "validade": "2029-04-14",
+      "write_date": "2026-04-17 15:04:46",
+      "write_uid": [
+        7,
+        "Elaine Cristina"
+      ]
+    }
+  ]
+}

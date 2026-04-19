@@ -1,0 +1,900 @@
+{
+  "model": "afr.supervisorio.ciclos",
+  "server": "mb.fitadigital.com.br",
+  "db": "mb-odoo",
+  "generated_at": "2026-04-18T09:29:25.610Z",
+  "total_records": 181,
+  "fields": {
+    "activity_ids": {
+      "readonly": false,
+      "relation": "mail.activity",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Activities",
+      "type": "one2many"
+    },
+    "activity_state": {
+      "help": "Status based on activities\nOverdue: Due date is already passed\nToday: Activity date is today\nPlanned: Future activities.",
+      "readonly": true,
+      "required": false,
+      "selection": [
+        [
+          "overdue",
+          "Overdue"
+        ],
+        [
+          "today",
+          "Today"
+        ],
+        [
+          "planned",
+          "Planned"
+        ]
+      ],
+      "store": false,
+      "string": "Activity State",
+      "type": "selection"
+    },
+    "activity_user_id": {
+      "readonly": false,
+      "relation": "res.users",
+      "required": false,
+      "store": false,
+      "string": "Responsible User",
+      "type": "many2one"
+    },
+    "activity_type_id": {
+      "readonly": false,
+      "relation": "mail.activity.type",
+      "required": false,
+      "store": false,
+      "string": "Next Activity Type",
+      "type": "many2one"
+    },
+    "activity_type_icon": {
+      "help": "Font awesome icon e.g. fa-tasks",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Activity Type Icon",
+      "type": "char"
+    },
+    "activity_date_deadline": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Next Activity Deadline",
+      "type": "date"
+    },
+    "my_activity_date_deadline": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "My Activity Deadline",
+      "type": "date"
+    },
+    "activity_summary": {
+      "readonly": false,
+      "required": false,
+      "store": false,
+      "string": "Next Activity Summary",
+      "type": "char"
+    },
+    "activity_exception_decoration": {
+      "help": "Type of the exception activity on record.",
+      "readonly": true,
+      "required": false,
+      "selection": [
+        [
+          "warning",
+          "Alert"
+        ],
+        [
+          "danger",
+          "Error"
+        ]
+      ],
+      "store": false,
+      "string": "Activity Exception Decoration",
+      "type": "selection"
+    },
+    "activity_exception_icon": {
+      "help": "Icon to indicate an exception activity.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Icon",
+      "type": "char"
+    },
+    "message_is_follower": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Is Follower",
+      "type": "boolean"
+    },
+    "message_follower_ids": {
+      "readonly": false,
+      "relation": "mail.followers",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Followers",
+      "type": "one2many"
+    },
+    "message_partner_ids": {
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": false,
+      "string": "Followers (Partners)",
+      "type": "many2many"
+    },
+    "message_ids": {
+      "readonly": false,
+      "relation": "mail.message",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Messages",
+      "type": "one2many"
+    },
+    "has_message": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Has Message",
+      "type": "boolean"
+    },
+    "message_needaction": {
+      "help": "If checked, new messages require your attention.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Action Needed",
+      "type": "boolean"
+    },
+    "message_needaction_counter": {
+      "help": "Number of messages which requires an action",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Number of Actions",
+      "type": "integer"
+    },
+    "message_has_error": {
+      "help": "If checked, some messages have a delivery error.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Message Delivery error",
+      "type": "boolean"
+    },
+    "message_has_error_counter": {
+      "help": "Number of messages with delivery error",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Number of errors",
+      "type": "integer"
+    },
+    "message_attachment_count": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Attachment Count",
+      "type": "integer"
+    },
+    "message_main_attachment_id": {
+      "readonly": false,
+      "relation": "ir.attachment",
+      "required": false,
+      "store": true,
+      "string": "Main Attachment",
+      "type": "many2one"
+    },
+    "website_message_ids": {
+      "help": "Website communication history",
+      "readonly": false,
+      "relation": "mail.message",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Website Messages",
+      "type": "one2many"
+    },
+    "message_has_sms_error": {
+      "help": "If checked, some messages have a delivery error.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "SMS Delivery error",
+      "type": "boolean"
+    },
+    "name": {
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Ciclo",
+      "type": "char"
+    },
+    "equipment_id": {
+      "readonly": false,
+      "relation": "engc.equipment",
+      "required": true,
+      "store": true,
+      "string": "Equipamento",
+      "type": "many2one"
+    },
+    "equipment_nickname": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Apelido do Equipamento",
+      "type": "char"
+    },
+    "equipment_category_id": {
+      "readonly": true,
+      "relation": "engc.equipment.category",
+      "required": false,
+      "store": true,
+      "string": "Categoria do Equipamento",
+      "type": "many2one"
+    },
+    "cycle_type_id": {
+      "readonly": false,
+      "relation": "afr.cycle.type",
+      "required": true,
+      "store": true,
+      "string": "Tipo de Ciclo",
+      "type": "many2one"
+    },
+    "cycle_features_id": {
+      "readonly": false,
+      "relation": "afr.cycle.features",
+      "required": false,
+      "store": true,
+      "string": "Ciclo Selecionado",
+      "type": "many2one"
+    },
+    "start_date": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data Início",
+      "type": "datetime"
+    },
+    "end_date": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data Fim",
+      "type": "datetime"
+    },
+    "duration": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Duração (h)",
+      "type": "float"
+    },
+    "state": {
+      "readonly": false,
+      "required": false,
+      "selection": [
+        [
+          "em_andamento",
+          "Em Andamento"
+        ],
+        [
+          "concluido",
+          "Concluído"
+        ],
+        [
+          "cancelado",
+          "Cancelado"
+        ],
+        [
+          "erro",
+          "Erro"
+        ],
+        [
+          "abortado",
+          "Abortado"
+        ],
+        [
+          "aguardando",
+          "Aguardando"
+        ],
+        [
+          "pausado",
+          "Pausado"
+        ]
+      ],
+      "store": true,
+      "string": "Status",
+      "type": "selection"
+    },
+    "notes": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Observações",
+      "type": "text"
+    },
+    "operator_id": {
+      "readonly": false,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Operador",
+      "type": "many2one"
+    },
+    "signature_employee_id": {
+      "help": "Funcionário responsável pela assinatura. Dados de conselho, CPF e imagem vêm do cadastro do funcionário.",
+      "readonly": false,
+      "relation": "hr.employee",
+      "required": false,
+      "store": true,
+      "string": "Assinante",
+      "type": "many2one"
+    },
+    "signature_date": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data da assinatura",
+      "type": "datetime"
+    },
+    "is_signed": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Ciclo assinado",
+      "type": "boolean"
+    },
+    "signature_employee_name": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Nome do assinante",
+      "type": "char"
+    },
+    "signature_professional_documentation": {
+      "help": "Texto para registro/documentação profissional exibido na assinatura do ciclo.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Documentação (assinatura)",
+      "type": "char"
+    },
+    "signature_professional_council": {
+      "help": "Sigla ou nome do conselho (ex.: COREN, CRM, CRF).",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Conselho (assinatura)",
+      "type": "char"
+    },
+    "signature_professional_council_number": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Nº no conselho (assinatura)",
+      "type": "char"
+    },
+    "signature_professional_cpf": {
+      "help": "CPF exibido na identificação da assinatura nos relatórios de ciclo.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "CPF (assinatura)",
+      "type": "char"
+    },
+    "signature_image": {
+      "help": "Assinatura para relatórios de ciclo: no formulário use o widget para Auto (nome), Draw (à mão livre) ou Load (imagem).",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Imagem da assinatura",
+      "type": "binary"
+    },
+    "ib_lote": {
+      "help": "Indicador biológico utilizado neste ciclo. Clique para cadastrar/selecionar.",
+      "readonly": false,
+      "relation": "afr.indicador.biologico",
+      "required": false,
+      "store": true,
+      "string": "Lote do Indicador Biológico",
+      "type": "many2one"
+    },
+    "ib_marca": {
+      "help": "Fabricante do indicador biológico",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Marca do IB",
+      "type": "char"
+    },
+    "ib_modelo": {
+      "help": "Modelo ou referência do indicador biológico",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Modelo do IB",
+      "type": "char"
+    },
+    "ib_data_inicio": {
+      "help": "Momento em que a incubação do IB foi iniciada.",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data de Início de Incubação",
+      "type": "datetime"
+    },
+    "ib_data_fim": {
+      "help": "Momento em que a incubação do IB foi finalizada.",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data de Fim de Incubação",
+      "type": "datetime"
+    },
+    "ib_resultado": {
+      "help": "Resultado do indicador biológico após incubação.",
+      "readonly": false,
+      "required": false,
+      "selection": [
+        [
+          "positivo",
+          "Positivo"
+        ],
+        [
+          "negativo",
+          "Negativo"
+        ]
+      ],
+      "store": true,
+      "string": "Resultado do IB",
+      "type": "selection"
+    },
+    "fotos_ids": {
+      "help": "Fotos associadas a este ciclo",
+      "readonly": false,
+      "relation": "afr.ciclo.fotos",
+      "relation_field": "ciclo_id",
+      "required": false,
+      "store": true,
+      "string": "Fotos do Ciclo",
+      "type": "one2many"
+    },
+    "file_path": {
+      "help": "Caminho completo do arquivo de ciclo",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Caminho do Arquivo",
+      "type": "char"
+    },
+    "download_url": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "URL de Download",
+      "type": "html"
+    },
+    "cycle_file_mtime": {
+      "help": "Data/hora (UTC) da última modificação do arquivo TXT usada para montar a fita, estatísticas e gráfico.",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Data de Modificação do TXT (cache)",
+      "type": "datetime"
+    },
+    "cycle_statistics_txt": {
+      "help": "Estatísticas do ciclo",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Estatísticas do Ciclo",
+      "type": "text"
+    },
+    "cycle_statistics_data": {
+      "help": "Dados estruturados das estatísticas do ciclo",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Dados das Estatísticas",
+      "type": "json"
+    },
+    "cycle_txt": {
+      "help": "Conteúdo do arquivo de ciclo",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Conteúdo do Arquivo",
+      "type": "text"
+    },
+    "cycle_txt_filename": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Nome do Arquivo TXT",
+      "type": "char"
+    },
+    "cycle_pdf": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "PDF do Ciclo",
+      "type": "binary"
+    },
+    "cycle_pdf_filename": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Nome do Arquivo PDF",
+      "type": "char"
+    },
+    "cycle_graph": {
+      "help": "Gráfico gerado a partir dos dados do ciclo",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Gráfico do Ciclo",
+      "type": "binary"
+    },
+    "cycle_graph_filename": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Nome do Arquivo do Gráfico",
+      "type": "char"
+    },
+    "batch_number": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Número do Lote",
+      "type": "char"
+    },
+    "company_id": {
+      "readonly": false,
+      "relation": "res.company",
+      "required": false,
+      "store": true,
+      "string": "Empresa",
+      "type": "many2one"
+    },
+    "state_color": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Cor do Status",
+      "type": "integer"
+    },
+    "is_overdue": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Atrasado",
+      "type": "boolean"
+    },
+    "str_is_overdue": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Atrasado",
+      "type": "char"
+    },
+    "duration_planned": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Duração Prevista (min)",
+      "type": "float"
+    },
+    "id": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "ID",
+      "type": "integer"
+    },
+    "__last_update": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Last Modified on",
+      "type": "datetime"
+    },
+    "display_name": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Display Name",
+      "type": "char"
+    },
+    "create_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Created by",
+      "type": "many2one"
+    },
+    "create_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Created on",
+      "type": "datetime"
+    },
+    "write_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Last Updated by",
+      "type": "many2one"
+    },
+    "write_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Last Updated on",
+      "type": "datetime"
+    },
+    "is_eto_equipment": {
+      "help": "Indica se o equipamento é da categoria ETO",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "É Equipamento ETO",
+      "type": "boolean"
+    },
+    "massa_gas_eto_setpoint": {
+      "help": "Massa de gás ETO programada em Kg",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Massa de Gás Setpoint (Kg)",
+      "type": "float"
+    },
+    "massa_gas_eto": {
+      "help": "Quantidade de gás ETO admitida em Kg",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Gás ETO Admitido (Kg)",
+      "type": "float"
+    },
+    "concentracao_eto_porcentagem": {
+      "help": "Porcentagem de ETO no gás (padrão 90%)",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Porcentagem ETO (%)",
+      "type": "float"
+    },
+    "massa_eto": {
+      "help": "Massa de ETO calculada automaticamente",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Massa de ETO (Kg)",
+      "type": "float"
+    },
+    "concentracao_eto_camara": {
+      "help": "Concentração de ETO na câmara, calculada automaticamente",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Concentração na Câmara (mg/L)",
+      "type": "float"
+    },
+    "material_lines_ids": {
+      "help": "Lista de materiais que foram esterilizados neste ciclo",
+      "readonly": false,
+      "relation": "afr.supervisorio.cycle.materials.lines",
+      "relation_field": "ciclo_id",
+      "required": false,
+      "store": true,
+      "string": "Materiais Esterilizados",
+      "type": "one2many"
+    },
+    "material_count": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Total de Materiais",
+      "type": "integer"
+    }
+  },
+  "sample": [
+    {
+      "id": 188,
+      "__last_update": "2026-04-18 09:28:12",
+      "activity_date_deadline": false,
+      "activity_exception_decoration": false,
+      "activity_exception_icon": false,
+      "activity_ids": [],
+      "activity_state": false,
+      "activity_summary": false,
+      "activity_type_icon": false,
+      "activity_type_id": false,
+      "activity_user_id": false,
+      "batch_number": "302170426",
+      "company_id": [
+        1,
+        "MB Indústria Cirúrgica"
+      ],
+      "concentracao_eto_camara": 564.1875,
+      "concentracao_eto_porcentagem": 90,
+      "create_date": "2026-04-17 20:07:26",
+      "create_uid": [
+        2,
+        "Administrator"
+      ],
+      "cycle_features_id": [
+        1,
+        "CICLO 01"
+      ],
+      "cycle_file_mtime": "2026-04-17 21:49:00",
+      "cycle_graph_filename": "cycle_graph.png",
+      "cycle_pdf_filename": "302170426_20260417_170046.pdf",
+      "cycle_statistics_data": false,
+      "cycle_statistics_txt": "### Estatísticas do Ciclo 302170426_20260417_170046\n## LEAK-TEST - 13 min 51 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.4      -0.04      -0.34       -0.4\nTCI(Celsius)       50.3       54.0       52.0       50.7\nUR(%)              56.0       62.0      59.35       62.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## ACONDICIONAMENTO - 03 min 59 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.48      -0.33      -0.42       -0.4\nTCI(Celsius)       53.6       54.2      53.94       54.1\nUR(%)              53.0       58.0      55.86       56.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## PRE-VACUO - 02 min 44 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.5       -0.3       -0.4       -0.3\nTCI(Celsius)       53.4       54.3      53.92       54.3\nUR(%)              53.0       58.0       55.5       53.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## ESTERILIZACAO - 00 min 58 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.52       -0.5      -0.51       -0.5\nTCI(Celsius)       53.4       53.4       53.4       53.4\nUR(%)              58.0       59.0       58.5       58.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## INJETANDO ETO - 04 min 47 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.54      -0.25      -0.39      -0.54\nTCI(Celsius)       53.3       54.4      53.94       54.4\nUR(%)              56.0       59.0      57.44       57.0\nETO(Kg)            0.33       9.11       4.91       0.33\n\n## ESTERILIZANDO - Erro min  Fase(s) 'ESTERILIZANDO' ou 'None' não encontrada(s). seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.54      -0.04      -0.28      -0.26\nTCI(Celsius)       50.3       56.9      55.36       56.8\nUR(%)              53.0       85.0      70.67       66.0\nETO(Kg)             0.0      10.03       7.86      10.03\n",
+      "cycle_txt": "VERSAO IHM->AFR-ETO 1.4 PLC->AFR-ETO 1.4\n--------------------------------------------\n--------------------------------------------\nMB INDUSTRIA \nESTERILIZACAO A OXIDO DE ETILENO\nData: \t 17-4-2026\nHora: \t 17:00:46\nEquipamento: \t C1\nOperador: \t\t MANU\nCod. ciclo: \t\t 302170426\nCiclo Selecionado: \t CICLO 01\nPulsos Acond.: \t 1\nTempo Vapor (s): \t 0\nTempo Esteril. (min): \t 120.0\nP. Esteril. Admissao (bar): \t -0.550\nPulsos Lavagem: \t 1\nPulsos Aeração: \t 7\nMassa ETO: \t 10.0\n--------------------------------------------\nDADOS DO CICLO\n--------------------------------------------\n\n\nHora \t PCI(Bar) \t TCI(Celsius) \t UR(%) \t ETO(Kg)\n17:00:50     LEAK-TEST\n--------------------------------------------\n17:00:50 \t -0.036 \t 50.3 \t  61 \t 0.00\n17:00:52     REALIZANDO VACUO\n17:01:23 \t -0.092 \t 50.7 \t  61 \t 0.00\n17:01:55 \t -0.152 \t 50.7 \t  62 \t 0.00\n17:02:28 \t -0.208 \t 50.7 \t  62 \t 0.00\n17:03:01 \t -0.260 \t 50.6 \t  62 \t 0.00\n17:03:34 \t -0.308 \t 50.6 \t  62 \t 0.00\n17:04:06 \t -0.356 \t 50.6 \t  62 \t 0.00\n17:04:40 \t -0.396 \t 50.6 \t  62 \t 0.00\n17:04:41     ESPERANDO ESTABILIZACAO\n17:05:13 \t -0.400 \t 50.7 \t  62 \t 0.00\n17:05:45 \t -0.400 \t 51.0 \t  61 \t 0.00\n17:06:18 \t -0.396 \t 51.2 \t  61 \t 0.00\n17:06:51 \t -0.396 \t 51.5 \t  60 \t 0.00\n17:07:23 \t -0.396 \t 51.8 \t  60 \t 0.00\n17:07:56 \t -0.396 \t 52.1 \t  59 \t 0.00\n17:08:29 \t -0.396 \t 52.3 \t  59 \t 0.00\n17:09:02 \t -0.396 \t 52.5 \t  59 \t 0.00\n17:09:34 \t -0.396 \t 52.7 \t  58 \t 0.00\n17:09:40     TESTE INICIADO\n17:10:08 \t -0.396 \t 52.9 \t  58 \t 0.00\n17:10:41 \t -0.396 \t 53.1 \t  57 \t 0.00\n17:11:14 \t -0.396 \t 53.2 \t  57 \t 0.00\n17:11:48 \t -0.396 \t 53.4 \t  57 \t 0.00\n17:12:18 \t -0.392 \t 53.5 \t  57 \t 0.00\n17:12:48 \t -0.396 \t 53.7 \t  56 \t 0.00\n17:13:19 \t -0.392 \t 53.8 \t  56 \t 0.00\n17:13:52 \t -0.392 \t 53.9 \t  56 \t 0.00\n17:14:26 \t -0.396 \t 54.0 \t  56 \t 0.00\n17:14:41     ACONDICIONAMENTO\n--------------------------------------------\n17:14:43     PULSO 1\n17:14:43     REALIZANDO VACUO\n17:14:56 \t -0.400 \t 54.1 \t  56 \t 0.00\n17:15:29 \t -0.448 \t 54.0 \t  56 \t 0.00\n17:16:02 \t -0.484 \t 53.8 \t  58 \t 0.00\n17:16:15     INJETANDO NITROGENIO\n17:16:35 \t -0.472 \t 53.6 \t  58 \t 0.00\n17:17:08 \t -0.432 \t 53.8 \t  56 \t 0.00\n17:17:41 \t -0.380 \t 54.1 \t  54 \t 0.00\n17:18:14 \t -0.332 \t 54.2 \t  53 \t 0.00\n17:18:38     FIM DOS PULSOS\n17:18:40     PRE-VACUO\n--------------------------------------------\n17:18:42     REALIZANDO VACUO\n17:18:47 \t -0.296 \t 54.3 \t  53 \t 0.00\n17:19:19 \t -0.344 \t 54.3 \t  54 \t 0.00\n17:19:49 \t -0.388 \t 54.1 \t  55 \t 0.00\n17:20:22 \t -0.428 \t 53.8 \t  56 \t 0.00\n17:20:53 \t -0.464 \t 53.6 \t  57 \t 0.00\n17:21:24     ESTERILIZACAO\n--------------------------------------------\n17:21:24 \t -0.500 \t 53.4 \t  58 \t 0.00\n17:21:26     AGUARDANDO BALANCA\n17:21:58 \t -0.520 \t 53.4 \t  59 \t 0.00\n17:22:22     INJETANDO ETO\n17:22:31 \t -0.536 \t 53.3 \t  59 \t 0.33\n17:23:05 \t -0.496 \t 53.4 \t  57 \t 1.73\n17:23:36 \t -0.456 \t 53.7 \t  56 \t 2.85\n17:24:07 \t -0.416 \t 53.9 \t  56 \t 3.95\n17:24:38 \t -0.380 \t 54.0 \t  57 \t 5.02\n17:25:09 \t -0.348 \t 54.1 \t  58 \t 6.08\n17:25:40 \t -0.312 \t 54.3 \t  57 \t 7.10\n17:26:10 \t -0.276 \t 54.4 \t  58 \t 8.05\n17:26:42 \t -0.248 \t 54.4 \t  59 \t 9.11\n17:27:09     ESTERILIZANDO\n17:27:14 \t -0.216 \t 54.5 \t  59 \t 10.03\n17:27:48 \t -0.224 \t 54.5 \t  60 \t 10.03\n17:28:18 \t -0.224 \t 54.4 \t  61 \t 10.03\n17:28:48 \t -0.228 \t 54.4 \t  61 \t 10.03\n17:29:19 \t -0.228 \t 54.4 \t  61 \t 10.03\n17:29:49 \t -0.228 \t 54.4 \t  62 \t 10.03\n17:30:20 \t -0.232 \t 54.4 \t  62 \t 10.03\n17:30:50 \t -0.232 \t 54.3 \t  63 \t 10.03\n17:31:20 \t -0.236 \t 54.3 \t  63 \t 10.03\n17:31:51 \t -0.232 \t 54.4 \t  63 \t 10.03\n17:32:21 \t -0.236 \t 54.4 \t  64 \t 10.03\n17:32:52 \t -0.236 \t 54.4 \t  64 \t 10.03\n17:33:22 \t -0.240 \t 54.4 \t  65 \t 10.03\n17:33:53 \t -0.240 \t 54.4 \t  65 \t 10.03\n17:34:24 \t -0.240 \t 54.4 \t  66 \t 10.03\n17:34:55 \t -0.240 \t 54.4 \t  66 \t 10.03\n17:35:26 \t -0.240 \t 54.5 \t  66 \t 10.03\n17:35:56 \t -0.240 \t 54.6 \t  66 \t 10.03\n17:36:27 \t -0.240 \t 54.7 \t  66 \t 10.03\n17:36:58 \t -0.244 \t 54.8 \t  66 \t 10.03\n17:37:29 \t -0.244 \t 54.9 \t  66 \t 10.03\n17:38:00 \t -0.244 \t 55.1 \t  66 \t 10.03\n17:38:30 \t -0.244 \t 55.1 \t  66 \t 10.03\n17:39:02 \t -0.244 \t 55.3 \t  66 \t 10.03\n17:39:33 \t -0.244 \t 55.3 \t  66 \t 10.03\n17:40:05 \t -0.248 \t 55.4 \t  66 \t 10.03\n17:40:35 \t -0.244 \t 55.4 \t  67 \t 10.03\n17:41:06 \t -0.248 \t 55.5 \t  67 \t 10.03\n17:41:37 \t -0.248 \t 55.5 \t  67 \t 10.03\n17:42:08 \t -0.248 \t 55.6 \t  67 \t 10.03\n17:42:39 \t -0.248 \t 55.6 \t  67 \t 10.03\n17:43:10 \t -0.248 \t 55.7 \t  67 \t 10.03\n17:43:41 \t -0.248 \t 55.7 \t  68 \t 10.03\n17:44:12 \t -0.252 \t 55.7 \t  68 \t 10.03\n17:44:43 \t -0.248 \t 55.7 \t  68 \t 10.03\n17:45:14 \t -0.248 \t 55.8 \t  68 \t 10.03\n17:45:45 \t -0.248 \t 55.8 \t  69 \t 10.03\n17:46:17 \t -0.252 \t 55.8 \t  69 \t 10.03\n17:46:48 \t -0.252 \t 55.9 \t  69 \t 10.03\n17:47:19 \t -0.248 \t 55.9 \t  70 \t 10.03\n17:47:50 \t -0.252 \t 55.9 \t  70 \t 10.03\n17:48:21 \t -0.252 \t 55.9 \t  70 \t 10.03\n17:48:52 \t -0.252 \t 56.0 \t  70 \t 10.03\n17:49:23 \t -0.252 \t 56.0 \t  71 \t 10.03\n17:49:55 \t -0.252 \t 55.9 \t  71 \t 10.03\n17:50:27 \t -0.252 \t 56.0 \t  71 \t 10.03\n17:50:59 \t -0.256 \t 56.0 \t  71 \t 10.03\n17:51:30 \t -0.252 \t 56.0 \t  71 \t 10.03\n17:52:02 \t -0.252 \t 56.1 \t  71 \t 10.03\n17:52:34 \t -0.252 \t 56.1 \t  72 \t 10.03\n17:53:05 \t -0.252 \t 56.1 \t  72 \t 10.03\n17:53:37 \t -0.252 \t 56.1 \t  72 \t 10.03\n17:54:07 \t -0.256 \t 56.2 \t  72 \t 10.03\n17:54:37 \t -0.252 \t 56.2 \t  72 \t 10.03\n17:55:08 \t -0.256 \t 56.2 \t  72 \t 10.03\n17:55:40 \t -0.256 \t 56.2 \t  73 \t 10.03\n17:56:13 \t -0.252 \t 56.2 \t  73 \t 10.03\n17:56:44 \t -0.252 \t 56.3 \t  73 \t 10.03\n17:57:16 \t -0.252 \t 56.3 \t  73 \t 10.03\n17:57:48 \t -0.256 \t 56.3 \t  73 \t 10.03\n17:58:21 \t -0.252 \t 56.4 \t  73 \t 10.03\n17:58:53 \t -0.256 \t 56.4 \t  73 \t 10.03\n17:59:24 \t -0.256 \t 56.4 \t  73 \t 10.03\n17:59:57 \t -0.256 \t 56.5 \t  73 \t 10.03\n18:00:28 \t -0.252 \t 56.5 \t  73 \t 10.03\n18:01:00 \t -0.256 \t 56.5 \t  74 \t 10.03\n18:01:32 \t -0.252 \t 56.6 \t  73 \t 10.03\n18:02:04 \t -0.256 \t 56.6 \t  74 \t 10.03\n18:02:36 \t -0.256 \t 56.6 \t  74 \t 10.03\n18:03:08 \t -0.252 \t 56.7 \t  74 \t 10.03\n18:03:40 \t -0.256 \t 56.7 \t  74 \t 10.03\n18:04:12 \t -0.256 \t 56.7 \t  74 \t 10.03\n18:04:44 \t -0.256 \t 56.7 \t  74 \t 10.03\n18:05:16 \t -0.252 \t 56.8 \t  74 \t 10.03\n18:05:48 \t -0.256 \t 56.8 \t  74 \t 10.03\n18:06:20 \t -0.256 \t 56.8 \t  75 \t 10.03\n18:06:52 \t -0.256 \t 56.8 \t  75 \t 10.03\n18:07:24 \t -0.256 \t 56.8 \t  75 \t 10.03\n18:07:56 \t -0.256 \t 56.8 \t  75 \t 10.03\n18:08:28 \t -0.256 \t 56.8 \t  76 \t 10.03\n18:09:00 \t -0.256 \t 56.8 \t  76 \t 10.03\n18:09:32 \t -0.256 \t 56.9 \t  75 \t 10.03\n18:10:04 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:10:36 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:11:08 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:11:40 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:12:12 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:12:44 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:13:16 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:13:48 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:14:20 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:14:52 \t -0.256 \t 56.9 \t  76 \t 10.03\n18:15:24 \t -0.256 \t 56.9 \t  77 \t 10.03\n18:15:56 \t -0.256 \t 56.9 \t  77 \t 10.03\n18:16:28 \t -0.256 \t 56.9 \t  77 \t 10.03\n18:17:00 \t -0.256 \t 56.9 \t  77 \t 10.03\n18:17:32 \t -0.256 \t 56.9 \t  77 \t 10.03\n18:18:04 \t -0.260 \t 56.9 \t  78 \t 10.03\n18:18:36 \t -0.256 \t 56.9 \t  78 \t 10.03\n18:19:08 \t -0.256 \t 56.9 \t  78 \t 10.03\n18:19:40 \t -0.256 \t 56.9 \t  78 \t 10.03\n18:20:12 \t -0.256 \t 56.8 \t  78 \t 10.03\n18:20:44 \t -0.256 \t 56.8 \t  78 \t 10.03\n18:21:16 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:21:48 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:22:20 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:22:52 \t -0.260 \t 56.8 \t  79 \t 10.03\n18:23:24 \t -0.260 \t 56.8 \t  79 \t 10.03\n18:23:56 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:24:28 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:25:00 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:25:32 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:26:04 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:26:36 \t -0.256 \t 56.8 \t  79 \t 10.03\n18:27:08 \t -0.260 \t 56.7 \t  80 \t 10.03\n18:27:40 \t -0.256 \t 56.7 \t  80 \t 10.03\n18:28:14 \t -0.256 \t 56.7 \t  80 \t 10.03\n18:28:46 \t -0.256 \t 56.7 \t  80 \t 10.03\n18:29:18 \t -0.256 \t 56.7 \t  80 \t 10.03\n18:29:50 \t -0.256 \t 56.6 \t  81 \t 10.03\n18:30:22 \t -0.256 \t 56.6 \t  81 \t 10.03\n18:30:54 \t -0.256 \t 56.6 \t  81 \t 10.03\n18:31:26 \t -0.256 \t 56.6 \t  81 \t 10.03\n18:31:58 \t -0.260 \t 56.6 \t  81 \t 10.03\n18:32:30 \t -0.256 \t 56.6 \t  81 \t 10.03\n18:33:02 \t -0.256 \t 56.5 \t  82 \t 10.03\n18:33:34 \t -0.256 \t 56.5 \t  82 \t 10.03\n18:34:06 \t -0.256 \t 56.5 \t  82 \t 10.03\n18:34:38 \t -0.256 \t 56.5 \t  82 \t 10.03\n18:35:10 \t -0.256 \t 56.5 \t  82 \t 10.03\n18:35:42 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:36:14 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:36:46 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:37:18 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:37:50 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:38:22 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:38:54 \t -0.256 \t 56.4 \t  82 \t 10.03\n18:39:26 \t -0.256 \t 56.3 \t  83 \t 10.03\n18:39:58 \t -0.256 \t 56.3 \t  83 \t 10.03\n18:40:30 \t -0.260 \t 56.3 \t  83 \t 10.03\n18:41:02 \t -0.256 \t 56.3 \t  83 \t 10.03\n18:41:34 \t -0.256 \t 56.3 \t  83 \t 10.03\n18:42:06 \t -0.256 \t 56.2 \t  84 \t 10.03\n18:42:38 \t -0.256 \t 56.2 \t  84 \t 10.03\n18:43:10 \t -0.260 \t 56.2 \t  84 \t 10.03\n18:43:42 \t -0.256 \t 56.2 \t  84 \t 10.03\n18:44:13 \t -0.256 \t 56.2 \t  84 \t 10.03\n18:44:46 \t -0.256 \t 56.2 \t  84 \t 10.03\n18:45:16 \t -0.256 \t 56.1 \t  84 \t 10.03\n18:45:47 \t -0.256 \t 56.1 \t  84 \t 10.03\n18:46:19 \t -0.256 \t 56.1 \t  85 \t 10.03\n18:46:51 \t -0.256 \t 56.1 \t  85 \t 10.03\n18:47:23 \t -0.256 \t 56.0 \t  85 \t 10.03\n18:47:55 \t -0.260 \t 56.0 \t  85 \t 10.03\n18:48:27 \t -0.260 \t 56.0 \t  85 \t 10.03\n18:48:59 \t -0.256 \t 56.0 \t  85 \t 10.03\n18:49:31 \t -0.256 \t 55.9 \t  85 \t 10.03\n",
+      "cycle_txt_filename": "302170426_20260417_170046.txt",
+      "cycle_type_id": [
+        1,
+        "AFR_14"
+      ],
+      "display_name": "302170426_20260417_170046",
+      "duration": 1.81,
+      "duration_planned": 270,
+      "end_date": "2026-04-17 21:49:31",
+      "equipment_category_id": [
+        1,
+        "AUTOCLAVE ETO"
+      ],
+      "equipment_id": [
+        1,
+        "AUTOCLAVE ETO 16K CE16000 MIRAX"
+      ],
+      "equipment_nickname": "C1",
+      "file_path": "/var/lib/odoo/filestore/mb-odoo/ciclos/C1/20260417/302170426_20260417_170046.txt",
+      "fotos_ids": [],
+      "has_message": true,
+      "ib_data_fim": false,
+      "ib_data_inicio": false,
+      "ib_lote": false,
+      "ib_marca": false,
+      "ib_modelo": false
+    },
+    {
+      "id": 187,
+      "__last_update": "2026-04-18 09:28:12",
+      "activity_date_deadline": false,
+      "activity_exception_decoration": false,
+      "activity_exception_icon": false,
+      "activity_ids": [],
+      "activity_state": false,
+      "activity_summary": false,
+      "activity_type_icon": false,
+      "activity_type_id": false,
+      "activity_user_id": false,
+      "batch_number": "202170426",
+      "company_id": [
+        1,
+        "MB Indústria Cirúrgica"
+      ],
+      "concentracao_eto_camara": 563.6249999999999,
+      "concentracao_eto_porcentagem": 90,
+      "create_date": "2026-04-17 14:21:23",
+      "create_uid": [
+        2,
+        "Administrator"
+      ],
+      "cycle_features_id": [
+        1,
+        "CICLO 01"
+      ],
+      "cycle_file_mtime": "2026-04-17 18:53:00",
+      "cycle_graph_filename": "cycle_graph.png",
+      "cycle_pdf_filename": "202170426_20260417_111840.pdf",
+      "cycle_statistics_data": false,
+      "cycle_statistics_txt": "### Estatísticas do Ciclo 202170426_20260417_111840\n## LEAK-TEST - 13 min 55 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.4      -0.03      -0.34       -0.4\nTCI(Celsius)       47.8       50.3      49.04       50.0\nUR(%)              93.0      104.0      98.96      104.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## ACONDICIONAMENTO - 03 min 58 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.49      -0.33      -0.42      -0.42\nTCI(Celsius)       49.9       50.4       50.1       50.2\nUR(%)              95.0       97.0      96.29       96.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## PRE-VACUO - 02 min 49 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.47      -0.31      -0.39      -0.31\nTCI(Celsius)       49.7       50.3      50.06       50.3\nUR(%)              95.0       98.0       96.2       95.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## ESTERILIZACAO - 02 min 51 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.55       -0.5      -0.51       -0.5\nTCI(Celsius)       49.6       50.0       49.8       49.6\nUR(%)              97.0       99.0      98.33       99.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## INJETANDO ETO - 04 min 53 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.51      -0.22      -0.36      -0.51\nTCI(Celsius)       50.1       50.2      50.16       50.2\nUR(%)              96.0      102.0      98.78       97.0\nETO(Kg)            1.07       9.52       5.35       1.07\n\n## ESTERILIZANDO - 119 min 59 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.24      -0.21      -0.24      -0.24\nTCI(Celsius)       50.2       58.2      55.58       58.1\nUR(%)              95.0      107.0     100.48       96.0\nETO(Kg)           10.02      10.02      10.02      10.02\n\n## LAVAGEM - 06 min 06 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.4      -0.11      -0.27      -0.24\nTCI(Celsius)       56.5       57.6      57.12       57.5\nUR(%)              98.0      107.0     103.58      104.0\nETO(Kg)           10.02      10.02      10.02      10.02\n\n## AERACAO - 112 min 37 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.5      -0.05      -0.28      -0.26\nTCI(Celsius)       54.4       57.6      55.22       54.9\nUR(%)              97.0      108.0     104.82      106.0\nETO(Kg)           10.02      10.02      10.02      10.02\n",
+      "cycle_txt": "VERSAO IHM->AFR-ETO 1.4 PLC->AFR-ETO 1.4\n--------------------------------------------\n--------------------------------------------\nMB INDUSTRIA \nESTERILIZACAO A OXIDO DE ETILENO\nData: \t 17-4-2026\nHora: \t 11:18:40\nEquipamento: \t C1\nOperador: \t\t GH\nCod. ciclo: \t\t 202170426\nCiclo Selecionado: \t CICLO 01\nPulsos Acond.: \t 1\nTempo Vapor (s): \t 0\nTempo Esteril. (min): \t 120.0\nP. Esteril. Admissao (bar): \t -0.550\nPulsos Lavagem: \t 1\nPulsos Aeração: \t 7\nMassa ETO: \t 10.0\n--------------------------------------------\nDADOS DO CICLO\n--------------------------------------------\n\n\nHora \t PCI(Bar) \t TCI(Celsius) \t UR(%) \t ETO(Kg)\n11:18:43     LEAK-TEST\n--------------------------------------------\n11:18:43 \t -0.032 \t 50.0 \t  93 \t 0.00\n11:18:45     REALIZANDO VACUO\n11:19:16 \t -0.088 \t 49.9 \t  94 \t 0.00\n11:19:49 \t -0.148 \t 49.5 \t  96 \t 0.00\n11:20:22 \t -0.208 \t 48.9 \t  99 \t 0.00\n11:20:54 \t -0.256 \t 48.5 \t 102 \t 0.00\n11:21:26 \t -0.308 \t 48.2 \t 103 \t 0.00\n11:21:59 \t -0.352 \t 48.0 \t 104 \t 0.00\n11:22:30 \t -0.392 \t 47.8 \t 104 \t 0.00\n11:22:38     ESPERANDO ESTABILIZACAO\n11:23:02 \t -0.400 \t 47.8 \t 104 \t 0.00\n11:23:34 \t -0.396 \t 47.9 \t 104 \t 0.00\n11:24:06 \t -0.400 \t 48.0 \t 103 \t 0.00\n11:24:39 \t -0.396 \t 48.2 \t 102 \t 0.00\n11:25:11 \t -0.396 \t 48.4 \t 101 \t 0.00\n11:25:45 \t -0.396 \t 48.6 \t 101 \t 0.00\n11:26:17 \t -0.396 \t 48.7 \t 100 \t 0.00\n11:26:48 \t -0.396 \t 48.9 \t  99 \t 0.00\n11:27:18 \t -0.396 \t 49.0 \t  99 \t 0.00\n11:27:37     TESTE INICIADO\n11:27:50 \t -0.396 \t 49.2 \t  98 \t 0.00\n11:28:21 \t -0.392 \t 49.3 \t  98 \t 0.00\n11:28:54 \t -0.396 \t 49.5 \t  97 \t 0.00\n11:29:24 \t -0.392 \t 49.6 \t  97 \t 0.00\n11:29:54 \t -0.396 \t 49.7 \t  97 \t 0.00\n11:30:25 \t -0.396 \t 49.9 \t  96 \t 0.00\n11:30:55 \t -0.392 \t 50.0 \t  96 \t 0.00\n11:31:25 \t -0.396 \t 50.1 \t  95 \t 0.00\n11:31:56 \t -0.396 \t 50.2 \t  95 \t 0.00\n11:32:27 \t -0.396 \t 50.3 \t  95 \t 0.00\n11:32:36     REALIZANDO VACUO\n11:32:38     ACONDICIONAMENTO\n--------------------------------------------\n11:32:40     PULSO 1\n11:33:00 \t -0.416 \t 50.4 \t  95 \t 0.00\n11:33:33 \t -0.456 \t 50.2 \t  96 \t 0.00\n11:34:06 \t -0.492 \t 49.9 \t  97 \t 0.00\n11:34:12     INJETANDO NITROGENIO\n11:34:39 \t -0.464 \t 49.9 \t  97 \t 0.00\n11:35:12 \t -0.416 \t 50.0 \t  97 \t 0.00\n11:35:45 \t -0.372 \t 50.1 \t  96 \t 0.00\n11:36:18 \t -0.328 \t 50.2 \t  96 \t 0.00\n11:36:35     FIM DOS PULSOS\n11:36:36     PRE-VACUO\n--------------------------------------------\n11:36:38     REALIZANDO VACUO\n11:36:51 \t -0.308 \t 50.3 \t  95 \t 0.00\n11:37:23 \t -0.356 \t 50.3 \t  95 \t 0.00\n11:37:54 \t -0.396 \t 50.1 \t  96 \t 0.00\n11:38:25 \t -0.436 \t 49.9 \t  97 \t 0.00\n11:38:57 \t -0.472 \t 49.7 \t  98 \t 0.00\n11:39:25     ESTERILIZACAO\n--------------------------------------------\n11:39:28 \t -0.500 \t 49.6 \t  99 \t 0.00\n11:40:02 \t -0.496 \t 49.6 \t  99 \t 0.00\n11:40:35 \t -0.500 \t 49.7 \t  99 \t 0.00\n11:41:09 \t -0.496 \t 49.9 \t  98 \t 0.00\n11:41:14     AGUARDANDO BALANCA\n11:41:41 \t -0.516 \t 50.0 \t  97 \t 0.00\n11:42:14 \t -0.548 \t 50.0 \t  98 \t 0.00\n11:42:16     INJETANDO ETO\n11:42:45 \t -0.508 \t 50.1 \t  97 \t 1.07\n11:43:16 \t -0.468 \t 50.2 \t  96 \t 2.18\n11:43:47 \t -0.428 \t 50.2 \t  97 \t 3.26\n11:44:18 \t -0.392 \t 50.2 \t  97 \t 4.30\n11:44:49 \t -0.360 \t 50.2 \t  98 \t 5.36\n11:45:20 \t -0.324 \t 50.2 \t  99 \t 6.42\n11:45:51 \t -0.288 \t 50.1 \t 101 \t 7.48\n11:46:23 \t -0.252 \t 50.1 \t 102 \t 8.52\n11:46:54 \t -0.224 \t 50.1 \t 102 \t 9.52\n11:47:09     ESTERILIZANDO\n11:47:24 \t -0.208 \t 50.2 \t 103 \t 10.02\n11:47:56 \t -0.212 \t 50.3 \t 103 \t 10.02\n11:48:27 \t -0.212 \t 50.4 \t 103 \t 10.02\n11:48:58 \t -0.216 \t 50.6 \t 103 \t 10.02\n11:49:28 \t -0.216 \t 50.7 \t 102 \t 10.02\n11:49:58 \t -0.216 \t 50.7 \t 103 \t 10.02\n11:50:29 \t -0.220 \t 50.7 \t 103 \t 10.02\n11:50:59 \t -0.224 \t 50.6 \t 104 \t 10.02\n11:51:30 \t -0.224 \t 50.6 \t 104 \t 10.02\n11:52:00 \t -0.224 \t 50.6 \t 104 \t 10.02\n11:52:31 \t -0.228 \t 50.6 \t 104 \t 10.02\n11:53:05 \t -0.228 \t 50.7 \t 104 \t 10.02\n11:53:36 \t -0.228 \t 50.7 \t 104 \t 10.02\n11:54:06 \t -0.228 \t 50.8 \t 104 \t 10.02\n11:54:38 \t -0.228 \t 50.9 \t 104 \t 10.02\n11:55:09 \t -0.228 \t 51.0 \t 103 \t 10.02\n11:55:40 \t -0.232 \t 51.1 \t 103 \t 10.02\n11:56:12 \t -0.232 \t 51.0 \t 104 \t 10.02\n11:56:43 \t -0.232 \t 51.2 \t 103 \t 10.02\n11:57:14 \t -0.232 \t 51.3 \t 103 \t 10.02\n11:57:45 \t -0.232 \t 51.3 \t 103 \t 10.02\n11:58:17 \t -0.232 \t 51.3 \t 103 \t 10.02\n11:58:48 \t -0.232 \t 51.3 \t 103 \t 10.02\n11:59:19 \t -0.232 \t 51.2 \t 104 \t 10.02\n11:59:51 \t -0.236 \t 51.1 \t 104 \t 10.02\n12:00:23 \t -0.232 \t 51.1 \t 105 \t 10.02\n12:00:55 \t -0.236 \t 51.2 \t 104 \t 10.02\n12:01:27 \t -0.236 \t 51.2 \t 105 \t 10.02\n12:01:59 \t -0.236 \t 51.2 \t 105 \t 10.02\n12:02:31 \t -0.236 \t 51.3 \t 104 \t 10.02\n12:03:02 \t -0.236 \t 51.3 \t 105 \t 10.02\n12:03:34 \t -0.236 \t 51.4 \t 104 \t 10.02\n12:04:07 \t -0.236 \t 51.4 \t 105 \t 10.02\n12:04:39 \t -0.236 \t 51.4 \t 105 \t 10.02\n12:05:11 \t -0.240 \t 51.5 \t 105 \t 10.02\n12:05:44 \t -0.236 \t 51.5 \t 105 \t 10.02\n12:06:14 \t -0.240 \t 51.5 \t 105 \t 10.02\n12:06:48 \t -0.236 \t 51.6 \t 105 \t 10.02\n12:07:21 \t -0.240 \t 51.6 \t 105 \t 10.02\n12:07:55 \t -0.240 \t 51.7 \t 105 \t 10.02\n12:08:28 \t -0.240 \t 51.7 \t 106 \t 10.02\n12:09:02 \t -0.240 \t 51.7 \t 106 \t 10.02\n12:09:35 \t -0.240 \t 51.8 \t 106 \t 10.02\n12:10:08 \t -0.240 \t 51.8 \t 106 \t 10.02\n12:10:41 \t -0.240 \t 51.9 \t 106 \t 10.02\n12:11:14 \t -0.240 \t 51.9 \t 107 \t 10.02\n12:11:48 \t -0.240 \t 52.0 \t 106 \t 10.02\n12:12:21 \t -0.240 \t 52.0 \t 106 \t 10.02\n12:12:55 \t -0.240 \t 52.1 \t 106 \t 10.02\n12:13:29 \t -0.244 \t 52.1 \t 107 \t 10.02\n12:14:02 \t -0.240 \t 52.2 \t 106 \t 10.02\n12:14:35 \t -0.244 \t 52.2 \t 106 \t 10.02\n12:15:09 \t -0.240 \t 52.3 \t 106 \t 10.02\n12:15:42 \t -0.244 \t 52.3 \t 106 \t 10.02\n12:16:16 \t -0.244 \t 52.4 \t 106 \t 10.02\n12:16:49 \t -0.244 \t 52.4 \t 106 \t 10.02\n12:17:22 \t -0.244 \t 52.5 \t 106 \t 10.02\n12:17:56 \t -0.244 \t 52.6 \t 105 \t 10.02\n12:18:30 \t -0.240 \t 52.7 \t 105 \t 10.02\n12:19:03 \t -0.240 \t 52.7 \t 105 \t 10.02\n12:19:37 \t -0.240 \t 52.8 \t 105 \t 10.02\n12:20:11 \t -0.244 \t 52.9 \t 105 \t 10.02\n12:20:44 \t -0.244 \t 53.0 \t 105 \t 10.02\n12:21:17 \t -0.244 \t 53.1 \t 104 \t 10.02\n12:21:50 \t -0.244 \t 53.2 \t 104 \t 10.02\n12:22:23 \t -0.240 \t 53.2 \t 104 \t 10.02\n12:22:57 \t -0.244 \t 53.4 \t 104 \t 10.02\n12:23:31 \t -0.244 \t 53.5 \t 103 \t 10.02\n12:24:05 \t -0.244 \t 53.6 \t 103 \t 10.02\n12:24:39 \t -0.244 \t 53.7 \t 103 \t 10.02\n12:25:12 \t -0.244 \t 53.8 \t 103 \t 10.02\n12:25:45 \t -0.244 \t 53.9 \t 103 \t 10.02\n12:26:19 \t -0.244 \t 54.0 \t 102 \t 10.02\n12:26:53 \t -0.244 \t 54.1 \t 102 \t 10.02\n12:27:26 \t -0.244 \t 54.2 \t 102 \t 10.02\n12:28:00 \t -0.240 \t 54.3 \t 102 \t 10.02\n12:28:33 \t -0.244 \t 54.4 \t 101 \t 10.02\n12:29:04 \t -0.244 \t 54.5 \t 101 \t 10.02\n12:29:36 \t -0.244 \t 54.6 \t 101 \t 10.02\n12:30:09 \t -0.244 \t 54.7 \t 101 \t 10.02\n12:30:40 \t -0.244 \t 54.8 \t 100 \t 10.02\n12:31:11 \t -0.240 \t 54.8 \t 101 \t 10.02\n12:31:42 \t -0.240 \t 54.9 \t 100 \t 10.02\n12:32:15 \t -0.240 \t 55.0 \t 100 \t 10.02\n12:32:47 \t -0.244 \t 55.1 \t  99 \t 10.02\n12:33:19 \t -0.240 \t 55.2 \t  99 \t 10.02\n12:33:49 \t -0.244 \t 55.3 \t  99 \t 10.02\n12:34:21 \t -0.244 \t 55.4 \t  98 \t 10.02\n12:34:53 \t -0.244 \t 55.5 \t  98 \t 10.02\n12:35:24 \t -0.244 \t 55.5 \t  98 \t 10.02\n12:35:56 \t -0.244 \t 55.6 \t  98 \t 10.02\n12:36:28 \t -0.244 \t 55.7 \t  98 \t 10.02\n12:36:59 \t -0.244 \t 55.8 \t  98 \t 10.02\n12:37:31 \t -0.244 \t 55.9 \t  97 \t 10.02\n12:38:04 \t -0.244 \t 56.0 \t  97 \t 10.02\n12:38:36 \t -0.244 \t 56.1 \t  97 \t 10.02\n12:39:07 \t -0.244 \t 56.1 \t  97 \t 10.02\n12:39:40 \t -0.244 \t 56.2 \t  97 \t 10.02\n12:40:13 \t -0.244 \t 56.3 \t  97 \t 10.02\n12:40:45 \t -0.244 \t 56.4 \t  96 \t 10.02\n12:41:17 \t -0.244 \t 56.5 \t  96 \t 10.02\n12:41:50 \t -0.244 \t 56.5 \t  96 \t 10.02\n12:42:23 \t -0.244 \t 56.6 \t  96 \t 10.02\n12:42:55 \t -0.244 \t 56.7 \t  96 \t 10.02\n12:43:27 \t -0.244 \t 56.7 \t  96 \t 10.02\n12:44:00 \t -0.244 \t 56.8 \t  96 \t 10.02\n12:44:33 \t -0.244 \t 56.9 \t  95 \t 10.02\n12:45:06 \t -0.244 \t 56.9 \t  96 \t 10.02\n12:45:38 \t -0.244 \t 56.9 \t  96 \t 10.02\n12:46:09 \t -0.244 \t 57.0 \t  96 \t 10.02\n12:46:42 \t -0.240 \t 57.1 \t  96 \t 10.02\n12:47:15 \t -0.240 \t 57.1 \t  96 \t 10.02\n12:47:48 \t -0.244 \t 57.2 \t  96 \t 10.02\n12:48:21 \t -0.244 \t 57.2 \t  96 \t 10.02\n12:48:54 \t -0.244 \t 57.3 \t  96 \t 10.02\n12:49:27 \t -0.244 \t 57.3 \t  96 \t 10.02\n12:50:00 \t -0.244 \t 57.4 \t  96 \t 10.02\n12:50:33 \t -0.240 \t 57.5 \t  95 \t 10.02\n12:51:05 \t -0.244 \t 57.5 \t  95 \t 10.02\n12:51:39 \t -0.240 \t 57.5 \t  96 \t 10.02\n12:52:12 \t -0.244 \t 57.5 \t  96 \t 10.02\n12:52:45 \t -0.244 \t 57.6 \t  95 \t 10.02\n12:53:18 \t -0.240 \t 57.6 \t  96 \t 10.02\n12:53:51 \t -0.244 \t 57.7 \t  95 \t 10.02\n12:54:25 \t -0.244 \t 57.7 \t  95 \t 10.02\n12:54:55 \t -0.244 \t 57.8 \t  95 \t 10.02\n12:55:28 \t -0.244 \t 57.8 \t  95 \t 10.02\n12:55:58 \t -0.240 \t 57.8 \t  95 \t 10.02\n12:56:31 \t -0.240 \t 57.9 \t  95 \t 10.02\n12:57:01 \t -0.240 \t 57.9 \t  95 \t 10.02\n12:57:32 \t -0.244 \t 57.9 \t  96 \t 10.02\n12:58:05 \t -0.240 \t 57.9 \t  96 \t 10.02\n12:58:35 \t -0.244 \t 57.9 \t  96 \t 10.02\n12:59:08 \t -0.244 \t 57.9 \t  96 \t 10.02\n12:59:42 \t -0.240 \t 58.0 \t  96 \t 10.02\n13:00:12 \t -0.244 \t 58.0 \t  96 \t 10.02\n13:00:42 \t -0.240 \t 58.0 \t  96 \t 10.02\n13:01:15 \t -0.244 \t 58.0 \t  96 \t 10.02\n13:01:49 \t -0.240 \t 58.0 \t  96 \t 10.02\n13:02:19 \t -0.240 \t 58.0 \t  96 \t 10.02\n13:02:49 \t -0.240 \t 58.0 \t  96 \t 10.02\n13:03:19 \t -0.244 \t 58.1 \t  96 \t 10.02\n13:03:49 \t -0.240 \t 58.1 \t  96 \t 10.02\n13:04:19 \t -0.244 \t 58.1 \t  96 \t 10.02\n13:04:52 \t -0.240 \t 58.1 \t  96 \t 10.02\n13:05:23 \t -0.240 \t 58.1 \t  96 \t 10.02\n13:05:53 \t -0.244 \t 58.1 \t  97 \t 10.02\n13:06:23 \t -0.240 \t 58.1 \t  97 \t 10.02\n13:06:53 \t -0.240 \t 58.1 \t  97 \t 10.02\n13:07:24 \t -0.240 \t 58.1 \t  97 \t 10.02\n13:07:54 \t -0.244 \t 58.1 \t  97 \t 10.02\n13:08:24 \t -0.244 \t 58.2 \t  97 \t 10.02\n13:08:55 \t -0.240 \t 58.2 \t  97 \t 10.02\n13:09:25 \t -0.240 \t 58.1 \t  98 \t 10.02\n13:09:55 \t -0.240 \t 58.2 \t  97 \t 10.02\n13:10:26 \t -0.240 \t 58.2 \t  97 \t 10.02\n13:10:56 \t -0.240 \t 58.2 \t  97 \t 10.02\n13:11:26 \t -0.244 \t 58.2 \t  97 \t 10.02\n13:11:56 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:12:26 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:12:57 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:13:27 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:13:58 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:14:28 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:14:58 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:15:29 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:15:59 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:16:30 \t -0.244 \t 58.2 \t  98 \t 10.02\n13:17:00 \t -0.240 \t 58.2 \t  98 \t 10.02\n13:17:31 \t -0.240 \t 58.2 \t  99 \t 10.02\n13:18:01 \t -0.240 \t 58.2 \t  99 \t 10.02\n13:18:32 \t -0.240 \t 58.2 \t  99 \t 10.02\n13:19:03 \t -0.240 \t 58.2 \t  99 \t 10.02\n13:19:33 \t -0.240 \t 58.2 \t  99 \t 10.02\n13:20:04 \t -0.240 \t 58.2 \t  99 \t 10.02\n13:20:35 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:21:06 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:21:36 \t -0.244 \t 58.1 \t  99 \t 10.02\n13:22:07 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:22:37 \t -0.236 \t 58.1 \t  99 \t 10.02\n13:23:08 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:23:39 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:24:10 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:24:40 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:25:11 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:25:42 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:26:13 \t -0.240 \t 58.1 \t  99 \t 10.02\n13:26:43 \t -0.240 \t 58.1 \t 100 \t 10.02\n13:27:14 \t -0.240 \t 58.1 \t 100 \t 10.02\n13:27:45 \t -0.236 \t 58.1 \t 100 \t 10.02\n13:28:15 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:28:46 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:29:17 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:29:49 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:30:19 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:30:50 \t -0.236 \t 58.0 \t 101 \t 10.02\n13:31:20 \t -0.244 \t 58.0 \t 101 \t 10.02\n13:31:50 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:32:21 \t -0.240 \t 58.0 \t 101 \t 10.02\n13:32:51 \t -0.236 \t 57.9 \t 102 \t 10.02\n13:33:22 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:33:52 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:34:23 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:34:54 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:35:24 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:35:55 \t -0.236 \t 57.9 \t 102 \t 10.02\n13:36:25 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:36:56 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:37:27 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:37:57 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:38:28 \t -0.240 \t 57.9 \t 102 \t 10.02\n13:38:58 \t -0.240 \t 57.8 \t 102 \t 10.02\n13:39:29 \t -0.240 \t 57.8 \t 102 \t 10.02\n13:40:00 \t -0.240 \t 57.8 \t 102 \t 10.02\n13:40:31 \t -0.240 \t 57.8 \t 102 \t 10.02\n13:41:02 \t -0.240 \t 57.8 \t 103 \t 10.02\n13:41:32 \t -0.240 \t 57.8 \t 103 \t 10.02\n13:42:03 \t -0.240 \t 57.8 \t 103 \t 10.02\n13:42:34 \t -0.240 \t 57.7 \t 103 \t 10.02\n13:43:05 \t -0.240 \t 57.7 \t 103 \t 10.02\n13:43:36 \t -0.240 \t 57.7 \t 103 \t 10.02\n13:44:06 \t -0.240 \t 57.7 \t 103 \t 10.02\n13:44:37 \t -0.240 \t 57.7 \t 103 \t 10.02\n13:45:08 \t -0.240 \t 57.7 \t 103 \t 10.02\n13:45:39 \t -0.240 \t 57.6 \t 104 \t 10.02\n13:46:10 \t -0.240 \t 57.6 \t 104 \t 10.02\n13:46:41 \t -0.240 \t 57.6 \t 104 \t 10.02\n13:47:08     LAVAGEM\n--------------------------------------------\n13:47:11     PULSO 1\n13:47:11     REALIZANDO VACUO\n13:47:12 \t -0.240 \t 57.6 \t 104 \t 10.02\n13:47:44 \t -0.280 \t 57.5 \t 104 \t 10.02\n13:48:16 \t -0.324 \t 57.2 \t 105 \t 10.02\n13:48:48 \t -0.364 \t 56.9 \t 106 \t 10.02\n13:49:20 \t -0.400 \t 56.6 \t 107 \t 10.02\n13:49:22     INJETANDO NITROGENIO\n13:49:52 \t -0.356 \t 56.5 \t 107 \t 10.02\n13:50:24 \t -0.316 \t 56.8 \t 106 \t 10.02\n13:50:56 \t -0.272 \t 56.9 \t 104 \t 10.02\n13:51:28 \t -0.228 \t 57.2 \t 102 \t 10.02\n13:52:00 \t -0.192 \t 57.3 \t 101 \t 10.02\n13:52:30 \t -0.148 \t 57.4 \t  99 \t 10.02\n13:53:03 \t -0.108 \t 57.5 \t  98 \t 10.02\n13:53:13     FIM DOS PULSOS\n13:53:14     AERACAO\n--------------------------------------------\n13:53:17     PULSO 1\n13:53:17     REALIZANDO VACUO\n13:53:36 \t -0.128 \t 57.6 \t  97 \t 10.02\n13:54:09 \t -0.188 \t 57.3 \t  98 \t 10.02\n13:54:42 \t -0.236 \t 57.1 \t  98 \t 10.02\n13:55:14 \t -0.280 \t 57.1 \t  98 \t 10.02\n13:55:46 \t -0.328 \t 57.1 \t  98 \t 10.02\n13:56:19 \t -0.368 \t 57.0 \t  99 \t 10.02\n13:56:52 \t -0.404 \t 56.8 \t  99 \t 10.02\n13:57:27 \t -0.444 \t 56.5 \t 101 \t 10.02\n13:57:59 \t -0.480 \t 56.2 \t 102 \t 10.02\n13:58:26     INJETANDO AR\n13:58:31 \t -0.492 \t 55.9 \t 103 \t 10.02\n13:59:03 \t -0.472 \t 55.4 \t 105 \t 10.02\n13:59:36 \t -0.448 \t 55.2 \t 105 \t 10.02\n14:00:08 \t -0.424 \t 55.1 \t 105 \t 10.02\n14:00:41 \t -0.400 \t 55.0 \t 105 \t 10.02\n14:01:13 \t -0.380 \t 55.0 \t 105 \t 10.02\n14:01:46 \t -0.356 \t 54.9 \t 106 \t 10.02\n14:02:18 \t -0.336 \t 54.9 \t 106 \t 10.02\n14:02:51 \t -0.316 \t 54.9 \t 106 \t 10.02\n14:03:23 \t -0.288 \t 54.9 \t 106 \t 10.02\n14:03:56 \t -0.264 \t 54.9 \t 106 \t 10.02\n14:04:28 \t -0.244 \t 54.9 \t 107 \t 10.02\n14:05:01 \t -0.224 \t 54.9 \t 107 \t 10.02\n14:05:33 \t -0.200 \t 54.9 \t 107 \t 10.02\n14:06:06 \t -0.180 \t 54.9 \t 108 \t 10.02\n14:06:39 \t -0.156 \t 54.9 \t 108 \t 10.02\n14:07:11 \t -0.132 \t 55.0 \t 108 \t 10.02\n14:07:44 \t -0.108 \t 55.0 \t 108 \t 10.02\n14:08:17 \t -0.088 \t 55.0 \t 108 \t 10.02\n14:08:49 \t -0.068 \t 55.1 \t 108 \t 10.02\n14:09:10     PULSO 2\n14:09:14     REALIZANDO VACUO\n14:09:20 \t -0.048 \t 55.1 \t 108 \t 10.02\n14:09:52 \t -0.112 \t 55.1 \t 108 \t 10.02\n14:10:26 \t -0.172 \t 55.0 \t 107 \t 10.02\n14:10:58 \t -0.224 \t 54.8 \t 108 \t 10.02\n14:11:31 \t -0.272 \t 54.8 \t 107 \t 10.02\n14:12:03 \t -0.320 \t 54.8 \t 107 \t 10.02\n14:12:35 \t -0.360 \t 54.8 \t 107 \t 10.02\n14:13:07 \t -0.396 \t 54.8 \t 107 \t 10.02\n14:13:39 \t -0.436 \t 54.9 \t 106 \t 10.02\n14:14:11 \t -0.472 \t 54.9 \t 106 \t 10.02\n14:14:37     INJETANDO AR\n14:14:44 \t -0.496 \t 55.0 \t 105 \t 10.02\n14:15:16 \t -0.472 \t 54.7 \t 106 \t 10.02\n14:15:48 \t -0.452 \t 54.6 \t 106 \t 10.02\n14:16:21 \t -0.428 \t 54.5 \t 106 \t 10.02\n14:16:53 \t -0.404 \t 54.5 \t 106 \t 10.02\n14:17:26 \t -0.384 \t 54.5 \t 106 \t 10.02\n14:17:58 \t -0.360 \t 54.5 \t 106 \t 10.02\n14:18:30 \t -0.340 \t 54.6 \t 106 \t 10.02\n14:19:02 \t -0.320 \t 54.6 \t 106 \t 10.02\n14:19:35 \t -0.292 \t 54.6 \t 106 \t 10.02\n14:20:07 \t -0.268 \t 54.7 \t 106 \t 10.02\n14:20:40 \t -0.248 \t 54.7 \t 106 \t 10.02\n14:21:12 \t -0.228 \t 54.7 \t 107 \t 10.02\n14:21:44 \t -0.204 \t 54.8 \t 106 \t 10.02\n14:22:17 \t -0.184 \t 54.8 \t 107 \t 10.02\n14:22:50 \t -0.156 \t 54.9 \t 106 \t 10.02\n14:23:22 \t -0.136 \t 55.0 \t 106 \t 10.02\n14:23:54 \t -0.116 \t 55.0 \t 106 \t 10.02\n14:24:27 \t -0.096 \t 55.1 \t 106 \t 10.02\n14:24:59 \t -0.072 \t 55.1 \t 106 \t 10.02\n14:25:29     PULSO 3\n14:25:29     REALIZANDO VACUO\n14:25:31 \t -0.048 \t 55.2 \t 106 \t 10.02\n14:26:04 \t -0.104 \t 55.1 \t 106 \t 10.02\n14:26:36 \t -0.164 \t 55.0 \t 106 \t 10.02\n14:27:09 \t -0.216 \t 54.7 \t 107 \t 10.02\n14:27:41 \t -0.264 \t 54.6 \t 107 \t 10.02\n14:28:14 \t -0.316 \t 54.5 \t 107 \t 10.02\n14:28:47 \t -0.356 \t 54.4 \t 108 \t 10.02\n14:29:19 \t -0.396 \t 54.4 \t 107 \t 10.02\n14:29:52 \t -0.436 \t 54.4 \t 107 \t 10.02\n14:30:24 \t -0.476 \t 54.5 \t 106 \t 10.02\n14:30:50     INJETANDO AR\n14:30:57 \t -0.500 \t 54.5 \t 106 \t 10.02\n14:31:30 \t -0.472 \t 54.5 \t 106 \t 10.02\n14:32:02 \t -0.452 \t 54.4 \t 106 \t 10.02\n14:32:35 \t -0.428 \t 54.5 \t 105 \t 10.02\n14:33:08 \t -0.404 \t 54.5 \t 105 \t 10.02\n14:33:40 \t -0.380 \t 54.6 \t 105 \t 10.02\n14:34:13 \t -0.360 \t 54.7 \t 105 \t 10.02\n14:34:46 \t -0.340 \t 54.7 \t 105 \t 10.02\n14:35:18 \t -0.316 \t 54.8 \t 105 \t 10.02\n14:35:51 \t -0.288 \t 54.8 \t 105 \t 10.02\n14:36:26 \t -0.264 \t 54.9 \t 105 \t 10.02\n14:36:58 \t -0.248 \t 55.0 \t 105 \t 10.02\n14:37:31 \t -0.224 \t 55.1 \t 105 \t 10.02\n14:38:04 \t -0.204 \t 55.1 \t 105 \t 10.02\n14:38:36 \t -0.176 \t 55.2 \t 105 \t 10.02\n14:39:09 \t -0.156 \t 55.3 \t 105 \t 10.02\n14:39:42 \t -0.132 \t 55.3 \t 105 \t 10.02\n14:40:14 \t -0.112 \t 55.4 \t 105 \t 10.02\n14:40:47 \t -0.088 \t 55.4 \t 105 \t 10.02\n14:41:20 \t -0.068 \t 55.5 \t 105 \t 10.02\n14:41:42     PULSO 4\n14:41:42     REALIZANDO VACUO\n14:41:53 \t -0.056 \t 55.5 \t 105 \t 10.02\n14:42:26 \t -0.116 \t 55.5 \t 104 \t 10.02\n14:42:59 \t -0.180 \t 55.2 \t 105 \t 10.02\n14:43:32 \t -0.232 \t 55.0 \t 106 \t 10.02\n14:44:05 \t -0.280 \t 54.8 \t 106 \t 10.02\n14:44:38 \t -0.332 \t 54.7 \t 107 \t 10.02\n14:45:11 \t -0.372 \t 54.7 \t 107 \t 10.02\n14:45:44 \t -0.412 \t 54.6 \t 107 \t 10.02\n14:46:17 \t -0.452 \t 54.6 \t 107 \t 10.02\n14:46:49 \t -0.484 \t 54.6 \t 106 \t 10.02\n14:47:02     INJETANDO AR\n14:47:22 \t -0.488 \t 54.6 \t 106 \t 10.02\n14:47:56 \t -0.468 \t 54.6 \t 106 \t 10.02\n14:48:29 \t -0.440 \t 54.7 \t 105 \t 10.02\n14:49:02 \t -0.416 \t 54.8 \t 104 \t 10.02\n14:49:35 \t -0.392 \t 54.9 \t 104 \t 10.02\n14:50:08 \t -0.372 \t 55.0 \t 104 \t 10.02\n14:50:41 \t -0.352 \t 55.1 \t 103 \t 10.02\n14:51:15 \t -0.328 \t 55.2 \t 103 \t 10.02\n14:51:48 \t -0.308 \t 55.3 \t 103 \t 10.02\n14:52:22 \t -0.280 \t 55.3 \t 104 \t 10.02\n14:52:55 \t -0.256 \t 55.4 \t 103 \t 10.02\n14:53:28 \t -0.232 \t 55.4 \t 104 \t 10.02\n14:54:02 \t -0.212 \t 55.5 \t 104 \t 10.02\n14:54:35 \t -0.188 \t 55.6 \t 103 \t 10.02\n14:55:08 \t -0.168 \t 55.6 \t 104 \t 10.02\n14:55:42 \t -0.140 \t 55.7 \t 104 \t 10.02\n14:56:15 \t -0.120 \t 55.8 \t 104 \t 10.02\n14:56:49 \t -0.096 \t 55.8 \t 104 \t 10.02\n14:57:22 \t -0.072 \t 55.9 \t 104 \t 10.02\n14:57:53     PULSO 5\n14:57:54     REALIZANDO VACUO\n14:57:56 \t -0.052 \t 55.9 \t 104 \t 10.02\n14:58:29 \t -0.104 \t 55.9 \t 104 \t 10.02\n14:59:02 \t -0.164 \t 55.6 \t 104 \t 10.02\n14:59:36 \t -0.220 \t 55.4 \t 105 \t 10.02\n15:00:09 \t -0.272 \t 55.2 \t 106 \t 10.02\n15:00:43 \t -0.324 \t 55.2 \t 105 \t 10.02\n15:01:17 \t -0.368 \t 55.1 \t 105 \t 10.02\n15:01:51 \t -0.408 \t 55.0 \t 106 \t 10.02\n15:02:25 \t -0.452 \t 55.0 \t 105 \t 10.02\n15:02:58 \t -0.484 \t 55.0 \t 105 \t 10.02\n15:03:11     INJETANDO AR\n15:03:32 \t -0.484 \t 55.0 \t 105 \t 10.02\n15:04:05 \t -0.464 \t 55.1 \t 104 \t 10.02\n15:04:39 \t -0.440 \t 55.1 \t 104 \t 10.02\n15:05:12 \t -0.412 \t 55.2 \t 103 \t 10.02\n15:05:46 \t -0.392 \t 55.3 \t 103 \t 10.02\n15:06:20 \t -0.368 \t 55.3 \t 103 \t 10.02\n15:06:54 \t -0.344 \t 55.4 \t 103 \t 10.02\n15:07:28 \t -0.324 \t 55.4 \t 103 \t 10.02\n15:08:01 \t -0.300 \t 55.5 \t 103 \t 10.02\n15:08:32 \t -0.276 \t 55.5 \t 103 \t 10.02\n15:09:06 \t -0.252 \t 55.5 \t 104 \t 10.02\n15:09:39 \t -0.228 \t 55.6 \t 103 \t 10.02\n15:10:12 \t -0.208 \t 55.6 \t 104 \t 10.02\n15:10:46 \t -0.184 \t 55.7 \t 104 \t 10.02\n15:11:20 \t -0.160 \t 55.8 \t 103 \t 10.02\n15:11:54 \t -0.136 \t 55.8 \t 104 \t 10.02\n15:12:27 \t -0.112 \t 55.8 \t 104 \t 10.02\n15:13:01 \t -0.092 \t 55.8 \t 104 \t 10.02\n15:13:35 \t -0.068 \t 55.9 \t 104 \t 10.02\n15:14:02     PULSO 6\n15:14:02     REALIZANDO VACUO\n15:14:09 \t -0.052 \t 55.9 \t 105 \t 10.02\n15:14:43 \t -0.116 \t 55.8 \t 104 \t 10.02\n15:15:18 \t -0.184 \t 55.5 \t 105 \t 10.02\n15:15:51 \t -0.236 \t 55.2 \t 106 \t 10.02\n15:16:25 \t -0.288 \t 55.1 \t 106 \t 10.02\n15:16:59 \t -0.336 \t 55.0 \t 106 \t 10.02\n15:17:32 \t -0.380 \t 54.9 \t 107 \t 10.02\n15:18:06 \t -0.420 \t 54.9 \t 106 \t 10.02\n15:18:40 \t -0.464 \t 54.9 \t 106 \t 10.02\n15:19:14 \t -0.496 \t 54.9 \t 105 \t 10.02\n15:19:17     INJETANDO AR\n15:19:47 \t -0.480 \t 54.9 \t 105 \t 10.02\n15:20:21 \t -0.452 \t 55.0 \t 104 \t 10.02\n15:20:55 \t -0.432 \t 55.1 \t 104 \t 10.02\n15:21:29 \t -0.408 \t 55.1 \t 104 \t 10.02\n15:22:03 \t -0.384 \t 55.2 \t 103 \t 10.02\n15:22:37 \t -0.360 \t 55.3 \t 103 \t 10.02\n15:23:12 \t -0.336 \t 55.4 \t 103 \t 10.02\n15:23:46 \t -0.312 \t 55.4 \t 103 \t 10.02\n15:24:20 \t -0.288 \t 55.5 \t 103 \t 10.02\n15:24:54 \t -0.264 \t 55.5 \t 103 \t 10.02\n15:25:28 \t -0.244 \t 55.6 \t 103 \t 10.02\n15:26:03 \t -0.220 \t 55.6 \t 104 \t 10.02\n15:26:37 \t -0.196 \t 55.6 \t 104 \t 10.02\n15:27:11 \t -0.172 \t 55.7 \t 104 \t 10.02\n15:27:46 \t -0.144 \t 55.7 \t 104 \t 10.02\n15:28:20 \t -0.120 \t 55.8 \t 104 \t 10.02\n15:28:54 \t -0.100 \t 55.8 \t 104 \t 10.02\n15:29:28 \t -0.076 \t 55.8 \t 105 \t 10.02\n15:30:03 \t -0.056 \t 55.9 \t 104 \t 10.02\n15:30:06     PULSO 7\n15:30:06     REALIZANDO VACUO\n15:30:37 \t -0.100 \t 55.9 \t 104 \t 10.02\n15:31:12 \t -0.168 \t 55.5 \t 105 \t 10.02\n15:31:43 \t -0.220 \t 55.3 \t 106 \t 10.02\n15:32:18 \t -0.272 \t 55.1 \t 106 \t 10.02\n15:32:53 \t -0.324 \t 55.0 \t 106 \t 10.02\n15:33:27 \t -0.372 \t 54.9 \t 106 \t 10.02\n15:34:01 \t -0.412 \t 54.8 \t 106 \t 10.02\n15:34:36 \t -0.456 \t 54.8 \t 106 \t 10.02\n15:35:11 \t -0.496 \t 54.8 \t 105 \t 10.02\n15:35:19     INJETANDO AR\n15:35:45 \t -0.480 \t 54.7 \t 106 \t 10.02\n15:36:19 \t -0.456 \t 54.9 \t 105 \t 10.02\n15:36:54 \t -0.432 \t 55.0 \t 104 \t 10.02\n15:37:29 \t -0.400 \t 55.1 \t 104 \t 10.02\n15:38:03 \t -0.380 \t 55.2 \t 103 \t 10.02\n15:38:38 \t -0.356 \t 55.3 \t 103 \t 10.02\n15:39:12 \t -0.332 \t 55.3 \t 103 \t 10.02\n15:39:47 \t -0.308 \t 55.4 \t 103 \t 10.02\n15:40:22 \t -0.280 \t 55.4 \t 103 \t 10.02\n15:40:52 \t -0.264 \t 55.5 \t 103 \t 10.02\n15:41:22 \t -0.240 \t 55.5 \t 104 \t 10.02\n15:41:57 \t -0.216 \t 55.5 \t 104 \t 10.02\n15:42:27 \t -0.196 \t 55.6 \t 104 \t 10.02\n15:43:02 \t -0.172 \t 55.7 \t 103 \t 10.02\n15:43:36 \t -0.144 \t 55.7 \t 104 \t 10.02\n15:44:06 \t -0.120 \t 55.7 \t 104 \t 10.02\n15:44:41 \t -0.100 \t 55.8 \t 104 \t 10.02\n15:45:16 \t -0.072 \t 55.8 \t 105 \t 10.02\n15:45:46 \t -0.056 \t 55.8 \t 105 \t 10.02\n15:45:49     FIM DOS PULSOS\n15:45:51     CICLO FINALIZADO\n--------------------------------------------\n15:46:19 \t -0.052 \t 55.9 \t 104 \t 10.02\n15:46:51 \t -0.048 \t 55.9 \t 104 \t 10.02\n15:47:24 \t -0.048 \t 56.0 \t 103 \t 10.02\n15:47:57 \t -0.048 \t 56.1 \t 102 \t 10.02\n15:48:30 \t -0.048 \t 56.2 \t 102 \t 10.02\n15:49:02 \t -0.048 \t 56.3 \t 101 \t 10.02\n15:49:35 \t -0.048 \t 56.4 \t 101 \t 10.02\n15:50:08 \t -0.052 \t 56.5 \t 101 \t 10.02\n15:50:38 \t -0.048 \t 56.5 \t 101 \t 10.02\n15:51:09 \t -0.048 \t 56.6 \t 100 \t 10.02\n15:51:39 \t -0.048 \t 56.7 \t  99 \t 10.02\n15:52:09 \t -0.048 \t 56.7 \t 100 \t 10.02\n15:52:40 \t -0.048 \t 56.8 \t  99 \t 10.02\n15:53:10 \t -0.048 \t 56.8 \t 100 \t 10.02\n",
+      "cycle_txt_filename": "202170426_20260417_111840.txt",
+      "cycle_type_id": [
+        1,
+        "AFR_14"
+      ],
+      "display_name": "202170426_20260417_111840",
+      "duration": 4.45,
+      "duration_planned": 270,
+      "end_date": "2026-04-17 18:45:51",
+      "equipment_category_id": [
+        1,
+        "AUTOCLAVE ETO"
+      ],
+      "equipment_id": [
+        1,
+        "AUTOCLAVE ETO 16K CE16000 MIRAX"
+      ],
+      "equipment_nickname": "C1",
+      "file_path": "/var/lib/odoo/filestore/mb-odoo/ciclos/C1/20260417/202170426_20260417_111840.txt",
+      "fotos_ids": [],
+      "has_message": true,
+      "ib_data_fim": false,
+      "ib_data_inicio": false,
+      "ib_lote": false,
+      "ib_marca": false,
+      "ib_modelo": false
+    },
+    {
+      "id": 186,
+      "__last_update": "2026-04-18 09:28:12",
+      "activity_date_deadline": false,
+      "activity_exception_decoration": false,
+      "activity_exception_icon": false,
+      "activity_ids": [],
+      "activity_state": false,
+      "activity_summary": false,
+      "activity_type_icon": false,
+      "activity_type_id": false,
+      "activity_user_id": false,
+      "batch_number": "102170426",
+      "company_id": [
+        1,
+        "MB Indústria Cirúrgica"
+      ],
+      "concentracao_eto_camara": 563.0625,
+      "concentracao_eto_porcentagem": 90,
+      "create_date": "2026-04-17 09:22:04",
+      "create_uid": [
+        2,
+        "Administrator"
+      ],
+      "cycle_features_id": [
+        1,
+        "CICLO 01"
+      ],
+      "cycle_file_mtime": "2026-04-17 13:42:00",
+      "cycle_graph_filename": "cycle_graph.png",
+      "cycle_pdf_filename": "102170426_20260417_061411.pdf",
+      "cycle_statistics_data": false,
+      "cycle_statistics_txt": "### Estatísticas do Ciclo 102170426_20260417_061411\n## LEAK-TEST - 13 min 40 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.4      -0.04      -0.35       -0.4\nTCI(Celsius)       53.6       55.0      54.34       54.6\nUR(%)             102.0      113.0     106.92      103.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## ACONDICIONAMENTO - 03 min 52 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.48      -0.34      -0.43      -0.48\nTCI(Celsius)       54.9       55.2       55.0       54.9\nUR(%)              99.0      102.0     101.29      102.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## PRE-VACUO - 02 min 44 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.49       -0.3       -0.4       -0.3\nTCI(Celsius)       54.8       55.3      55.08       55.3\nUR(%)              98.0      100.0      98.83       98.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## ESTERILIZACAO - 00 min 57 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.52      -0.52      -0.52      -0.52\nTCI(Celsius)       54.8       54.8       54.8       54.8\nUR(%)              99.0       99.0       99.0       99.0\nETO(Kg)             0.0        0.0        0.0        0.0\n\n## INJETANDO ETO - 08 min 27 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.54      -0.23      -0.42      -0.53\nTCI(Celsius)       54.7       55.4      55.01       54.8\nUR(%)              98.0      102.0      99.56       99.0\nETO(Kg)             0.0       9.33       3.44        0.0\n\n## ESTERILIZANDO - 120 min 00 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.25      -0.21      -0.24      -0.25\nTCI(Celsius)       53.7       56.4      54.94       54.3\nUR(%)             101.0      109.0     105.47      108.0\nETO(Kg)           10.01      10.01      10.01      10.01\n\n## LAVAGEM - 06 min 18 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)          -0.39       -0.1      -0.26      -0.28\nTCI(Celsius)       52.9       53.7      53.17       53.2\nUR(%)             101.0      111.0     107.33      111.0\nETO(Kg)           10.01      10.01      10.01      10.01\n\n## AERACAO - 111 min 59 seg\n\nGrandeza            Min        Max        Med       Moda\nPCI(Bar)           -0.5      -0.05      -0.28      -0.43\nTCI(Celsius)       47.0       53.3      49.41       49.2\nUR(%)              93.0      111.0     100.22       98.0\nETO(Kg)           10.01      10.01      10.01      10.01\n",
+      "cycle_txt": "VERSAO IHM->AFR-ETO 1.4 PLC->AFR-ETO 1.4\n--------------------------------------------\n--------------------------------------------\nMB INDUSTRIA \nESTERILIZACAO A OXIDO DE ETILENO\nData: \t 17-4-2026\nHora: \t 06:14:11\nEquipamento: \t C1\nOperador: \t\t ROB\nCod. ciclo: \t\t 102170426\nCiclo Selecionado: \t CICLO 01\nPulsos Acond.: \t 1\nTempo Vapor (s): \t 0\nTempo Esteril. (min): \t 120.0\nP. Esteril. Admissao (bar): \t -0.550\nPulsos Lavagem: \t 1\nPulsos Aeração: \t 7\nMassa ETO: \t 10.0\n--------------------------------------------\nDADOS DO CICLO\n--------------------------------------------\n\n\nHora \t PCI(Bar) \t TCI(Celsius) \t UR(%) \t ETO(Kg)\n06:14:15     LEAK-TEST\n--------------------------------------------\n06:14:15 \t -0.040 \t 54.7 \t 110 \t 0.00\n06:14:17     REALIZANDO VACUO\n06:14:47 \t -0.100 \t 54.6 \t 110 \t 0.00\n06:15:18 \t -0.160 \t 54.4 \t 111 \t 0.00\n06:15:51 \t -0.216 \t 54.2 \t 111 \t 0.00\n06:16:23 \t -0.264 \t 54.0 \t 112 \t 0.00\n06:16:55 \t -0.316 \t 53.8 \t 113 \t 0.00\n06:17:27 \t -0.360 \t 53.7 \t 112 \t 0.00\n06:17:57     ESPERANDO ESTABILIZACAO\n06:17:59 \t -0.400 \t 53.6 \t 112 \t 0.00\n06:18:30 \t -0.400 \t 53.6 \t 111 \t 0.00\n06:19:03 \t -0.400 \t 53.7 \t 110 \t 0.00\n06:19:35 \t -0.396 \t 53.9 \t 109 \t 0.00\n06:20:07 \t -0.400 \t 54.0 \t 107 \t 0.00\n06:20:39 \t -0.396 \t 54.1 \t 106 \t 0.00\n06:21:10 \t -0.396 \t 54.2 \t 106 \t 0.00\n06:21:43 \t -0.396 \t 54.3 \t 105 \t 0.00\n06:22:15 \t -0.396 \t 54.4 \t 105 \t 0.00\n06:22:47 \t -0.392 \t 54.5 \t 104 \t 0.00\n06:22:57     TESTE INICIADO\n06:23:18 \t -0.396 \t 54.6 \t 104 \t 0.00\n06:23:50 \t -0.396 \t 54.6 \t 104 \t 0.00\n06:24:22 \t -0.396 \t 54.7 \t 103 \t 0.00\n06:24:55 \t -0.396 \t 54.8 \t 103 \t 0.00\n06:25:27 \t -0.396 \t 54.8 \t 103 \t 0.00\n06:25:59 \t -0.396 \t 54.8 \t 103 \t 0.00\n06:26:31 \t -0.396 \t 54.9 \t 102 \t 0.00\n06:27:03 \t -0.400 \t 54.9 \t 102 \t 0.00\n06:27:35 \t -0.396 \t 55.0 \t 102 \t 0.00\n06:27:55     ACONDICIONAMENTO\n--------------------------------------------\n06:27:57     PULSO 1\n06:27:57     REALIZANDO VACUO\n06:28:06 \t -0.400 \t 55.0 \t 102 \t 0.00\n06:28:38 \t -0.444 \t 55.0 \t 102 \t 0.00\n06:29:11 \t -0.480 \t 54.9 \t 102 \t 0.00\n06:29:29     INJETANDO NITROGENIO\n06:29:43 \t -0.480 \t 54.9 \t 102 \t 0.00\n06:30:14 \t -0.436 \t 54.9 \t 102 \t 0.00\n06:30:45 \t -0.392 \t 55.1 \t 100 \t 0.00\n06:31:18 \t -0.344 \t 55.2 \t  99 \t 0.00\n06:31:45     FIM DOS PULSOS\n06:31:47     PRE-VACUO\n--------------------------------------------\n06:31:49     REALIZANDO VACUO\n06:31:51 \t -0.296 \t 55.3 \t  98 \t 0.00\n06:32:23 \t -0.336 \t 55.3 \t  98 \t 0.00\n06:32:53 \t -0.380 \t 55.2 \t  98 \t 0.00\n06:33:24 \t -0.420 \t 55.0 \t  99 \t 0.00\n06:33:56 \t -0.460 \t 54.9 \t 100 \t 0.00\n06:34:27 \t -0.492 \t 54.8 \t 100 \t 0.00\n06:34:31     ESTERILIZACAO\n--------------------------------------------\n06:34:33     AGUARDANDO BALANCA\n06:35:00 \t -0.516 \t 54.8 \t  99 \t 0.00\n06:35:28     INJETANDO ETO\n06:35:34 \t -0.540 \t 54.8 \t  99 \t 0.00\n06:36:07 \t -0.528 \t 54.7 \t  99 \t 0.00\n06:36:41 \t -0.532 \t 54.8 \t  98 \t 0.00\n06:37:14 \t -0.532 \t 54.8 \t  98 \t 0.00\n06:37:44 \t -0.532 \t 54.8 \t  99 \t 0.00\n06:38:15 \t -0.512 \t 54.8 \t  98 \t 0.77\n06:38:46 \t -0.484 \t 54.9 \t  98 \t 1.62\n06:39:17 \t -0.456 \t 54.9 \t  99 \t 2.48\n06:39:47 \t -0.424 \t 55.0 \t  99 \t 3.30\n06:40:18 \t -0.396 \t 55.1 \t  99 \t 4.15\n06:40:49 \t -0.368 \t 55.1 \t 100 \t 4.97\n06:41:19 \t -0.344 \t 55.2 \t 101 \t 5.78\n06:41:53 \t -0.316 \t 55.2 \t 101 \t 6.69\n06:42:25 \t -0.284 \t 55.3 \t 101 \t 7.54\n06:42:58 \t -0.256 \t 55.4 \t 102 \t 8.45\n06:43:31 \t -0.232 \t 55.4 \t 102 \t 9.33\n06:43:55     ESTERILIZANDO\n06:44:05 \t -0.208 \t 55.5 \t 102 \t 10.01\n06:44:38 \t -0.208 \t 55.5 \t 103 \t 10.01\n06:45:10 \t -0.212 \t 55.4 \t 103 \t 10.01\n06:45:42 \t -0.216 \t 55.5 \t 103 \t 10.01\n06:46:14 \t -0.216 \t 55.5 \t 103 \t 10.01\n06:46:46 \t -0.216 \t 55.6 \t 103 \t 10.01\n06:47:19 \t -0.220 \t 55.6 \t 103 \t 10.01\n06:47:52 \t -0.220 \t 55.7 \t 102 \t 10.01\n06:48:25 \t -0.224 \t 55.8 \t 102 \t 10.01\n06:48:58 \t -0.220 \t 55.8 \t 102 \t 10.01\n06:49:31 \t -0.220 \t 55.8 \t 102 \t 10.01\n06:50:04 \t -0.224 \t 55.8 \t 102 \t 10.01\n06:50:35 \t -0.224 \t 55.9 \t 102 \t 10.01\n06:51:09 \t -0.224 \t 55.9 \t 102 \t 10.01\n06:51:43 \t -0.224 \t 56.0 \t 101 \t 10.01\n06:52:15 \t -0.228 \t 56.0 \t 101 \t 10.01\n06:52:48 \t -0.228 \t 56.0 \t 101 \t 10.01\n06:53:20 \t -0.228 \t 56.0 \t 101 \t 10.01\n06:53:52 \t -0.228 \t 56.0 \t 102 \t 10.01\n06:54:24 \t -0.232 \t 56.0 \t 102 \t 10.01\n06:54:57 \t -0.228 \t 56.0 \t 102 \t 10.01\n06:55:30 \t -0.232 \t 56.1 \t 101 \t 10.01\n06:56:03 \t -0.232 \t 56.1 \t 101 \t 10.01\n06:56:36 \t -0.232 \t 56.1 \t 101 \t 10.01\n06:57:08 \t -0.232 \t 56.1 \t 101 \t 10.01\n06:57:40 \t -0.232 \t 56.2 \t 101 \t 10.01\n06:58:13 \t -0.232 \t 56.2 \t 101 \t 10.01\n06:58:45 \t -0.236 \t 56.2 \t 101 \t 10.01\n06:59:17 \t -0.236 \t 56.2 \t 101 \t 10.01\n06:59:48 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:00:21 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:00:51 \t -0.232 \t 56.3 \t 101 \t 10.01\n07:01:23 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:01:54 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:02:26 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:02:57 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:03:29 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:04:01 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:04:32 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:05:03 \t -0.240 \t 56.3 \t 101 \t 10.01\n07:05:34 \t -0.236 \t 56.4 \t 101 \t 10.01\n07:06:04 \t -0.236 \t 56.4 \t 101 \t 10.01\n07:06:37 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:07:07 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:07:38 \t -0.240 \t 56.3 \t 101 \t 10.01\n07:08:11 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:08:43 \t -0.240 \t 56.2 \t 101 \t 10.01\n07:09:14 \t -0.236 \t 56.3 \t 101 \t 10.01\n07:09:47 \t -0.240 \t 56.2 \t 101 \t 10.01\n07:10:18 \t -0.236 \t 56.2 \t 101 \t 10.01\n07:10:51 \t -0.240 \t 56.2 \t 101 \t 10.01\n07:11:22 \t -0.240 \t 56.2 \t 101 \t 10.01\n07:11:54 \t -0.240 \t 56.2 \t 101 \t 10.01\n07:12:27 \t -0.240 \t 56.1 \t 102 \t 10.01\n07:12:58 \t -0.240 \t 56.1 \t 102 \t 10.01\n07:13:30 \t -0.240 \t 56.1 \t 102 \t 10.01\n07:14:01 \t -0.240 \t 56.0 \t 102 \t 10.01\n07:14:33 \t -0.240 \t 56.0 \t 102 \t 10.01\n07:15:05 \t -0.244 \t 55.9 \t 103 \t 10.01\n07:15:37 \t -0.240 \t 55.9 \t 103 \t 10.01\n07:16:09 \t -0.240 \t 55.9 \t 103 \t 10.01\n07:16:41 \t -0.240 \t 55.9 \t 103 \t 10.01\n07:17:13 \t -0.244 \t 55.8 \t 103 \t 10.01\n07:17:44 \t -0.240 \t 55.8 \t 103 \t 10.01\n07:18:16 \t -0.240 \t 55.8 \t 103 \t 10.01\n07:18:48 \t -0.240 \t 55.7 \t 104 \t 10.01\n07:19:20 \t -0.244 \t 55.7 \t 104 \t 10.01\n07:19:52 \t -0.240 \t 55.7 \t 104 \t 10.01\n07:20:24 \t -0.244 \t 55.6 \t 104 \t 10.01\n07:20:55 \t -0.240 \t 55.6 \t 104 \t 10.01\n07:21:27 \t -0.244 \t 55.6 \t 104 \t 10.01\n07:21:59 \t -0.244 \t 55.6 \t 104 \t 10.01\n07:22:32 \t -0.244 \t 55.6 \t 104 \t 10.01\n07:23:04 \t -0.240 \t 55.5 \t 105 \t 10.01\n07:23:37 \t -0.244 \t 55.5 \t 104 \t 10.01\n07:24:09 \t -0.244 \t 55.5 \t 104 \t 10.01\n07:24:41 \t -0.244 \t 55.5 \t 104 \t 10.01\n07:25:13 \t -0.244 \t 55.4 \t 105 \t 10.01\n07:25:45 \t -0.244 \t 55.4 \t 105 \t 10.01\n07:26:17 \t -0.244 \t 55.4 \t 105 \t 10.01\n07:26:49 \t -0.244 \t 55.4 \t 105 \t 10.01\n07:27:22 \t -0.244 \t 55.3 \t 105 \t 10.01\n07:27:54 \t -0.244 \t 55.3 \t 105 \t 10.01\n07:28:27 \t -0.244 \t 55.3 \t 105 \t 10.01\n07:29:00 \t -0.244 \t 55.2 \t 106 \t 10.01\n07:29:33 \t -0.244 \t 55.2 \t 106 \t 10.01\n07:30:07 \t -0.244 \t 55.2 \t 106 \t 10.01\n07:30:41 \t -0.244 \t 55.2 \t 106 \t 10.01\n07:31:12 \t -0.244 \t 55.2 \t 106 \t 10.01\n07:31:45 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:32:15 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:32:50 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:33:20 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:33:50 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:34:20 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:34:50 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:35:24 \t -0.244 \t 55.1 \t 106 \t 10.01\n07:35:58 \t -0.244 \t 55.0 \t 106 \t 10.01\n07:36:32 \t -0.244 \t 55.0 \t 106 \t 10.01\n07:37:03 \t -0.248 \t 55.0 \t 106 \t 10.01\n07:37:37 \t -0.248 \t 54.9 \t 106 \t 10.01\n07:38:07 \t -0.244 \t 54.9 \t 106 \t 10.01\n07:38:41 \t -0.244 \t 54.9 \t 106 \t 10.01\n07:39:11 \t -0.248 \t 54.9 \t 106 \t 10.01\n07:39:45 \t -0.244 \t 54.9 \t 106 \t 10.01\n07:40:19 \t -0.244 \t 54.8 \t 107 \t 10.01\n07:40:53 \t -0.244 \t 54.8 \t 107 \t 10.01\n07:41:27 \t -0.248 \t 54.8 \t 107 \t 10.01\n07:41:57 \t -0.248 \t 54.8 \t 106 \t 10.01\n07:42:27 \t -0.248 \t 54.8 \t 106 \t 10.01\n07:42:57 \t -0.244 \t 54.8 \t 106 \t 10.01\n07:43:31 \t -0.244 \t 54.8 \t 106 \t 10.01\n07:44:02 \t -0.244 \t 54.7 \t 107 \t 10.01\n07:44:32 \t -0.248 \t 54.7 \t 107 \t 10.01\n07:45:02 \t -0.248 \t 54.7 \t 107 \t 10.01\n07:45:33 \t -0.248 \t 54.7 \t 107 \t 10.01\n07:46:03 \t -0.248 \t 54.7 \t 107 \t 10.01\n07:46:33 \t -0.244 \t 54.7 \t 107 \t 10.01\n07:47:07 \t -0.248 \t 54.7 \t 107 \t 10.01\n07:47:41 \t -0.248 \t 54.6 \t 107 \t 10.01\n07:48:15 \t -0.248 \t 54.6 \t 107 \t 10.01\n07:48:45 \t -0.244 \t 54.6 \t 107 \t 10.01\n07:49:15 \t -0.248 \t 54.6 \t 107 \t 10.01\n07:49:49 \t -0.244 \t 54.6 \t 107 \t 10.01\n07:50:20 \t -0.248 \t 54.6 \t 107 \t 10.01\n07:50:54 \t -0.248 \t 54.6 \t 107 \t 10.01\n07:51:24 \t -0.248 \t 54.5 \t 108 \t 10.01\n07:51:55 \t -0.248 \t 54.5 \t 108 \t 10.01\n07:52:25 \t -0.248 \t 54.5 \t 108 \t 10.01\n07:52:55 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:53:26 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:53:56 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:54:30 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:55:00 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:55:31 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:56:01 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:56:31 \t -0.248 \t 54.5 \t 107 \t 10.01\n07:57:01 \t -0.248 \t 54.4 \t 108 \t 10.01\n07:57:32 \t -0.248 \t 54.4 \t 107 \t 10.01\n07:58:03 \t -0.248 \t 54.4 \t 107 \t 10.01\n07:58:33 \t -0.244 \t 54.4 \t 107 \t 10.01\n07:59:03 \t -0.248 \t 54.4 \t 107 \t 10.01\n07:59:34 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:00:04 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:00:34 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:01:04 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:01:35 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:02:05 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:02:39 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:03:09 \t -0.252 \t 54.4 \t 107 \t 10.01\n08:03:40 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:04:11 \t -0.248 \t 54.4 \t 107 \t 10.01\n08:04:41 \t -0.252 \t 54.3 \t 107 \t 10.01\n08:05:12 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:05:42 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:06:12 \t -0.248 \t 54.3 \t 108 \t 10.01\n08:06:43 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:07:13 \t -0.248 \t 54.3 \t 108 \t 10.01\n08:07:44 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:08:15 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:08:45 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:09:16 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:09:46 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:10:17 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:10:48 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:11:18 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:11:49 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:12:20 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:12:50 \t -0.248 \t 54.3 \t 107 \t 10.01\n08:13:22 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:13:52 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:14:25 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:14:56 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:15:27 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:15:58 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:16:29 \t -0.252 \t 54.2 \t 108 \t 10.01\n08:17:00 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:17:32 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:18:03 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:18:34 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:19:06 \t -0.252 \t 54.2 \t 108 \t 10.01\n08:19:37 \t -0.252 \t 54.2 \t 108 \t 10.01\n08:20:09 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:20:40 \t -0.252 \t 54.2 \t 108 \t 10.01\n08:21:12 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:21:43 \t -0.248 \t 54.2 \t 108 \t 10.01\n08:22:15 \t -0.252 \t 54.1 \t 109 \t 10.01\n08:22:46 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:23:18 \t -0.252 \t 54.1 \t 108 \t 10.01\n08:23:51 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:24:21 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:24:52 \t -0.252 \t 54.1 \t 108 \t 10.01\n08:25:22 \t -0.252 \t 54.1 \t 108 \t 10.01\n08:25:52 \t -0.252 \t 54.1 \t 108 \t 10.01\n08:26:23 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:26:53 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:27:24 \t -0.252 \t 54.1 \t 108 \t 10.01\n08:27:55 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:28:25 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:28:56 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:29:26 \t -0.248 \t 54.1 \t 108 \t 10.01\n08:29:57 \t -0.248 \t 54.0 \t 108 \t 10.01\n08:30:27 \t -0.248 \t 54.0 \t 108 \t 10.01\n08:30:58 \t -0.248 \t 54.0 \t 108 \t 10.01\n08:31:29 \t -0.248 \t 54.0 \t 108 \t 10.01\n08:31:59 \t -0.252 \t 54.0 \t 108 \t 10.01\n08:32:30 \t -0.248 \t 54.0 \t 108 \t 10.01\n08:33:00 \t -0.252 \t 54.0 \t 108 \t 10.01\n08:33:31 \t -0.252 \t 54.0 \t 108 \t 10.01\n08:34:02 \t -0.252 \t 54.0 \t 108 \t 10.01\n08:34:32 \t -0.252 \t 53.9 \t 108 \t 10.01\n08:35:03 \t -0.248 \t 53.9 \t 108 \t 10.01\n08:35:33 \t -0.248 \t 53.9 \t 108 \t 10.01\n08:36:04 \t -0.252 \t 53.9 \t 108 \t 10.01\n08:36:35 \t -0.252 \t 53.9 \t 108 \t 10.01\n08:37:06 \t -0.252 \t 53.9 \t 108 \t 10.01\n08:37:37 \t -0.248 \t 53.8 \t 108 \t 10.01\n08:38:08 \t -0.252 \t 53.8 \t 108 \t 10.01\n08:38:39 \t -0.252 \t 53.8 \t 108 \t 10.01\n08:39:10 \t -0.252 \t 53.8 \t 108 \t 10.01\n08:39:41 \t -0.252 \t 53.8 \t 108 \t 10.01\n08:40:11 \t -0.252 \t 53.8 \t 108 \t 10.01\n08:40:42 \t -0.252 \t 53.8 \t 108 \t 10.01\n08:41:14 \t -0.252 \t 53.7 \t 109 \t 10.01\n08:41:44 \t -0.252 \t 53.7 \t 109 \t 10.01\n08:42:15 \t -0.252 \t 53.7 \t 109 \t 10.01\n08:42:46 \t -0.252 \t 53.7 \t 109 \t 10.01\n08:43:17 \t -0.252 \t 53.7 \t 109 \t 10.01\n08:43:48 \t -0.248 \t 53.7 \t 108 \t 10.01\n08:43:55     LAVAGEM\n--------------------------------------------\n08:43:58     PULSO 1\n08:43:58     REALIZANDO VACUO\n08:44:20 \t -0.276 \t 53.7 \t 109 \t 10.01\n08:44:52 \t -0.320 \t 53.4 \t 110 \t 10.01\n08:45:24 \t -0.360 \t 53.2 \t 111 \t 10.01\n08:45:56 \t -0.392 \t 53.0 \t 111 \t 10.01\n08:46:02     INJETANDO NITROGENIO\n08:46:28 \t -0.364 \t 52.9 \t 111 \t 10.01\n08:47:00 \t -0.324 \t 52.9 \t 110 \t 10.01\n08:47:32 \t -0.276 \t 53.0 \t 109 \t 10.01\n08:48:04 \t -0.236 \t 53.1 \t 106 \t 10.01\n08:48:36 \t -0.200 \t 53.1 \t 105 \t 10.01\n08:49:08 \t -0.156 \t 53.2 \t 103 \t 10.01\n08:49:40 \t -0.124 \t 53.3 \t 102 \t 10.01\n08:50:12     FIM DOS PULSOS\n08:50:13     AERACAO\n--------------------------------------------\n08:50:13 \t -0.100 \t 53.3 \t 101 \t 10.01\n08:50:16     PULSO 1\n08:50:16     REALIZANDO VACUO\n08:50:45 \t -0.144 \t 53.2 \t 100 \t 10.01\n08:51:17 \t -0.200 \t 52.9 \t 101 \t 10.01\n08:51:50 \t -0.248 \t 52.6 \t 102 \t 10.01\n08:52:22 \t -0.292 \t 52.4 \t 103 \t 10.01\n08:52:54 \t -0.336 \t 52.2 \t 103 \t 10.01\n08:53:26 \t -0.372 \t 51.8 \t 105 \t 10.01\n08:53:58 \t -0.412 \t 51.5 \t 106 \t 10.01\n08:54:30 \t -0.448 \t 51.1 \t 109 \t 10.01\n08:55:02 \t -0.480 \t 50.9 \t 110 \t 10.01\n08:55:20     INJETANDO AR\n08:55:34 \t -0.492 \t 50.7 \t 111 \t 10.01\n08:56:06 \t -0.468 \t 50.8 \t 109 \t 10.01\n08:56:38 \t -0.444 \t 51.0 \t 106 \t 10.01\n08:57:12 \t -0.420 \t 51.1 \t 104 \t 10.01\n08:57:44 \t -0.396 \t 51.3 \t 102 \t 10.01\n08:58:18 \t -0.372 \t 51.3 \t 101 \t 10.01\n08:58:50 \t -0.352 \t 51.4 \t 100 \t 10.01\n08:59:21 \t -0.332 \t 51.5 \t  99 \t 10.01\n08:59:53 \t -0.308 \t 51.5 \t  99 \t 10.01\n09:00:25 \t -0.280 \t 51.5 \t  99 \t 10.01\n09:00:57 \t -0.260 \t 51.5 \t  99 \t 10.01\n09:01:29 \t -0.236 \t 51.5 \t  99 \t 10.01\n09:02:01 \t -0.216 \t 51.5 \t  99 \t 10.01\n09:02:34 \t -0.192 \t 51.5 \t  98 \t 10.01\n09:03:06 \t -0.172 \t 51.5 \t  99 \t 10.01\n09:03:38 \t -0.144 \t 51.5 \t  99 \t 10.01\n09:04:10 \t -0.124 \t 51.5 \t  99 \t 10.01\n09:04:43 \t -0.104 \t 51.5 \t  99 \t 10.01\n09:05:16 \t -0.080 \t 51.5 \t  99 \t 10.01\n09:05:48 \t -0.056 \t 51.5 \t  99 \t 10.01\n09:05:56     PULSO 2\n09:05:56     REALIZANDO VACUO\n09:06:21 \t -0.084 \t 51.4 \t  99 \t 10.01\n09:06:53 \t -0.140 \t 51.1 \t 101 \t 10.01\n09:07:26 \t -0.200 \t 50.7 \t 102 \t 10.01\n09:07:59 \t -0.248 \t 50.3 \t 104 \t 10.01\n09:08:32 \t -0.296 \t 50.1 \t 105 \t 10.01\n09:09:04 \t -0.344 \t 49.9 \t 106 \t 10.01\n09:09:37 \t -0.380 \t 49.8 \t 106 \t 10.01\n09:10:10 \t -0.420 \t 49.7 \t 106 \t 10.01\n09:10:43 \t -0.460 \t 49.6 \t 106 \t 10.01\n09:11:16 \t -0.496 \t 49.4 \t 107 \t 10.01\n09:11:23     INJETANDO AR\n09:11:48 \t -0.480 \t 49.5 \t 107 \t 10.01\n09:12:21 \t -0.456 \t 49.8 \t 104 \t 10.01\n09:12:54 \t -0.432 \t 50.0 \t 103 \t 10.01\n09:13:27 \t -0.408 \t 50.2 \t 101 \t 10.01\n09:13:57 \t -0.388 \t 50.3 \t 100 \t 10.01\n09:14:30 \t -0.364 \t 50.5 \t  98 \t 10.01\n09:15:03 \t -0.344 \t 50.6 \t  98 \t 10.01\n09:15:35 \t -0.320 \t 50.6 \t  98 \t 10.01\n09:16:08 \t -0.296 \t 50.6 \t  98 \t 10.01\n09:16:41 \t -0.272 \t 50.7 \t  97 \t 10.01\n09:17:14 \t -0.252 \t 50.7 \t  97 \t 10.01\n09:17:47 \t -0.228 \t 50.7 \t  97 \t 10.01\n09:18:20 \t -0.204 \t 50.7 \t  97 \t 10.01\n09:18:53 \t -0.184 \t 50.7 \t  97 \t 10.01\n09:19:26 \t -0.156 \t 50.7 \t  98 \t 10.01\n09:19:58 \t -0.132 \t 50.7 \t  98 \t 10.01\n09:20:32 \t -0.108 \t 50.7 \t  98 \t 10.01\n09:21:07 \t -0.088 \t 50.7 \t  98 \t 10.01\n09:21:41 \t -0.064 \t 50.7 \t  98 \t 10.01\n09:21:55     PULSO 3\n09:21:56     REALIZANDO VACUO\n09:22:14 \t -0.072 \t 50.7 \t  98 \t 10.01\n09:22:47 \t -0.132 \t 50.4 \t  99 \t 10.01\n09:23:20 \t -0.192 \t 50.1 \t 101 \t 10.01\n09:23:50 \t -0.240 \t 49.7 \t 103 \t 10.01\n09:24:23 \t -0.288 \t 49.5 \t 103 \t 10.01\n09:24:56 \t -0.336 \t 49.3 \t 104 \t 10.01\n09:25:29 \t -0.376 \t 49.2 \t 104 \t 10.01\n09:26:03 \t -0.416 \t 49.1 \t 104 \t 10.01\n09:26:36 \t -0.452 \t 49.1 \t 104 \t 10.01\n09:27:09 \t -0.488 \t 49.1 \t 104 \t 10.01\n09:27:20     INJETANDO AR\n09:27:42 \t -0.484 \t 49.2 \t 104 \t 10.01\n09:28:15 \t -0.456 \t 49.4 \t 102 \t 10.01\n09:28:49 \t -0.432 \t 49.6 \t 100 \t 10.01\n09:29:19 \t -0.408 \t 49.7 \t  99 \t 10.01\n09:29:52 \t -0.388 \t 49.8 \t  98 \t 10.01\n09:30:25 \t -0.364 \t 49.9 \t  98 \t 10.01\n09:30:59 \t -0.344 \t 49.9 \t  98 \t 10.01\n09:31:32 \t -0.316 \t 50.0 \t  97 \t 10.01\n09:32:05 \t -0.292 \t 50.0 \t  97 \t 10.01\n09:32:39 \t -0.268 \t 50.0 \t  97 \t 10.01\n09:33:12 \t -0.248 \t 50.0 \t  97 \t 10.01\n09:33:46 \t -0.220 \t 50.0 \t  97 \t 10.01\n09:34:19 \t -0.200 \t 50.0 \t  97 \t 10.01\n09:34:53 \t -0.176 \t 50.0 \t  98 \t 10.01\n09:35:26 \t -0.148 \t 50.0 \t  98 \t 10.01\n09:35:59 \t -0.128 \t 50.0 \t  98 \t 10.01\n09:36:33 \t -0.104 \t 50.0 \t  98 \t 10.01\n09:37:06 \t -0.084 \t 50.0 \t  98 \t 10.01\n09:37:39 \t -0.060 \t 49.9 \t  99 \t 10.01\n09:37:51     PULSO 4\n09:37:51     REALIZANDO VACUO\n09:38:13 \t -0.084 \t 49.9 \t  99 \t 10.01\n09:38:46 \t -0.140 \t 49.6 \t 100 \t 10.01\n09:39:18 \t -0.200 \t 49.2 \t 102 \t 10.01\n09:39:51 \t -0.248 \t 48.9 \t 103 \t 10.01\n09:40:25 \t -0.304 \t 48.6 \t 105 \t 10.01\n09:40:59 \t -0.348 \t 48.4 \t 106 \t 10.01\n09:41:32 \t -0.388 \t 48.3 \t 106 \t 10.01\n09:42:06 \t -0.432 \t 48.2 \t 106 \t 10.01\n09:42:39 \t -0.472 \t 48.2 \t 106 \t 10.01\n09:43:07     INJETANDO AR\n09:43:13 \t -0.500 \t 48.2 \t 106 \t 10.01\n09:43:47 \t -0.476 \t 48.4 \t 104 \t 10.01\n09:44:20 \t -0.452 \t 48.6 \t 103 \t 10.01\n09:44:54 \t -0.424 \t 48.8 \t 101 \t 10.01\n09:45:27 \t -0.404 \t 48.9 \t 100 \t 10.01\n09:45:58 \t -0.380 \t 49.0 \t  99 \t 10.01\n09:46:29 \t -0.360 \t 49.0 \t  99 \t 10.01\n09:47:00 \t -0.336 \t 49.1 \t  98 \t 10.01\n09:47:31 \t -0.320 \t 49.1 \t  98 \t 10.01\n09:48:04 \t -0.292 \t 49.2 \t  97 \t 10.01\n09:48:35 \t -0.268 \t 49.2 \t  98 \t 10.01\n09:49:05 \t -0.252 \t 49.2 \t  98 \t 10.01\n09:49:36 \t -0.232 \t 49.2 \t  98 \t 10.01\n09:50:06 \t -0.212 \t 49.2 \t  98 \t 10.01\n09:50:36 \t -0.192 \t 49.2 \t  98 \t 10.01\n09:51:07 \t -0.172 \t 49.2 \t  98 \t 10.01\n09:51:38 \t -0.144 \t 49.2 \t  98 \t 10.01\n09:52:08 \t -0.124 \t 49.2 \t  98 \t 10.01\n09:52:39 \t -0.104 \t 49.2 \t  99 \t 10.01\n09:53:10 \t -0.080 \t 49.1 \t  99 \t 10.01\n09:53:40 \t -0.064 \t 49.2 \t  99 \t 10.01\n09:53:56     PULSO 5\n09:53:56     REALIZANDO VACUO\n09:54:11 \t -0.064 \t 49.2 \t  99 \t 10.01\n09:54:42 \t -0.124 \t 49.0 \t 100 \t 10.01\n09:55:15 \t -0.184 \t 48.6 \t 102 \t 10.01\n09:55:47 \t -0.232 \t 48.3 \t 103 \t 10.01\n09:56:20 \t -0.284 \t 48.0 \t 105 \t 10.01\n09:56:54 \t -0.336 \t 47.8 \t 105 \t 10.01\n09:57:28 \t -0.380 \t 47.6 \t 106 \t 10.01\n09:58:02 \t -0.420 \t 47.5 \t 107 \t 10.01\n09:58:35 \t -0.460 \t 47.5 \t 107 \t 10.01\n09:59:09 \t -0.496 \t 47.5 \t 107 \t 10.01\n09:59:12     INJETANDO AR\n09:59:43 \t -0.480 \t 47.6 \t 106 \t 10.01\n10:00:16 \t -0.456 \t 47.8 \t 104 \t 10.01\n10:00:50 \t -0.432 \t 48.0 \t 103 \t 10.01\n10:01:23 \t -0.404 \t 48.2 \t 101 \t 10.01\n10:01:55 \t -0.384 \t 48.3 \t 100 \t 10.01\n10:02:26 \t -0.364 \t 48.4 \t  99 \t 10.01\n10:02:57 \t -0.344 \t 48.5 \t  98 \t 10.01\n10:03:28 \t -0.320 \t 48.6 \t  98 \t 10.01\n10:03:59 \t -0.300 \t 48.6 \t  98 \t 10.01\n10:04:29 \t -0.276 \t 48.7 \t  97 \t 10.01\n10:05:00 \t -0.260 \t 48.7 \t  98 \t 10.01\n10:05:31 \t -0.240 \t 48.7 \t  98 \t 10.01\n10:06:03 \t -0.216 \t 48.7 \t  98 \t 10.01\n10:06:33 \t -0.196 \t 48.7 \t  98 \t 10.01\n10:07:06 \t -0.176 \t 48.7 \t  98 \t 10.01\n10:07:37 \t -0.148 \t 48.8 \t  98 \t 10.01\n10:08:08 \t -0.128 \t 48.8 \t  98 \t 10.01\n10:08:38 \t -0.108 \t 48.8 \t  98 \t 10.01\n10:09:09 \t -0.088 \t 48.8 \t  99 \t 10.01\n10:09:40 \t -0.068 \t 48.8 \t  99 \t 10.01\n10:10:05     PULSO 6\n10:10:05     REALIZANDO VACUO\n10:10:11 \t -0.052 \t 48.9 \t  98 \t 10.01\n10:10:42 \t -0.112 \t 48.7 \t  99 \t 10.01\n10:11:14 \t -0.172 \t 48.4 \t 101 \t 10.01\n10:11:47 \t -0.224 \t 48.0 \t 102 \t 10.01\n10:12:17 \t -0.272 \t 47.7 \t 104 \t 10.01\n10:12:48 \t -0.320 \t 47.5 \t 105 \t 10.01\n10:13:19 \t -0.360 \t 47.3 \t 105 \t 10.01\n10:13:49 \t -0.396 \t 47.1 \t 106 \t 10.01\n10:14:19 \t -0.436 \t 47.0 \t 106 \t 10.01\n10:14:50 \t -0.468 \t 47.0 \t 106 \t 10.01\n10:15:19     INJETANDO AR\n10:15:20 \t -0.496 \t 47.0 \t 106 \t 10.01\n10:15:51 \t -0.476 \t 47.1 \t 106 \t 10.01\n10:16:21 \t -0.460 \t 47.4 \t 104 \t 10.01\n10:16:52 \t -0.432 \t 47.7 \t 102 \t 10.01\n10:17:23 \t -0.412 \t 47.9 \t 100 \t 10.01\n10:17:56 \t -0.392 \t 48.1 \t  99 \t 10.01\n10:18:29 \t -0.364 \t 48.2 \t  98 \t 10.01\n10:19:01 \t -0.348 \t 48.3 \t  98 \t 10.01\n10:19:33 \t -0.324 \t 48.4 \t  97 \t 10.01\n10:20:05 \t -0.300 \t 48.5 \t  97 \t 10.01\n10:20:37 \t -0.276 \t 48.6 \t  96 \t 10.01\n10:21:10 \t -0.256 \t 48.7 \t  96 \t 10.01\n10:21:41 \t -0.232 \t 48.7 \t  96 \t 10.01\n10:22:13 \t -0.212 \t 48.8 \t  96 \t 10.01\n10:22:45 \t -0.192 \t 48.8 \t  96 \t 10.01\n10:23:18 \t -0.168 \t 48.9 \t  96 \t 10.01\n10:23:49 \t -0.144 \t 48.9 \t  96 \t 10.01\n10:24:21 \t -0.124 \t 48.9 \t  97 \t 10.01\n10:24:52 \t -0.104 \t 49.0 \t  96 \t 10.01\n10:25:24 \t -0.080 \t 49.0 \t  97 \t 10.01\n10:25:55 \t -0.060 \t 49.0 \t  97 \t 10.01\n10:26:07     PULSO 7\n10:26:07     REALIZANDO VACUO\n10:26:27 \t -0.076 \t 49.0 \t  97 \t 10.01\n10:27:00 \t -0.140 \t 48.8 \t  97 \t 10.01\n10:27:31 \t -0.196 \t 48.4 \t  99 \t 10.01\n10:28:03 \t -0.248 \t 48.1 \t 101 \t 10.01\n10:28:36 \t -0.300 \t 47.8 \t 103 \t 10.01\n10:29:10 \t -0.348 \t 47.6 \t 103 \t 10.01\n10:29:41 \t -0.388 \t 47.4 \t 104 \t 10.01\n10:30:14 \t -0.428 \t 47.3 \t 104 \t 10.01\n10:30:49 \t -0.468 \t 47.2 \t 105 \t 10.01\n10:31:22     INJETANDO AR\n10:31:24 \t -0.496 \t 47.1 \t 105 \t 10.01\n10:31:54 \t -0.476 \t 47.4 \t 103 \t 10.01\n10:32:29 \t -0.452 \t 47.8 \t 101 \t 10.01\n10:32:59 \t -0.432 \t 48.1 \t  99 \t 10.01\n10:33:30 \t -0.404 \t 48.3 \t  98 \t 10.01\n10:34:02 \t -0.388 \t 48.5 \t  97 \t 10.01\n10:34:34 \t -0.364 \t 48.7 \t  96 \t 10.01\n10:35:05 \t -0.344 \t 48.9 \t  95 \t 10.01\n10:35:37 \t -0.324 \t 49.0 \t  94 \t 10.01\n10:36:09 \t -0.304 \t 49.1 \t  94 \t 10.01\n10:36:41 \t -0.276 \t 49.2 \t  94 \t 10.01\n10:37:12 \t -0.256 \t 49.3 \t  93 \t 10.01\n10:37:44 \t -0.236 \t 49.3 \t  94 \t 10.01\n10:38:16 \t -0.212 \t 49.4 \t  94 \t 10.01\n10:38:49 \t -0.192 \t 49.5 \t  93 \t 10.01\n10:39:21 \t -0.168 \t 49.5 \t  94 \t 10.01\n10:39:53 \t -0.144 \t 49.6 \t  93 \t 10.01\n10:40:25 \t -0.124 \t 49.6 \t  94 \t 10.01\n10:40:58 \t -0.104 \t 49.7 \t  93 \t 10.01\n10:41:30 \t -0.080 \t 49.7 \t  94 \t 10.01\n10:42:03 \t -0.060 \t 49.8 \t  94 \t 10.01\n10:42:10     FIM DOS PULSOS\n10:42:12     CICLO FINALIZADO\n--------------------------------------------\n",
+      "cycle_txt_filename": "102170426_20260417_061411.txt",
+      "cycle_type_id": [
+        1,
+        "AFR_14"
+      ],
+      "display_name": "102170426_20260417_061411",
+      "duration": 4.47,
+      "duration_planned": 270,
+      "end_date": "2026-04-17 13:42:12",
+      "equipment_category_id": [
+        1,
+        "AUTOCLAVE ETO"
+      ],
+      "equipment_id": [
+        1,
+        "AUTOCLAVE ETO 16K CE16000 MIRAX"
+      ],
+      "equipment_nickname": "C1",
+      "file_path": "/var/lib/odoo/filestore/mb-odoo/ciclos/C1/20260417/102170426_20260417_061411.txt",
+      "fotos_ids": [],
+      "has_message": true,
+      "ib_data_fim": false,
+      "ib_data_inicio": false,
+      "ib_lote": false,
+      "ib_marca": false,
+      "ib_modelo": false
+    }
+  ]
+}

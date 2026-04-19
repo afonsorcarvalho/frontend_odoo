@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-04-18T09:53:15.700Z",
+  "filter": "afr.supervisorio.ciclos",
+  "total": 2,
+  "reports": [
+    {
+      "id": 380,
+      "name": "Impressão de CICLOS",
+      "report_name": "afr_supervisorio_ciclos.report_ciclos_template",
+      "report_type": "qweb-pdf",
+      "model": "afr.supervisorio.ciclos",
+      "binding_model_id": [
+        606,
+        "Supervisório de Ciclos de Esterilização, Lavagem e Desinfecção"
+      ],
+      "binding_type": "report",
+      "print_report_name": "'Ciclo %s' % (object.name)",
+      "paperformat_id": false,
+      "attachment": false,
+      "attachment_use": false,
+      "xml_id": "afr_supervisorio_ciclos.report_steril_supervisorio_ciclos_action"
+    },
+    {
+      "id": 385,
+      "name": "Laudo de Liberação de Produtos",
+      "report_name": "afr_supervisorio_ciclos_extras.report_laudo_liberacao_template",
+      "report_type": "qweb-pdf",
+      "model": "afr.supervisorio.ciclos",
+      "binding_model_id": false,
+      "binding_type": "report",
+      "print_report_name": "'Laudo_Liberacao_%s' % (object.name)",
+      "paperformat_id": [
+        1,
+        "A4"
+      ],
+      "attachment": false,
+      "attachment_use": false,
+      "xml_id": "afr_supervisorio_ciclos_extras.report_laudo_liberacao_action"
+    }
+  ]
+}
