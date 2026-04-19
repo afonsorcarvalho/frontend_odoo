@@ -3,38 +3,36 @@
 import { useEffect, ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { LayoutGrid, List, SlidersHorizontal, Activity } from 'lucide-react'
+import { LayoutGrid, List, SlidersHorizontal, Wrench, Plus } from 'lucide-react'
 import { clsx } from 'clsx'
-import { useCiclos } from '@/lib/hooks/useCiclos'
-import { useCiclosStore } from '@/lib/store/ciclosStore'
-import { CycleCard } from '@/components/ciclos/CycleCard'
-import { CycleListItem } from '@/components/ciclos/CycleListItem'
-import { SearchBar } from '@/components/ciclos/SearchBar'
-import { FilterPanel } from '@/components/ciclos/FilterPanel'
+import { useOsList } from '@/lib/hooks/useOs'
+import { useOsStore } from '@/lib/store/osStore'
+import { OsCard } from '@/components/os/OsCard'
+import { OsListItem } from '@/components/os/OsListItem'
+import { OsSearchBar } from '@/components/os/OsSearchBar'
+import { OsFilterPanel } from '@/components/os/OsFilterPanel'
+import { OsFormModal } from '@/components/os/OsFormModal'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 
-export default function CiclosPage() {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useCiclos()
-  const { ui, setViewMode, openFilterPanel, filters } = useCiclosStore()
+export default function OsListPage() {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useOsList()
+  const { ui, setViewMode, openFilterPanel, openFormModal, filters } = useOsStore()
 
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
-    }
+    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage()
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const cycles = data?.allCycles ?? []
+  const records = data?.allOs ?? []
   const total = data?.total ?? 0
 
   const activeFilters =
     (filters.state ? 1 : 0) +
+    (filters.maintenance_type ? 1 : 0) +
     (filters.equipment_id ? 1 : 0) +
-    (filters.cycle_type_id ? 1 : 0) +
     (filters.only_overdue ? 1 : 0) +
-    (filters.only_signed ? 1 : 0) +
     (filters.date_from ? 1 : 0) +
     (filters.date_to ? 1 : 0)
 
@@ -42,18 +40,18 @@ export default function CiclosPage() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-white/5 bg-dark-900/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 pl-12 md:pl-0">
               <motion.div
                 className="p-2 rounded-xl bg-neon-blue/10 border border-neon-blue/20"
                 animate={{ boxShadow: ['0 0 10px rgba(0,212,255,0.1)', '0 0 20px rgba(0,212,255,0.3)', '0 0 10px rgba(0,212,255,0.1)'] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <Activity size={20} className="text-neon-blue" />
+                <Wrench size={20} className="text-neon-blue" />
               </motion.div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                  Ciclos de Esterilização
+                  Ordens de Serviço
                 </h1>
                 <AnimatePresence mode="wait">
                   <motion.p
@@ -62,7 +60,7 @@ export default function CiclosPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-xs text-white/40"
                   >
-                    {isLoading ? 'Carregando...' : `${total.toLocaleString('pt-BR')} ciclos`}
+                    {isLoading ? 'Carregando...' : `${total.toLocaleString('pt-BR')} OS`}
                   </motion.p>
                 </AnimatePresence>
               </div>
@@ -87,11 +85,20 @@ export default function CiclosPage() {
                   </span>
                 )}
               </AnimatedButton>
+
+              <AnimatedButton
+                variant="neon"
+                glow
+                onClick={() => openFormModal()}
+                icon={<Plus size={15} />}
+              >
+                Nova OS
+              </AnimatedButton>
             </div>
           </div>
 
           <div className="mt-4">
-            <SearchBar isLoading={isLoading} totalResults={isLoading ? undefined : total} />
+            <OsSearchBar isLoading={isLoading} totalResults={isLoading ? undefined : total} />
           </div>
         </div>
       </header>
@@ -112,8 +119,8 @@ export default function CiclosPage() {
                 <LoadingSkeleton key={i} variant={ui.viewMode === 'grid' ? 'card' : 'list'} />
               ))}
             </motion.div>
-          ) : cycles.length === 0 ? (
-            <EmptyState key="empty" />
+          ) : records.length === 0 ? (
+            <EmptyState />
           ) : ui.viewMode === 'grid' ? (
             <motion.div
               key="grid"
@@ -121,8 +128,8 @@ export default function CiclosPage() {
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             >
-              {cycles.map((c, i) => (
-                <CycleCard key={c.id} cycle={c} index={i % 24} />
+              {records.map((r, i) => (
+                <OsCard key={r.id} os={r} index={i % 24} />
               ))}
             </motion.div>
           ) : (
@@ -132,8 +139,8 @@ export default function CiclosPage() {
               animate={{ opacity: 1 }}
               className="space-y-2"
             >
-              {cycles.map((c, i) => (
-                <CycleListItem key={c.id} cycle={c} index={i % 24} />
+              {records.map((r, i) => (
+                <OsListItem key={r.id} os={r} index={i % 24} />
               ))}
             </motion.div>
           )}
@@ -153,7 +160,8 @@ export default function CiclosPage() {
         </div>
       </main>
 
-      <FilterPanel />
+      <OsFilterPanel />
+      <OsFormModal />
     </div>
   )
 }
@@ -186,11 +194,11 @@ function EmptyState() {
         animate={{ boxShadow: ['0 0 20px rgba(0,212,255,0.1)', '0 0 40px rgba(0,212,255,0.3)', '0 0 20px rgba(0,212,255,0.1)'] }}
         transition={{ duration: 3, repeat: Infinity }}
       >
-        <Activity size={36} className="text-neon-blue/60" />
+        <Wrench size={36} className="text-neon-blue/60" />
       </motion.div>
-      <h3 className="text-xl font-semibold text-white mb-2">Nenhum ciclo encontrado</h3>
+      <h3 className="text-xl font-semibold text-white mb-2">Nenhuma OS encontrada</h3>
       <p className="text-white/40 text-sm max-w-sm">
-        Ajuste os filtros ou verifique se há ciclos cadastrados no Odoo.
+        Ajuste os filtros ou crie uma nova ordem de serviço.
       </p>
     </motion.div>
   )

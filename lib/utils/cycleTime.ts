@@ -27,6 +27,21 @@ function parseDate(iso: string | false | null | undefined): number | null {
   return isNaN(d) ? null : d
 }
 
+/**
+ * Progresso do ciclo em andamento: elapsed / duration_planned, saturado em 100.
+ * Retorna null quando faltam dados. duration_planned em minutos.
+ */
+export function computeCycleProgress(cycle: OdooCycleSummary, now: number = Date.now()): number | null {
+  if (!cycle.start_date || !cycle.duration_planned) return null
+  const start = parseDate(cycle.start_date)
+  if (start === null) return null
+  const totalMs = cycle.duration_planned * 60 * 1000
+  if (totalMs <= 0) return null
+  const ratio = (now - start) / totalMs
+  if (!isFinite(ratio) || ratio < 0) return 0
+  return Math.min(100, ratio * 100)
+}
+
 export function humanizeDuration(ms: number): string {
   const totalMinutes = Math.floor(ms / 60000)
   if (totalMinutes < 1) return '<1min'

@@ -5,6 +5,7 @@ import { Calendar, Clock, Package, Activity, AlertCircle, CheckCircle2, Beaker, 
 import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { CycleStatusBadge } from './CycleStatusBadge'
+import { CycleProgressBar } from './CycleProgressBar'
 import type { OdooCycleSummary } from '@/lib/types/ciclo'
 import { formatOverdue } from '@/lib/utils/cycleTime'
 import { ReactNode } from 'react'
@@ -98,6 +99,12 @@ export function CycleCard({ cycle, index = 0 }: CycleCardProps) {
             />
           )}
         </div>
+
+        {cycle.state === 'em_andamento' && (
+          <div className="mt-3">
+            <CycleProgressBar cycle={cycle} showLabel />
+          </div>
+        )}
 
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5">
           {cycle.is_overdue && (

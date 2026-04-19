@@ -1,0 +1,812 @@
+{
+  "model": "engc.equipment",
+  "server": "vps46593.publiccloud.com.br",
+  "db": "odoo-steriliza-teste",
+  "generated_at": "2026-04-19T09:50:17.447Z",
+  "total_records": 28,
+  "fields": {
+    "activity_ids": {
+      "readonly": false,
+      "relation": "mail.activity",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Activities",
+      "type": "one2many"
+    },
+    "activity_state": {
+      "help": "Status based on activities\nOverdue: Due date is already passed\nToday: Activity date is today\nPlanned: Future activities.",
+      "readonly": true,
+      "required": false,
+      "selection": [
+        [
+          "overdue",
+          "Overdue"
+        ],
+        [
+          "today",
+          "Today"
+        ],
+        [
+          "planned",
+          "Planned"
+        ]
+      ],
+      "store": false,
+      "string": "Activity State",
+      "type": "selection"
+    },
+    "activity_user_id": {
+      "readonly": false,
+      "relation": "res.users",
+      "required": false,
+      "store": false,
+      "string": "Responsible User",
+      "type": "many2one"
+    },
+    "activity_type_id": {
+      "readonly": false,
+      "relation": "mail.activity.type",
+      "required": false,
+      "store": false,
+      "string": "Next Activity Type",
+      "type": "many2one"
+    },
+    "activity_type_icon": {
+      "help": "Font awesome icon e.g. fa-tasks",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Activity Type Icon",
+      "type": "char"
+    },
+    "activity_date_deadline": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Next Activity Deadline",
+      "type": "date"
+    },
+    "my_activity_date_deadline": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "My Activity Deadline",
+      "type": "date"
+    },
+    "activity_summary": {
+      "readonly": false,
+      "required": false,
+      "store": false,
+      "string": "Next Activity Summary",
+      "type": "char"
+    },
+    "activity_exception_decoration": {
+      "help": "Type of the exception activity on record.",
+      "readonly": true,
+      "required": false,
+      "selection": [
+        [
+          "warning",
+          "Alert"
+        ],
+        [
+          "danger",
+          "Error"
+        ]
+      ],
+      "store": false,
+      "string": "Activity Exception Decoration",
+      "type": "selection"
+    },
+    "activity_exception_icon": {
+      "help": "Icon to indicate an exception activity.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Icon",
+      "type": "char"
+    },
+    "activity_calendar_event_id": {
+      "readonly": true,
+      "relation": "calendar.event",
+      "required": false,
+      "store": false,
+      "string": "Next Activity Calendar Event",
+      "type": "many2one"
+    },
+    "message_is_follower": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Is Follower",
+      "type": "boolean"
+    },
+    "message_follower_ids": {
+      "readonly": false,
+      "relation": "mail.followers",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Followers",
+      "type": "one2many"
+    },
+    "message_partner_ids": {
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": false,
+      "string": "Followers (Partners)",
+      "type": "many2many"
+    },
+    "message_ids": {
+      "readonly": false,
+      "relation": "mail.message",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Messages",
+      "type": "one2many"
+    },
+    "has_message": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Has Message",
+      "type": "boolean"
+    },
+    "message_needaction": {
+      "help": "If checked, new messages require your attention.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Action Needed",
+      "type": "boolean"
+    },
+    "message_needaction_counter": {
+      "help": "Number of messages requiring action",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Number of Actions",
+      "type": "integer"
+    },
+    "message_has_error": {
+      "help": "If checked, some messages have a delivery error.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Message Delivery error",
+      "type": "boolean"
+    },
+    "message_has_error_counter": {
+      "help": "Number of messages with delivery error",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Number of errors",
+      "type": "integer"
+    },
+    "message_attachment_count": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Attachment Count",
+      "type": "integer"
+    },
+    "message_main_attachment_id": {
+      "readonly": false,
+      "relation": "ir.attachment",
+      "required": false,
+      "store": true,
+      "string": "Main Attachment",
+      "type": "many2one"
+    },
+    "website_message_ids": {
+      "help": "Website communication history",
+      "readonly": false,
+      "relation": "mail.message",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Website Messages",
+      "type": "one2many"
+    },
+    "message_has_sms_error": {
+      "help": "If checked, some messages have a delivery error.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "SMS Delivery error",
+      "type": "boolean"
+    },
+    "parent_left": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Left Parent",
+      "type": "integer"
+    },
+    "parent_right": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Right Parent",
+      "type": "integer"
+    },
+    "name": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Name",
+      "type": "char"
+    },
+    "apelido": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "apelido",
+      "type": "char"
+    },
+    "parent_id": {
+      "readonly": false,
+      "relation": "engc.equipment",
+      "required": false,
+      "store": true,
+      "string": "Equipamento pai",
+      "type": "many2one"
+    },
+    "child_ids": {
+      "readonly": false,
+      "relation": "engc.equipment",
+      "relation_field": "parent_id",
+      "required": false,
+      "store": true,
+      "string": "Componentes",
+      "type": "one2many"
+    },
+    "parent_path": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Parent Path",
+      "type": "char"
+    },
+    "image_1920": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "avatar",
+      "type": "binary"
+    },
+    "category_id": {
+      "readonly": false,
+      "relation": "engc.equipment.category",
+      "required": true,
+      "store": true,
+      "string": "Categoria",
+      "type": "many2one"
+    },
+    "state": {
+      "readonly": false,
+      "required": true,
+      "selection": [
+        [
+          "in_use",
+          "Em uso"
+        ],
+        [
+          "out_of_use",
+          "Fora de uso"
+        ],
+        [
+          "useless",
+          "Inservível"
+        ]
+      ],
+      "store": true,
+      "string": "Status",
+      "type": "selection"
+    },
+    "company_id": {
+      "readonly": false,
+      "relation": "res.company",
+      "required": true,
+      "store": true,
+      "string": "Instituição",
+      "type": "many2one"
+    },
+    "client_id": {
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": true,
+      "string": "Cliente",
+      "type": "many2one"
+    },
+    "means_of_aquisition_id": {
+      "readonly": false,
+      "relation": "engc.equipment.means.of.aquisition",
+      "required": true,
+      "store": true,
+      "string": "Meio de Aquisição",
+      "type": "many2one"
+    },
+    "technician_id": {
+      "readonly": false,
+      "relation": "hr.employee",
+      "required": false,
+      "store": true,
+      "string": "Técnico",
+      "type": "many2one"
+    },
+    "maintenance_team_id": {
+      "readonly": false,
+      "relation": "engc.equipment.maintenance.team",
+      "required": false,
+      "store": true,
+      "string": "Equipe de Manutenção",
+      "type": "many2one"
+    },
+    "department": {
+      "readonly": false,
+      "relation": "hr.department",
+      "required": false,
+      "store": true,
+      "string": "Departamento",
+      "type": "many2one"
+    },
+    "location_id": {
+      "readonly": false,
+      "relation": "engc.equipment.location",
+      "required": true,
+      "store": true,
+      "string": "Local de Uso",
+      "type": "many2one"
+    },
+    "marca_id": {
+      "readonly": false,
+      "relation": "engc.equipment.marca",
+      "required": true,
+      "store": true,
+      "string": "Marca",
+      "type": "many2one"
+    },
+    "partner_reference": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Referência de Fornecedor",
+      "type": "char"
+    },
+    "model": {
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Modelo",
+      "type": "char"
+    },
+    "serial_number": {
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Número de Série",
+      "type": "char"
+    },
+    "anvisa_code": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Reg Anvisa",
+      "type": "char"
+    },
+    "tag": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Tag",
+      "type": "char"
+    },
+    "patrimony": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Patrimonio",
+      "type": "char"
+    },
+    "manufacturing_date": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data de Fabricação",
+      "type": "date"
+    },
+    "instalation_date": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Date de Instalação",
+      "type": "date"
+    },
+    "acquisition_date": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Date de Aquisição",
+      "type": "date"
+    },
+    "warranty": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Garantia",
+      "type": "date"
+    },
+    "extended_warranty": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Garantia Extendida",
+      "type": "date"
+    },
+    "invoice_document": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Nota Fiscal",
+      "type": "binary"
+    },
+    "next_maintenance": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Próxima Manutenção Preventiva",
+      "type": "date"
+    },
+    "period": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Frequência de Manutenção",
+      "type": "integer"
+    },
+    "duration": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Duração da Manutenção",
+      "type": "float"
+    },
+    "note": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Note",
+      "type": "text"
+    },
+    "calibrations_ids": {
+      "help": "Calibrações e ensaios do equipamentos.",
+      "readonly": false,
+      "relation": "engc.calibration",
+      "relation_field": "equipment_id",
+      "required": false,
+      "store": true,
+      "string": "Calibrações",
+      "type": "one2many"
+    },
+    "oses": {
+      "readonly": false,
+      "relation": "engc.os",
+      "relation_field": "equipment_id",
+      "required": false,
+      "store": true,
+      "string": "Ordens de serviço",
+      "type": "one2many"
+    },
+    "color": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Color",
+      "type": "char"
+    },
+    "maintenance_plan": {
+      "readonly": false,
+      "relation": "engc.maintenance_plan",
+      "required": false,
+      "store": true,
+      "string": "Plano de manutenção",
+      "type": "many2one"
+    },
+    "picture_ids": {
+      "readonly": false,
+      "relation": "engc.equipment.pictures",
+      "relation_field": "equipment_id",
+      "required": false,
+      "store": true,
+      "string": "fotos",
+      "type": "one2many"
+    },
+    "stop_history_ids": {
+      "readonly": false,
+      "relation": "engc.equipment.stop.history",
+      "relation_field": "equipment_id",
+      "required": false,
+      "store": true,
+      "string": "Stop History",
+      "type": "one2many"
+    },
+    "id": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "ID",
+      "type": "integer"
+    },
+    "__last_update": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Last Modified on",
+      "type": "datetime"
+    },
+    "display_name": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Display Name",
+      "type": "char"
+    },
+    "create_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Created by",
+      "type": "many2one"
+    },
+    "create_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Created on",
+      "type": "datetime"
+    },
+    "write_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Last Updated by",
+      "type": "many2one"
+    },
+    "write_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Last Updated on",
+      "type": "datetime"
+    },
+    "cycle_model": {
+      "readonly": false,
+      "relation": "steril_supervisorio.cycle_model",
+      "required": false,
+      "store": true,
+      "string": "Modelo de ciclo",
+      "type": "many2one"
+    },
+    "cycle_type_id": {
+      "readonly": false,
+      "relation": "afr.cycle.type",
+      "required": false,
+      "store": true,
+      "string": "Tipo de ciclo",
+      "type": "many2one"
+    },
+    "chamber_size": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Volume Câmara (L)",
+      "type": "float"
+    },
+    "cycle_path": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Diretorio do ciclo",
+      "type": "char"
+    }
+  },
+  "sample": [
+    {
+      "id": 56,
+      "__last_update": "2025-11-29 21:01:08",
+      "acquisition_date": false,
+      "activity_calendar_event_id": false,
+      "activity_date_deadline": false,
+      "activity_exception_decoration": false,
+      "activity_exception_icon": false,
+      "activity_ids": [],
+      "activity_state": false,
+      "activity_summary": false,
+      "activity_type_icon": false,
+      "activity_type_id": false,
+      "activity_user_id": false,
+      "anvisa_code": false,
+      "apelido": "US01",
+      "calibrations_ids": [],
+      "category_id": [
+        12,
+        "ULTRASONICA"
+      ],
+      "chamber_size": 0,
+      "child_ids": [],
+      "client_id": false,
+      "color": false,
+      "company_id": [
+        2,
+        "AFR - Fortaleza"
+      ],
+      "create_date": "2025-11-29 21:01:08",
+      "create_uid": [
+        2,
+        "Administrator"
+      ],
+      "cycle_model": false,
+      "cycle_path": false,
+      "cycle_type_id": false,
+      "department": [
+        9,
+        "Produção / Esterilização"
+      ],
+      "display_name": "ULTRASONICA Sonic Irrigator SA 03200122102 MED SAFE",
+      "duration": 0,
+      "extended_warranty": false,
+      "has_message": true,
+      "instalation_date": false,
+      "location_id": [
+        8,
+        "EXPURGO"
+      ],
+      "maintenance_plan": false,
+      "maintenance_team_id": false,
+      "manufacturing_date": false,
+      "marca_id": [
+        8,
+        "MED SAFE"
+      ],
+      "means_of_aquisition_id": [
+        5,
+        "COMPRA"
+      ],
+      "message_attachment_count": 0
+    },
+    {
+      "id": 55,
+      "__last_update": "2025-11-27 20:10:58",
+      "acquisition_date": false,
+      "activity_calendar_event_id": false,
+      "activity_date_deadline": false,
+      "activity_exception_decoration": false,
+      "activity_exception_icon": false,
+      "activity_ids": [],
+      "activity_state": false,
+      "activity_summary": false,
+      "activity_type_icon": false,
+      "activity_type_id": false,
+      "activity_user_id": false,
+      "anvisa_code": false,
+      "apelido": "OR04",
+      "calibrations_ids": [],
+      "category_id": [
+        10,
+        "OSMOSE REVERSA"
+      ],
+      "chamber_size": 0,
+      "child_ids": [],
+      "client_id": false,
+      "color": false,
+      "company_id": [
+        2,
+        "AFR - Fortaleza"
+      ],
+      "create_date": "2025-11-27 20:08:52",
+      "create_uid": [
+        2,
+        "Administrator"
+      ],
+      "cycle_model": false,
+      "cycle_path": false,
+      "cycle_type_id": false,
+      "department": [
+        9,
+        "Produção / Esterilização"
+      ],
+      "display_name": "OSMOSE REVERSA H0100-060 2519.19.3830 BAUMER",
+      "duration": 0,
+      "extended_warranty": false,
+      "has_message": true,
+      "instalation_date": "2025-09-01",
+      "location_id": [
+        8,
+        "EXPURGO"
+      ],
+      "maintenance_plan": false,
+      "maintenance_team_id": false,
+      "manufacturing_date": "2025-05-01",
+      "marca_id": [
+        1,
+        "BAUMER"
+      ],
+      "means_of_aquisition_id": [
+        5,
+        "COMPRA"
+      ],
+      "message_attachment_count": 0
+    },
+    {
+      "id": 54,
+      "__last_update": "2025-11-26 17:37:43",
+      "acquisition_date": false,
+      "activity_calendar_event_id": false,
+      "activity_date_deadline": false,
+      "activity_exception_decoration": false,
+      "activity_exception_icon": false,
+      "activity_ids": [],
+      "activity_state": false,
+      "activity_summary": false,
+      "activity_type_icon": false,
+      "activity_type_id": false,
+      "activity_user_id": false,
+      "anvisa_code": false,
+      "apelido": "COMPRESSOR01",
+      "calibrations_ids": [],
+      "category_id": [
+        15,
+        "COMPRESSORES"
+      ],
+      "chamber_size": 0,
+      "child_ids": [],
+      "client_id": false,
+      "color": false,
+      "company_id": [
+        2,
+        "AFR - Fortaleza"
+      ],
+      "create_date": "2025-11-26 17:37:43",
+      "create_uid": [
+        2,
+        "Administrator"
+      ],
+      "cycle_model": false,
+      "cycle_path": false,
+      "cycle_type_id": false,
+      "department": [
+        9,
+        "Produção / Esterilização"
+      ],
+      "display_name": "COMPRESSORES CSV 20 ISENT 0004233711 SCHULZ",
+      "duration": 0,
+      "extended_warranty": false,
+      "has_message": true,
+      "instalation_date": false,
+      "location_id": [
+        12,
+        "UTILIDADES"
+      ],
+      "maintenance_plan": false,
+      "maintenance_team_id": false,
+      "manufacturing_date": "2024-02-01",
+      "marca_id": [
+        11,
+        "SCHULZ"
+      ],
+      "means_of_aquisition_id": [
+        5,
+        "COMPRA"
+      ],
+      "message_attachment_count": 0
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { ErrorReporter } from '@/components/providers/ErrorReporter'
 import { AuthGuard } from '@/components/providers/AuthGuard'
+import { AppShell } from '@/components/layout/AppShell'
 import './globals.css'
 
 const geistSans = localFont({
@@ -46,7 +47,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             aria-hidden
           />
 
-          <AuthGuard>{children}</AuthGuard>
+          <AuthGuard>
+            <AppShell>{children}</AppShell>
+          </AuthGuard>
 
           <Toaster
             position="bottom-right"

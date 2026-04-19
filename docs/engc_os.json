@@ -1,0 +1,748 @@
+{
+  "model": "engc.os",
+  "server": "mb.fitadigital.com.br",
+  "db": "mb-odoo",
+  "generated_at": "2026-04-19T09:22:56.530Z",
+  "total_records": 0,
+  "fields": {
+    "activity_ids": {
+      "readonly": false,
+      "relation": "mail.activity",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Activities",
+      "type": "one2many"
+    },
+    "activity_state": {
+      "help": "Status based on activities\nOverdue: Due date is already passed\nToday: Activity date is today\nPlanned: Future activities.",
+      "readonly": true,
+      "required": false,
+      "selection": [
+        [
+          "overdue",
+          "Overdue"
+        ],
+        [
+          "today",
+          "Today"
+        ],
+        [
+          "planned",
+          "Planned"
+        ]
+      ],
+      "store": false,
+      "string": "Activity State",
+      "type": "selection"
+    },
+    "activity_user_id": {
+      "readonly": false,
+      "relation": "res.users",
+      "required": false,
+      "store": false,
+      "string": "Responsible User",
+      "type": "many2one"
+    },
+    "activity_type_id": {
+      "readonly": false,
+      "relation": "mail.activity.type",
+      "required": false,
+      "store": false,
+      "string": "Next Activity Type",
+      "type": "many2one"
+    },
+    "activity_type_icon": {
+      "help": "Font awesome icon e.g. fa-tasks",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Activity Type Icon",
+      "type": "char"
+    },
+    "activity_date_deadline": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Next Activity Deadline",
+      "type": "date"
+    },
+    "my_activity_date_deadline": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "My Activity Deadline",
+      "type": "date"
+    },
+    "activity_summary": {
+      "readonly": false,
+      "required": false,
+      "store": false,
+      "string": "Next Activity Summary",
+      "type": "char"
+    },
+    "activity_exception_decoration": {
+      "help": "Type of the exception activity on record.",
+      "readonly": true,
+      "required": false,
+      "selection": [
+        [
+          "warning",
+          "Alert"
+        ],
+        [
+          "danger",
+          "Error"
+        ]
+      ],
+      "store": false,
+      "string": "Activity Exception Decoration",
+      "type": "selection"
+    },
+    "activity_exception_icon": {
+      "help": "Icon to indicate an exception activity.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Icon",
+      "type": "char"
+    },
+    "message_is_follower": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Is Follower",
+      "type": "boolean"
+    },
+    "message_follower_ids": {
+      "readonly": false,
+      "relation": "mail.followers",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Followers",
+      "type": "one2many"
+    },
+    "message_partner_ids": {
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": false,
+      "string": "Followers (Partners)",
+      "type": "many2many"
+    },
+    "message_ids": {
+      "readonly": false,
+      "relation": "mail.message",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Messages",
+      "type": "one2many"
+    },
+    "has_message": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Has Message",
+      "type": "boolean"
+    },
+    "message_needaction": {
+      "help": "If checked, new messages require your attention.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Action Needed",
+      "type": "boolean"
+    },
+    "message_needaction_counter": {
+      "help": "Number of messages which requires an action",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Number of Actions",
+      "type": "integer"
+    },
+    "message_has_error": {
+      "help": "If checked, some messages have a delivery error.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Message Delivery error",
+      "type": "boolean"
+    },
+    "message_has_error_counter": {
+      "help": "Number of messages with delivery error",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Number of errors",
+      "type": "integer"
+    },
+    "message_attachment_count": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Attachment Count",
+      "type": "integer"
+    },
+    "message_main_attachment_id": {
+      "readonly": false,
+      "relation": "ir.attachment",
+      "required": false,
+      "store": true,
+      "string": "Main Attachment",
+      "type": "many2one"
+    },
+    "website_message_ids": {
+      "help": "Website communication history",
+      "readonly": false,
+      "relation": "mail.message",
+      "relation_field": "res_id",
+      "required": false,
+      "store": true,
+      "string": "Website Messages",
+      "type": "one2many"
+    },
+    "message_has_sms_error": {
+      "help": "If checked, some messages have a delivery error.",
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "SMS Delivery error",
+      "type": "boolean"
+    },
+    "sequence": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Sequence",
+      "type": "integer"
+    },
+    "name": {
+      "readonly": true,
+      "required": true,
+      "store": true,
+      "string": "OS. N",
+      "type": "char"
+    },
+    "company_id": {
+      "readonly": false,
+      "relation": "res.company",
+      "required": true,
+      "store": true,
+      "string": "Instituição",
+      "type": "many2one"
+    },
+    "client_id": {
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": true,
+      "string": "Cliente",
+      "type": "many2one"
+    },
+    "origin": {
+      "help": "Referencia ao documento que gerou a ordem de servico.",
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Source Document",
+      "type": "char"
+    },
+    "request_service_id": {
+      "readonly": false,
+      "relation": "engc.request.service",
+      "required": false,
+      "store": true,
+      "string": "Request Service",
+      "type": "many2one"
+    },
+    "state": {
+      "help": "* The 'Draft' status is used when a user is encoding a new and unconfirmed repair order.\n* The 'Done' status is set when repairing is completed.\n* The 'Cancelled' status is used when user cancel repair order.",
+      "readonly": false,
+      "required": false,
+      "selection": [
+        [
+          "draft",
+          "Criada"
+        ],
+        [
+          "under_budget",
+          "Em Orçamento"
+        ],
+        [
+          "pause_budget",
+          "Orçamento Pausado"
+        ],
+        [
+          "wait_authorization",
+          "Esperando aprovação"
+        ],
+        [
+          "wait_parts",
+          "Esperando peças"
+        ],
+        [
+          "execution_ready",
+          "Pronta para Execução"
+        ],
+        [
+          "under_repair",
+          "Em execução"
+        ],
+        [
+          "pause_repair",
+          "Execução Pausada"
+        ],
+        [
+          "reproved",
+          "Reprovada"
+        ],
+        [
+          "done",
+          "Concluída"
+        ],
+        [
+          "cancel",
+          "Cancelada"
+        ]
+      ],
+      "store": true,
+      "string": "Status",
+      "type": "selection"
+    },
+    "who_executor": {
+      "readonly": false,
+      "required": true,
+      "selection": [
+        [
+          "3rd_party",
+          "Terceirizada"
+        ],
+        [
+          "own",
+          "Própria"
+        ]
+      ],
+      "store": true,
+      "string": "Manutenção",
+      "type": "selection"
+    },
+    "kanban_state": {
+      "readonly": false,
+      "required": true,
+      "selection": [
+        [
+          "normal",
+          "In Progress"
+        ],
+        [
+          "blocked",
+          "Blocked"
+        ],
+        [
+          "done",
+          "Ready for next stage"
+        ]
+      ],
+      "store": true,
+      "string": "Kanban State",
+      "type": "selection"
+    },
+    "priority": {
+      "readonly": false,
+      "required": false,
+      "selection": [
+        [
+          "0",
+          "Normal"
+        ],
+        [
+          "1",
+          "Baixa"
+        ],
+        [
+          "2",
+          "Alta"
+        ],
+        [
+          "3",
+          "Muito Alta"
+        ]
+      ],
+      "store": true,
+      "string": "Prioridade",
+      "type": "selection"
+    },
+    "maintenance_type": {
+      "readonly": false,
+      "required": true,
+      "selection": [
+        [
+          "corrective",
+          "Corretiva"
+        ],
+        [
+          "preventive",
+          "Preventiva"
+        ],
+        [
+          "instalacao",
+          "Instalação"
+        ],
+        [
+          "treinamento",
+          "Treinamento"
+        ],
+        [
+          "preditiva",
+          "Preditiva"
+        ],
+        [
+          "qualification",
+          "Qualificação"
+        ],
+        [
+          "loan",
+          "Comodato"
+        ],
+        [
+          "calibration",
+          "Calibração"
+        ]
+      ],
+      "store": true,
+      "string": "Tipo de Manutenção",
+      "type": "selection"
+    },
+    "periodicity_ids": {
+      "readonly": false,
+      "relation": "engc.maintenance_plan.periodicity",
+      "required": false,
+      "store": true,
+      "string": "Periodicidade",
+      "type": "many2many"
+    },
+    "department": {
+      "readonly": false,
+      "relation": "hr.department",
+      "required": false,
+      "store": true,
+      "string": "Departamento",
+      "type": "many2one"
+    },
+    "maintenance_duration": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Tempo Estimado",
+      "type": "float"
+    },
+    "is_warranty": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "É garantia",
+      "type": "boolean"
+    },
+    "warranty_type": {
+      "readonly": false,
+      "required": false,
+      "selection": [
+        [
+          "servico",
+          "Serviço"
+        ],
+        [
+          "fabrica",
+          "Fábrica"
+        ]
+      ],
+      "store": true,
+      "string": "Tipo de Garantia",
+      "type": "selection"
+    },
+    "date_request": {
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Data Requisição",
+      "type": "datetime"
+    },
+    "date_scheduled": {
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Data Programada",
+      "type": "datetime"
+    },
+    "date_execution": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Data de Execução",
+      "type": "datetime"
+    },
+    "date_start": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Início da Execução",
+      "type": "datetime"
+    },
+    "date_finish": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Término da Execução",
+      "type": "datetime"
+    },
+    "request_id": {
+      "readonly": false,
+      "relation": "engc.request.service",
+      "required": false,
+      "store": true,
+      "string": "Solicitação Ref.",
+      "type": "many2one"
+    },
+    "problem_description": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Descrição do chamado",
+      "type": "text"
+    },
+    "solicitante": {
+      "help": "Pessoa que solicitou a ordem de serviço",
+      "readonly": false,
+      "required": true,
+      "store": true,
+      "string": "Solicitante",
+      "type": "char"
+    },
+    "tecnico_id": {
+      "readonly": false,
+      "relation": "hr.employee",
+      "required": false,
+      "store": true,
+      "string": "Técnico",
+      "type": "many2one"
+    },
+    "empresa_manutencao": {
+      "readonly": false,
+      "relation": "res.partner",
+      "required": false,
+      "store": true,
+      "string": "Empresa",
+      "type": "many2one"
+    },
+    "repaired": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Concluído",
+      "type": "boolean"
+    },
+    "equipment_id": {
+      "help": "Escolha o equipamento referente a Ordem de Servico.",
+      "readonly": false,
+      "relation": "engc.equipment",
+      "required": true,
+      "store": false,
+      "string": "Equipamento",
+      "type": "many2one"
+    },
+    "equipment_category": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Categoria",
+      "type": "char"
+    },
+    "equipment_apelido": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Apelido",
+      "type": "char"
+    },
+    "equipment_serial_number": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Número de Série",
+      "type": "char"
+    },
+    "equipment_model": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Modelo",
+      "type": "char"
+    },
+    "equipment_tag": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Tag",
+      "type": "char"
+    },
+    "equipment_patrimonio": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Patrimonio do Equipamento",
+      "type": "char"
+    },
+    "service_description": {
+      "help": "Descrição do serviço realizado ou a ser relalizado",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Descrição do Serviço",
+      "type": "text"
+    },
+    "check_list_created": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Check List Created",
+      "type": "boolean"
+    },
+    "relatorios_id": {
+      "help": "Relatórios de atendimento",
+      "readonly": false,
+      "relation": "engc.os.relatorios",
+      "relation_field": "os_id",
+      "required": false,
+      "store": true,
+      "string": "Relatórios",
+      "type": "one2many"
+    },
+    "relatorios_count": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Relatorios Count",
+      "type": "integer"
+    },
+    "check_list_id": {
+      "help": "Check List de instruções",
+      "readonly": false,
+      "relation": "engc.os.verify.checklist",
+      "relation_field": "os_id",
+      "required": false,
+      "store": true,
+      "string": "Check-list",
+      "type": "one2many"
+    },
+    "check_list_count": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Check List Count",
+      "type": "integer"
+    },
+    "calibration_created": {
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Calibração criada",
+      "type": "boolean"
+    },
+    "calibration_id": {
+      "help": "Calibração gerada pela OS.",
+      "readonly": false,
+      "relation": "engc.calibration",
+      "required": false,
+      "store": true,
+      "string": "Calibração Cod.",
+      "type": "many2one"
+    },
+    "request_parts": {
+      "readonly": false,
+      "relation": "engc.os.request.parts",
+      "relation_field": "os_id",
+      "required": false,
+      "store": true,
+      "string": "Request Parts",
+      "type": "one2many"
+    },
+    "request_parts_count": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Request Parts Count",
+      "type": "integer"
+    },
+    "signature": {
+      "help": "Signature",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Signature",
+      "type": "binary"
+    },
+    "signature2": {
+      "help": "Signature",
+      "readonly": false,
+      "required": false,
+      "store": true,
+      "string": "Signature2",
+      "type": "binary"
+    },
+    "id": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "ID",
+      "type": "integer"
+    },
+    "__last_update": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Last Modified on",
+      "type": "datetime"
+    },
+    "display_name": {
+      "readonly": true,
+      "required": false,
+      "store": false,
+      "string": "Display Name",
+      "type": "char"
+    },
+    "create_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Created by",
+      "type": "many2one"
+    },
+    "create_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Created on",
+      "type": "datetime"
+    },
+    "write_uid": {
+      "readonly": true,
+      "relation": "res.users",
+      "required": false,
+      "store": true,
+      "string": "Last Updated by",
+      "type": "many2one"
+    },
+    "write_date": {
+      "readonly": true,
+      "required": false,
+      "store": true,
+      "string": "Last Updated on",
+      "type": "datetime"
+    }
+  },
+  "sample": []
+}

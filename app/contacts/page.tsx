@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { Plus, LayoutGrid, List, SlidersHorizontal, Users, Activity } from 'lucide-react'
+import { Plus, LayoutGrid, List, SlidersHorizontal, Users } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useContacts } from '@/lib/hooks/useContacts'
 import { useContactsStore } from '@/lib/store/contactsStore'
@@ -14,29 +14,11 @@ import { FilterPanel } from '@/components/contacts/FilterPanel'
 import { ContactFormModal } from '@/components/contacts/ContactFormModal'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
-import { useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '@/lib/store/authStore'
-import { resetSessionCache } from '@/lib/store/resetSessionCache'
-import { odooClient } from '@/lib/odoo/client'
-import { CompanyUserBadge } from '@/components/ui/CompanyUserBadge'
-import { useRouter } from 'next/navigation'
 import { ReactNode } from 'react'
 
 export default function ContactsPage() {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useContacts()
   const { ui, setViewMode, openFormModal, openFilterPanel, filters } = useContactsStore()
-  const { logout } = useAuthStore()
-  const router = useRouter()
-
-  const queryClient = useQueryClient()
-
-  const handleLogout = async () => {
-    try { await odooClient.logout() } catch { /* ignora */ }
-    logout()
-    odooClient.reset()
-    resetSessionCache(queryClient)
-    router.push('/login')
-  }
 
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
@@ -84,22 +66,6 @@ export default function ContactsPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <nav className="hidden sm:flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10 mr-2">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-neon-blue/20 text-neon-blue"
-                >
-                  <Users size={13} /> Contatos
-                </motion.button>
-                <motion.button
-                  onClick={() => router.push('/ciclos')}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-white transition-all"
-                >
-                  <Activity size={13} /> Ciclos
-                </motion.button>
-              </nav>
-
               <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
                 <ViewToggle
                   active={ui.viewMode === 'grid'}
@@ -137,8 +103,6 @@ export default function ContactsPage() {
               >
                 Novo
               </AnimatedButton>
-
-              <CompanyUserBadge onLogout={handleLogout} />
             </div>
           </div>
 

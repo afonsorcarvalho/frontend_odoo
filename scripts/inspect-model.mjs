@@ -10,6 +10,7 @@
  *   node scripts/inspect-model.mjs afr.supervisorio.ciclos
  */
 
+import http from 'node:http'
 import https from 'node:https'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -17,11 +18,13 @@ import path from 'node:path'
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const SERVER_HOST = 'mb.fitadigital.com.br'
-const DB          = 'mb-odoo'
-const LOGIN       = 'claude@fitadigital.com.br'
-const PASSWORD    = '1234'
-const TIMEOUT_MS  = 20000
+const SERVER_HOST = process.env.ODOO_HOST || 'vps46593.publiccloud.com.br'
+const SERVER_PORT = Number(process.env.ODOO_PORT || 8069)
+const SERVER_PROTO = process.env.ODOO_PROTO || 'http'
+const DB          = process.env.ODOO_DB || 'odoo-steriliza-teste'
+const LOGIN       = process.env.ODOO_LOGIN || 'afonso@jgma.com.br'
+const PASSWORD    = process.env.ODOO_PASSWORD || '1234'
+const TIMEOUT_MS  = Number(process.env.ODOO_TIMEOUT || 20000)
 
 const MODEL = process.argv[2]
 if (!MODEL) {
@@ -55,10 +58,11 @@ let reqId = 1
 function httpsPost(urlPath, body) {
   return new Promise((resolve, reject) => {
     const bodyBuf = Buffer.from(body, 'utf-8')
-    const req = https.request(
+    const transport = SERVER_PROTO === 'http' ? http : https
+    const req = transport.request(
       {
         hostname: SERVER_HOST,
-        port: 443,
+        port: SERVER_PORT,
         path: urlPath,
         method: 'POST',
         localAddress: LOCAL_IP,
@@ -113,7 +117,7 @@ async function callKw(model, method, args, kwargs = {}) {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 ;(async () => {
-  console.log(`\n🔐 Autenticando em ${SERVER_HOST}/${DB} como ${LOGIN}...`)
+  console.log(`\n🔐 Autenticando em ${SERVER_PROTO}://${SERVER_HOST}:${SERVER_PORT}/${DB} como ${LOGIN}...`)
   const auth = await rpc('/web/session/authenticate', { db: DB, login: LOGIN, password: PASSWORD })
   if (auth.error || !auth.result?.uid) {
     console.error('❌ Falha na autenticação:', auth.error?.data?.message ?? auth.error)

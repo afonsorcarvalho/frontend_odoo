@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { CycleStatusBadge } from './CycleStatusBadge'
+import { CycleProgressBar } from './CycleProgressBar'
 import type { OdooCycleSummary } from '@/lib/types/ciclo'
 import { formatOverdue } from '@/lib/utils/cycleTime'
 
@@ -29,12 +30,12 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
         variant="hover"
         noPadding
         className={clsx(
-          'cursor-pointer p-4 flex items-center gap-4',
+          'cursor-pointer p-4 flex flex-col gap-3',
           cycle.state === 'em_andamento' && 'in-progress-glow'
         )}
         onClick={() => router.push(`/ciclos/${cycle.id}`)}
       >
-        <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr_0.6fr_auto] gap-3 items-center">
+        <div className="min-w-0 grid grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr_0.6fr_auto] gap-3 items-center">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-white truncate">{cycle.name}</p>
             {cycle.equipment_id && (
@@ -91,6 +92,10 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
             <CycleStatusBadge state={cycle.state} />
           </div>
         </div>
+
+        {cycle.state === 'em_andamento' && (
+          <CycleProgressBar cycle={cycle} showLabel />
+        )}
       </GlassCard>
     </motion.div>
   )
