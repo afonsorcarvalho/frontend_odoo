@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { CycleStatusBadge } from './CycleStatusBadge'
-import { CycleProgressBar } from './CycleProgressBar'
+import { CyclePhaseBar } from './CyclePhaseBar'
+import { CycleActiveHeader } from './CycleActiveHeader'
 import type { OdooCycleSummary } from '@/lib/types/ciclo'
 import { formatOverdue } from '@/lib/utils/cycleTime'
 
@@ -41,9 +42,7 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
             {cycle.equipment_id && (
               <p className="text-xs text-white/50 truncate flex items-center gap-1 mt-0.5">
                 <Activity size={10} className="text-neon-blue/70 flex-shrink-0" />
-                {cycle.equipment_nickname
-                  ? `${cycle.equipment_nickname} · ${cycle.equipment_id[1]}`
-                  : cycle.equipment_id[1]}
+                {cycle.equipment_id[1]}
               </p>
             )}
           </div>
@@ -78,23 +77,36 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            {cycle.is_overdue && (
+          <div className="flex flex-col items-end gap-1.5 min-w-0">
+            <div className="flex items-center gap-2">
+              {cycle.is_overdue && (
+                <span
+                  className="overdue-glow inline-flex items-center gap-1 text-[10px] text-neon-pink font-medium whitespace-nowrap"
+                  title="Atrasado"
+                >
+                  <AlertCircle size={11} />
+                  {formatOverdue(cycle) || 'Atrasado'}
+                </span>
+              )}
+              {cycle.is_signed && <CheckCircle2 size={13} className="text-neon-green" />}
+              <CycleStatusBadge state={cycle.state} />
+            </div>
+            {cycle.equipment_nickname && (
               <span
-                className="overdue-glow inline-flex items-center gap-1 text-[10px] text-neon-pink font-medium whitespace-nowrap"
-                title="Atrasado"
+                className="text-2xl uppercase tracking-tight text-white/50 leading-none truncate max-w-full"
+                title={cycle.equipment_nickname}
               >
-                <AlertCircle size={11} />
-                {formatOverdue(cycle) || 'Atrasado'}
+                {cycle.equipment_nickname}
               </span>
             )}
-            {cycle.is_signed && <CheckCircle2 size={13} className="text-neon-green" />}
-            <CycleStatusBadge state={cycle.state} />
           </div>
         </div>
 
         {cycle.state === 'em_andamento' && (
-          <CycleProgressBar cycle={cycle} showLabel />
+          <div className="space-y-3">
+            <CycleActiveHeader cycle={cycle} size="md" />
+            <CyclePhaseBar cycle={cycle} variant="full" showHeader={false} />
+          </div>
         )}
       </GlassCard>
     </motion.div>

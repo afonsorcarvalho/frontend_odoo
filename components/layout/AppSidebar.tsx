@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Activity, Users, Wrench, LogOut, Building2 } from 'lucide-react'
+import { Menu, X, Activity, Users, Wrench, LogOut, Building2, MonitorPlay } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/lib/store/authStore'
@@ -20,6 +20,7 @@ interface NavItem {
 
 const ITEMS: NavItem[] = [
   { href: '/ciclos',   label: 'Ciclos',   icon: <Activity size={18} />, matchPrefix: '/ciclos' },
+  { href: '/wall',     label: 'Parede de TVs', icon: <MonitorPlay size={18} />, matchPrefix: '/wall' },
   { href: '/os',       label: 'Ordens de Serviço', icon: <Wrench size={18} />, matchPrefix: '/os' },
   { href: '/contacts', label: 'Contatos', icon: <Users size={18} />, matchPrefix: '/contacts' },
 ]
@@ -122,17 +123,21 @@ function SidebarContent({
   return (
     <div className="flex-1 flex flex-col">
       <div className="p-5 border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <motion.div
-            className="p-2 rounded-xl bg-neon-blue/10 border border-neon-blue/20"
-            animate={{ boxShadow: ['0 0 10px rgba(0,212,255,0.1)', '0 0 20px rgba(0,212,255,0.3)', '0 0 10px rgba(0,212,255,0.1)'] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <Activity size={18} className="text-neon-blue" />
-          </motion.div>
+        <div className="flex items-center gap-3 min-w-0">
+          {companyLogo ? (
+            <img
+              src={`data:image/png;base64,${companyLogo}`}
+              alt={companyName ?? ''}
+              className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-white/10"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+              <Building2 size={18} className="text-white/40" />
+            </div>
+          )}
           <div className="min-w-0">
             <p className="text-sm font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent truncate">
-              Odoo Frontend
+              {companyName ?? 'Empresa'}
             </p>
             <p className="text-[10px] text-white/40 truncate">Supervisório</p>
           </div>
@@ -162,18 +167,16 @@ function SidebarContent({
       </nav>
 
       <div className="border-t border-white/5 p-3 space-y-2">
-        {(companyName || companyLogo) && (
-          <div className="flex items-center gap-2 px-2 py-1 min-w-0">
-            {companyLogo ? (
-              <img src={`data:image/png;base64,${companyLogo}`} alt={companyName ?? ''} className="w-6 h-6 rounded object-cover flex-shrink-0" />
-            ) : (
-              <div className="w-6 h-6 rounded bg-white/5 flex items-center justify-center flex-shrink-0">
-                <Building2 size={12} className="text-white/40" />
-              </div>
-            )}
-            <span className="text-xs text-white/70 truncate">{companyName ?? ''}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 px-2 py-1 min-w-0">
+          <motion.div
+            className="p-1.5 rounded-lg bg-neon-blue/10 border border-neon-blue/20 flex-shrink-0"
+            animate={{ boxShadow: ['0 0 6px rgba(0,212,255,0.1)', '0 0 14px rgba(0,212,255,0.3)', '0 0 6px rgba(0,212,255,0.1)'] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <Activity size={12} className="text-neon-blue" />
+          </motion.div>
+          <span className="text-xs text-white/70 truncate">Odoo Frontend</span>
+        </div>
         {userName && (
           <p className="px-2 text-[11px] text-white/40 truncate">{userName}</p>
         )}

@@ -162,3 +162,100 @@
 @media (prefers-reduced-motion: reduce) {
   .scheduled-today-glow { animation: none; }
 }
+
+/* Glow do segmento ATIVO da barra de fases do ciclo */
+@keyframes phase-active-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgba(16, 185, 129, 0.45),
+      inset 0 0 12px rgba(16, 185, 129, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(16, 185, 129, 0.78),
+      inset 0 0 18px rgba(16, 185, 129, 0.30);
+  }
+}
+
+.phase-active-glow {
+  animation: phase-active-pulse 2.0s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase-active-glow { animation: none; }
+}
+
+/* Shimmer varrendo o segmento ATIVO */
+@keyframes phase-shimmer-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.phase-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.0) 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.0) 70%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: phase-shimmer-sweep 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase-shimmer { animation: none; opacity: 0; }
+}
+
+/* Grão sutil no fill do segmento ativo */
+@keyframes phase-fill-pulse {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1; }
+}
+
+.phase-fill {
+  animation: phase-fill-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase-fill { animation: none; }
+}
+
+/* Glow respirando no nome da fase atual */
+@keyframes phase-label-breathe {
+  0%, 100% {
+    opacity: 0.78;
+    text-shadow:
+      0 0 4px rgba(16, 185, 129, 0.35),
+      0 0 8px rgba(16, 185, 129, 0.18);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 12px rgba(16, 185, 129, 0.95),
+      0 0 26px rgba(16, 185, 129, 0.65),
+      0 0 44px rgba(16, 185, 129, 0.40);
+  }
+}
+
+.phase-label-glow {
+  animation: phase-label-breathe 3.6s ease-in-out infinite;
+  will-change: opacity, text-shadow;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase-label-glow { animation: none; }
+}
+
+/* Modo dashboard: derruba os max-width das páginas para ocupar toda a tela */
+.dashboard-mode .max-w-3xl,
+.dashboard-mode .max-w-4xl,
+.dashboard-mode .max-w-5xl,
+.dashboard-mode .max-w-6xl,
+.dashboard-mode .max-w-7xl {
+  max-width: 100% !important;
+}

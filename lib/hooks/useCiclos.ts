@@ -64,6 +64,14 @@ export function useCycleTypes() {
   })
 }
 
+export function useCycleFeatures() {
+  return useQuery({
+    queryKey: ['cycle-features'],
+    queryFn: ciclosApi.getCycleFeatures,
+    staleTime: Infinity,
+  })
+}
+
 export function useCycleMaterials(cycleId: number | null) {
   return useQuery({
     queryKey: ['cycle-materials', cycleId],

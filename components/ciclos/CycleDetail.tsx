@@ -19,8 +19,9 @@ const PdfViewerModal = dynamic(
   { ssr: false }
 )
 import { CycleStatusBadge } from './CycleStatusBadge'
+import { CyclePhaseBar } from './CyclePhaseBar'
 import type { OdooCycle } from '@/lib/types/ciclo'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import odooClient from '@/lib/odoo/client'
 import { getReportsFor, formatFilename } from '@/lib/odoo/reports'
 import { formatOverdue } from '@/lib/utils/cycleTime'
@@ -196,6 +197,10 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
             <PrintMenu onOpenReport={handleOpenReport} />
           </div>
 
+          <div className="mt-5">
+            <CyclePhaseBar cycle={cycle} variant="full" />
+          </div>
+
           <div className="mt-5 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2 mb-3">
               <FileDown size={13} className="text-neon-blue" />
@@ -231,7 +236,14 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
             <Field label="Categoria equip." value={cycle.equipment_category_id ? cycle.equipment_category_id[1] : '—'} />
             <Field label="Fim" value={formatDateTime(cycle.end_date)} />
             <Field label="Duração prevista" value={cycle.duration_planned ? `${Math.round(cycle.duration_planned)} min` : '—'} />
-            <Field label="Duração" value={formatDuration(cycle.duration)} />
+            <Field
+              label="Duração"
+              value={
+                cycle.state === 'em_andamento' && cycle.start_date
+                  ? <LiveDuration startDate={cycle.start_date} />
+                  : formatDuration(cycle.duration)
+              }
+            />
           </div>
         </Section>
 
@@ -398,15 +410,41 @@ function Section({
   )
 }
 
-function Field({ label, value, icon }: { label: string; value: string; icon?: ReactNode }) {
+function Field({ label, value, icon }: { label: string; value: ReactNode; icon?: ReactNode }) {
+  const display = value === '' || value === null || value === undefined ? '—' : value
   return (
     <div className="flex items-start gap-3 text-xs">
       <span className="text-white/40 w-32 flex-shrink-0 flex items-center gap-1">
         {icon}
         {label}
       </span>
-      <span className="text-white/80 flex-1 break-words">{value || '—'}</span>
+      <span className="text-white/80 flex-1 break-words">{display}</span>
     </div>
+  )
+}
+
+function LiveDuration({ startDate }: { startDate: string }) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    setNow(Date.now())
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [startDate])
+
+  const start = new Date(startDate.replace(' ', 'T') + 'Z').getTime()
+  if (isNaN(start)) return <>—</>
+  const ms = Math.max(0, now - start)
+  const totalMin = Math.floor(ms / 60000)
+  const sec = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0')
+  const h = Math.floor(totalMin / 60)
+  const m = totalMin % 60
+  const text = h > 0
+    ? `${h}h ${m.toString().padStart(2, '0')}min ${sec}s`
+    : `${m}min ${sec}s`
+  return (
+    <span className="font-mono text-neon-green tabular-nums">
+      {text} <span className="text-white/40 font-sans">(em andamento)</span>
+    </span>
   )
 }
 

@@ -32,6 +32,7 @@ export interface OdooCycleSummary {
   equipment_id: [number, string] | false
   equipment_nickname: string | false
   cycle_type_id: [number, string] | false
+  cycle_features_id: [number, string] | false
   operator_id: [number, string] | false
   material_count: number | false
   ib_resultado: IBResult | false
@@ -69,6 +70,22 @@ export interface OdooCycle extends OdooCycleSummary {
   cycle_txt_filename: string | false
   file_path: string | false
   cycle_graph: string | false
+  cycle_statistics_data?: unknown | false
+}
+
+export interface CyclePhase {
+  name: string
+  label: string
+  plannedMin: number
+  actualMin?: number
+}
+
+export interface CyclePhaseInfo {
+  phases: CyclePhase[]
+  totalPlannedMin: number
+  currentPhaseIndex: number | null
+  elapsedMs: number
+  finished: boolean
 }
 
 export interface CycleFilters {
@@ -115,4 +132,12 @@ export interface CycleType {
   id: number
   name: string
   display_name?: string
+}
+
+export interface CycleFeatures {
+  id: number
+  name: string
+  display_name?: string
+  cycle_type_id?: [number, string] | false
+  phases_planned?: string | false
 }

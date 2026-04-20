@@ -7,6 +7,7 @@ import type {
   CycleFilters,
   Equipment,
   CycleType,
+  CycleFeatures,
 } from '../types/ciclo'
 
 function fieldsFor(model: string, fields: string[]): string[] {
@@ -16,7 +17,7 @@ function fieldsFor(model: string, fields: string[]): string[] {
 export const CYCLE_LIST_FIELDS: string[] = [
   'id', 'name', 'display_name', 'state', 'start_date', 'end_date',
   'duration', 'duration_planned', 'batch_number', 'equipment_id', 'equipment_nickname',
-  'cycle_type_id', 'operator_id', 'material_count', 'ib_resultado',
+  'cycle_type_id', 'cycle_features_id', 'operator_id', 'material_count', 'ib_resultado',
   'is_overdue', 'is_signed',
 ]
 
@@ -30,7 +31,7 @@ export const CYCLE_DETAIL_FIELDS: string[] = [
   'signature_professional_council', 'signature_professional_council_number',
   'company_id', 'create_date', 'create_uid',
   'cycle_pdf_filename', 'cycle_graph_filename', 'cycle_txt_filename', 'file_path',
-  'cycle_graph',
+  'cycle_graph', 'cycle_statistics_data',
 ]
 
 export function buildCycleDomain(filters: CycleFilters): unknown[] {
@@ -105,6 +106,17 @@ export const ciclosApi = {
       [],
       fieldsFor('afr.cycle.type', ['id', 'name', 'display_name']),
       { limit: 200, order: 'name asc' }
+    )
+  },
+
+  async getCycleFeatures(): Promise<CycleFeatures[]> {
+    return odooClient.searchRead<CycleFeatures>(
+      'afr.cycle.features',
+      [],
+      fieldsFor('afr.cycle.features', [
+        'id', 'name', 'display_name', 'cycle_type_id', 'phases_planned',
+      ]),
+      { limit: 500, order: 'name asc' }
     )
   },
 
