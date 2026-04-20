@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer'
 import { LayoutGrid, List, SlidersHorizontal, Activity } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useCiclos } from '@/lib/hooks/useCiclos'
+import { useCiclosBus } from '@/lib/hooks/useCiclosBus'
 import { useCiclosStore } from '@/lib/store/ciclosStore'
 import { CycleCard } from '@/components/ciclos/CycleCard'
 import { CycleListItem } from '@/components/ciclos/CycleListItem'
@@ -17,6 +18,7 @@ import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 export default function CiclosPage() {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useCiclos()
   const { ui, setViewMode, openFilterPanel, filters } = useCiclosStore()
+  useCiclosBus()
 
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 

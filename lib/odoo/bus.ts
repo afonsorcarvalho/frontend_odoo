@@ -1,8 +1,6 @@
-// Cliente do bus do Odoo via SSE bridge em /api/os/bus.
+// Cliente do bus do Odoo via SSE bridge no Next (rotas em app/api/<entidade>/bus).
 // O Next abre WebSocket para o Odoo (com sessão) e republica como Server-Sent Events.
 // Browser → SSE; servidor Next → WebSocket → Odoo.
-
-const SSE_URL = '/api/os/bus'
 
 export interface BusMessage<T = unknown> {
   id: number
@@ -20,10 +18,11 @@ export interface BusSubscription {
 }
 
 export function subscribeBus(
+  sseUrl: string,
   onMessage: (msg: BusMessage) => void,
   onStatus?: (status: 'connecting' | 'open' | 'error' | 'closed') => void
 ): BusSubscription {
-  let es: EventSource | null = new EventSource(SSE_URL)
+  let es: EventSource | null = new EventSource(sseUrl)
   onStatus?.('connecting')
 
   es.addEventListener('open', () => onStatus?.('open'))

@@ -3,11 +3,11 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { subscribeBus } from '../odoo/bus'
-import { OS_KEY } from './useOs'
+import { CICLOS_KEY } from './useCiclos'
 
-const EVENT_TYPE = 'engc_os.changed'
+const EVENT_TYPE = 'ciclos.changed'
 
-interface OsChangePayload {
+interface CicloChangePayload {
   event: 'created' | 'updated'
   id: number
   name?: string
@@ -16,24 +16,24 @@ interface OsChangePayload {
 }
 
 /**
- * Recebe eventos de OS em tempo real do bus.bus do Odoo (via SSE bridge no Next)
+ * Recebe eventos de Ciclos em tempo real do bus.bus do Odoo (via SSE bridge no Next)
  * e invalida os caches do React Query correspondentes.
  *
  * Deve ser montado uma única vez na árvore (ex.: na página de listagem).
  */
-export function useOsBus(enabled = true) {
+export function useCiclosBus(enabled = true) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!enabled) return
 
-    const sub = subscribeBus('/api/os/bus', (msg) => {
+    const sub = subscribeBus('/api/ciclos/bus', (msg) => {
       if (msg.type !== EVENT_TYPE) return
-      const payload = msg.payload as OsChangePayload | undefined
+      const payload = msg.payload as CicloChangePayload | undefined
       if (!payload) return
-      queryClient.invalidateQueries({ queryKey: [OS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [CICLOS_KEY] })
       if (typeof payload.id === 'number') {
-        queryClient.invalidateQueries({ queryKey: ['os-detail', payload.id] })
+        queryClient.invalidateQueries({ queryKey: ['ciclo', payload.id] })
       }
     })
 
