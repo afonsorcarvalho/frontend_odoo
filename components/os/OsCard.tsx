@@ -12,6 +12,7 @@ import {
   MAINTENANCE_TYPE_LABEL,
   type OdooOsSummary,
   isOsOverdue,
+  isOsScheduledToday,
 } from '@/lib/types/os'
 
 interface OsCardProps {
@@ -31,6 +32,7 @@ const cardVariants = {
 export function OsCard({ os, index = 0 }: OsCardProps) {
   const router = useRouter()
   const overdue = isOsOverdue(os)
+  const scheduledToday = !overdue && isOsScheduledToday(os)
 
   return (
     <motion.div variants={cardVariants} initial="hidden" animate="visible" exit="exit" custom={index} layout>
@@ -39,7 +41,8 @@ export function OsCard({ os, index = 0 }: OsCardProps) {
         noPadding
         className={clsx(
           'cursor-pointer group relative p-5 h-full',
-          overdue && 'overdue-card-glow'
+          overdue && 'overdue-card-glow',
+          scheduledToday && 'scheduled-today-glow'
         )}
         onClick={() => router.push(`/os/${os.id}`)}
       >

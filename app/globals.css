@@ -137,3 +137,28 @@
 @media (prefers-reduced-motion: reduce) {
   .overdue-card-glow { animation: none; }
 }
+
+/* Glow ondulante laranja para OS programadas para hoje */
+@keyframes scheduled-today-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 146, 60, 0.22),
+      0 0 12px rgba(251, 146, 60, 0.12),
+      0 0 0 rgba(251, 146, 60, 0);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(251, 146, 60, 0.55),
+      0 0 24px rgba(251, 146, 60, 0.35),
+      0 0 48px rgba(251, 146, 60, 0.15);
+  }
+}
+
+.scheduled-today-glow {
+  animation: scheduled-today-pulse 2.2s ease-in-out infinite;
+  border-color: rgba(251, 146, 60, 0.3) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scheduled-today-glow { animation: none; }
+}

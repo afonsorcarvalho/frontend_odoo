@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer'
 import { LayoutGrid, List, SlidersHorizontal, Wrench, Plus } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useOsList } from '@/lib/hooks/useOs'
+import { useOsBus } from '@/lib/hooks/useOsBus'
 import { useOsStore } from '@/lib/store/osStore'
 import { OsCard } from '@/components/os/OsCard'
 import { OsListItem } from '@/components/os/OsListItem'
@@ -18,6 +19,7 @@ import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 export default function OsListPage() {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useOsList()
   const { ui, setViewMode, openFilterPanel, openFormModal, filters } = useOsStore()
+  useOsBus()
 
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 

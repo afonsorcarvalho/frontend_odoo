@@ -168,3 +168,17 @@ export function isOsOverdue(cycle: Pick<OdooOsSummary, 'date_scheduled' | 'state
   if (isNaN(scheduled)) return false
   return scheduled < Date.now()
 }
+
+export function isOsScheduledToday(cycle: Pick<OdooOsSummary, 'date_scheduled' | 'state' | 'date_finish'>): boolean {
+  if (!cycle.date_scheduled) return false
+  if (cycle.state && OS_TERMINAL_STATES.includes(cycle.state as OsState)) return false
+  if (cycle.date_finish) return false
+  const scheduled = new Date(String(cycle.date_scheduled).replace(' ', 'T') + 'Z')
+  if (isNaN(scheduled.getTime())) return false
+  const now = new Date()
+  return (
+    scheduled.getFullYear() === now.getFullYear() &&
+    scheduled.getMonth() === now.getMonth() &&
+    scheduled.getDate() === now.getDate()
+  )
+}

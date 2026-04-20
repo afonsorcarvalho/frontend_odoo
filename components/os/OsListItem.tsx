@@ -11,6 +11,7 @@ import {
   MAINTENANCE_TYPE_LABEL,
   type OdooOsSummary,
   isOsOverdue,
+  isOsScheduledToday,
 } from '@/lib/types/os'
 
 interface OsListItemProps {
@@ -21,6 +22,7 @@ interface OsListItemProps {
 export function OsListItem({ os, index = 0 }: OsListItemProps) {
   const router = useRouter()
   const overdue = isOsOverdue(os)
+  const scheduledToday = !overdue && isOsScheduledToday(os)
 
   return (
     <motion.div
@@ -35,7 +37,8 @@ export function OsListItem({ os, index = 0 }: OsListItemProps) {
         noPadding
         className={clsx(
           'cursor-pointer p-4',
-          overdue && 'overdue-card-glow'
+          overdue && 'overdue-card-glow',
+          scheduledToday && 'scheduled-today-glow'
         )}
         onClick={() => router.push(`/os/${os.id}`)}
       >
