@@ -32,4 +32,6 @@ export function resetSessionCache(queryClient?: QueryClient | null): void {
 
   // Company cacheada (evita mostrar logo da empresa anterior)
   useAuthStore.getState().setCompany(null, '', null)
+  useAuthStore.getState().setAvailableCompanies([])
+  useAuthStore.getState().setSelectedCompany(null)
 }

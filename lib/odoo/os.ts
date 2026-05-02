@@ -46,8 +46,12 @@ export const OS_DETAIL_FIELDS: string[] = [
   'periodicity_ids',
 ]
 
-export function buildOsDomain(filters: OsFilters): unknown[] {
+export function buildOsDomain(filters: OsFilters, companyId?: number | null): unknown[] {
   const domain: unknown[] = []
+
+  if (companyId && useSchemaStore.getState().hasField('engc.os', 'company_id')) {
+    domain.push(['company_id', '=', companyId])
+  }
 
   if (filters.search.trim()) {
     const s = filters.search.trim()
@@ -80,9 +84,10 @@ export const osApi = {
   async listPage(
     filters: OsFilters,
     pageParam = 0,
-    pageSize = 24
+    pageSize = 24,
+    companyId?: number | null
   ): Promise<{ records: OdooOsSummary[]; nextCursor: number | null; total: number }> {
-    const domain = buildOsDomain(filters)
+    const domain = buildOsDomain(filters, companyId)
 
     const [records, total] = await Promise.all([
       odooClient.searchRead<OdooOsSummary>(

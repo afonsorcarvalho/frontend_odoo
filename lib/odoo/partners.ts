@@ -38,8 +38,13 @@ export const PARTNER_DETAIL_FIELDS: string[] = [
   'create_date', 'write_date',
 ]
 
-export function buildDomain(filters: ContactFilters): unknown[] {
+export function buildDomain(filters: ContactFilters, companyId?: number | null): unknown[] {
   const domain: unknown[] = [['active', '=', filters.active]]
+
+  // Partners podem ser partilhados (company_id = false) — incluir ambos
+  if (companyId && useSchemaStore.getState().hasField('res.partner', 'company_id')) {
+    domain.push('|', ['company_id', '=', companyId], ['company_id', '=', false])
+  }
 
   if (filters.search.trim()) {
     domain.push(
@@ -94,9 +99,10 @@ export const partnersApi = {
   async listPage(
     filters: ContactFilters,
     pageParam = 0,
-    pageSize = 24
+    pageSize = 24,
+    companyId?: number | null
   ): Promise<{ records: OdooPartnerSummary[]; nextCursor: number | null; total: number }> {
-    const domain = buildDomain(filters)
+    const domain = buildDomain(filters, companyId)
 
     const [records, total] = await Promise.all([
       odooClient.searchRead<OdooPartnerSummary>(

@@ -4,6 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import toast from 'react-hot-toast'
 import osApi from '../odoo/os'
 import { useOsStore } from '../store/osStore'
+import { useAuthStore } from '../store/authStore'
 import { OS_ACTIVE_STATES, type OsFormData, type OsState } from '../types/os'
 
 export const OS_KEY = 'os'
@@ -13,10 +14,11 @@ const DETAIL_ACTIVE_REFETCH_MS = 15_000
 
 export function useOsList() {
   const filters = useOsStore((s) => s.filters)
+  const selectedCompanyId = useAuthStore((s) => s.selectedCompanyId)
 
   return useInfiniteQuery({
-    queryKey: [OS_KEY, filters],
-    queryFn: ({ pageParam }) => osApi.listPage(filters, pageParam as number, 24),
+    queryKey: [OS_KEY, filters, selectedCompanyId],
+    queryFn: ({ pageParam }) => osApi.listPage(filters, pageParam as number, 24, selectedCompanyId),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 1000 * 60 * 2,

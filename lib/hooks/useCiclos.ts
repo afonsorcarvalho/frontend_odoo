@@ -3,6 +3,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import ciclosApi from '../odoo/ciclos'
 import { useCiclosStore } from '../store/ciclosStore'
+import { useAuthStore } from '../store/authStore'
 
 export const CICLOS_KEY = 'ciclos'
 
@@ -11,10 +12,11 @@ const DETAIL_ACTIVE_REFETCH_MS = 15_000
 
 export function useCiclos() {
   const filters = useCiclosStore((s) => s.filters)
+  const selectedCompanyId = useAuthStore((s) => s.selectedCompanyId)
 
   return useInfiniteQuery({
-    queryKey: [CICLOS_KEY, filters],
-    queryFn: ({ pageParam }) => ciclosApi.listPage(filters, pageParam as number, 24),
+    queryKey: [CICLOS_KEY, filters, selectedCompanyId],
+    queryFn: ({ pageParam }) => ciclosApi.listPage(filters, pageParam as number, 24, selectedCompanyId),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 1000 * 60 * 2,

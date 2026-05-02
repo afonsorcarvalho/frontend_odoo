@@ -4,16 +4,18 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import toast from 'react-hot-toast'
 import partnersApi from '../odoo/partners'
 import { useContactsStore } from '../store/contactsStore'
+import { useAuthStore } from '../store/authStore'
 import type { PartnerFormData } from '../types/partner'
 
 export const CONTACTS_KEY = 'contacts'
 
 export function useContacts() {
   const filters = useContactsStore((s) => s.filters)
+  const selectedCompanyId = useAuthStore((s) => s.selectedCompanyId)
 
   return useInfiniteQuery({
-    queryKey: [CONTACTS_KEY, filters],
-    queryFn: ({ pageParam }) => partnersApi.listPage(filters, pageParam as number, 24),
+    queryKey: [CONTACTS_KEY, filters, selectedCompanyId],
+    queryFn: ({ pageParam }) => partnersApi.listPage(filters, pageParam as number, 24, selectedCompanyId),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 1000 * 60 * 2,

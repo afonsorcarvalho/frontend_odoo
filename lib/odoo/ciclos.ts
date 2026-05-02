@@ -34,8 +34,12 @@ export const CYCLE_DETAIL_FIELDS: string[] = [
   'cycle_graph', 'cycle_statistics_data',
 ]
 
-export function buildCycleDomain(filters: CycleFilters): unknown[] {
+export function buildCycleDomain(filters: CycleFilters, companyId?: number | null): unknown[] {
   const domain: unknown[] = []
+
+  if (companyId && useSchemaStore.getState().hasField('afr.supervisorio.ciclos', 'company_id')) {
+    domain.push(['company_id', '=', companyId])
+  }
 
   if (filters.search.trim()) {
     const s = filters.search.trim()
@@ -63,9 +67,10 @@ export const ciclosApi = {
   async listPage(
     filters: CycleFilters,
     pageParam = 0,
-    pageSize = 24
+    pageSize = 24,
+    companyId?: number | null
   ): Promise<{ records: OdooCycleSummary[]; nextCursor: number | null; total: number }> {
-    const domain = buildCycleDomain(filters)
+    const domain = buildCycleDomain(filters, companyId)
 
     const [records, total] = await Promise.all([
       odooClient.searchRead<OdooCycleSummary>(

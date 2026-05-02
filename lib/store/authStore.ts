@@ -4,6 +4,11 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { useSchemaStore } from './schemaStore'
 
+export interface AvailableCompany {
+  id: number
+  name: string
+}
+
 interface AuthState {
   serverUrl: string
   dbName: string
@@ -16,10 +21,16 @@ interface AuthState {
   companyName: string
   companyLogo: string | null  // base64 sem prefixo
 
+  // Seletor global de empresa
+  availableCompanies: AvailableCompany[]
+  selectedCompanyId: number | null  // null = todas as empresas
+
   setServerUrl: (url: string) => void
   setDbName: (db: string) => void
   setUser: (id: number, name: string) => void
   setCompany: (id: number | null, name: string, logo: string | null) => void
+  setAvailableCompanies: (companies: AvailableCompany[]) => void
+  setSelectedCompany: (id: number | null) => void
   logout: () => void
 }
 
@@ -35,19 +46,20 @@ export const useAuthStore = create<AuthState>()(
         companyId: null,
         companyName: '',
         companyLogo: null,
+        availableCompanies: [],
+        selectedCompanyId: null,
 
         setServerUrl: (serverUrl) => {
           if (serverUrl !== get().serverUrl) {
             useSchemaStore.getState().clear()
-            // Company cacheada é de outro server — invalida
-            set({ companyId: null, companyName: '', companyLogo: null })
+            set({ companyId: null, companyName: '', companyLogo: null, availableCompanies: [], selectedCompanyId: null })
           }
           set({ serverUrl })
         },
         setDbName: (dbName) => {
           if (dbName !== get().dbName) {
             useSchemaStore.getState().clear()
-            set({ companyId: null, companyName: '', companyLogo: null })
+            set({ companyId: null, companyName: '', companyLogo: null, availableCompanies: [], selectedCompanyId: null })
           }
           set({ dbName })
         },
@@ -58,14 +70,21 @@ export const useAuthStore = create<AuthState>()(
         setCompany: (companyId, companyName, companyLogo) =>
           set({ companyId, companyName, companyLogo }),
 
+        setAvailableCompanies: (availableCompanies) =>
+          set({ availableCompanies }),
+
+        setSelectedCompany: (selectedCompanyId) =>
+          set({ selectedCompanyId }),
+
         logout: () => {
           useSchemaStore.getState().clear()
-          // company permanece: "última empresa logada" até trocar de server/db
           set({
             userId: null,
             userName: '',
             isAuthenticated: false,
             dbName: '',
+            availableCompanies: [],
+            selectedCompanyId: null,
           })
         },
       }),
@@ -80,6 +99,7 @@ export const useAuthStore = create<AuthState>()(
           companyId: s.companyId,
           companyName: s.companyName,
           companyLogo: s.companyLogo,
+          selectedCompanyId: s.selectedCompanyId,
         }),
       }
     ),
