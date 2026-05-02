@@ -1,16 +1,37 @@
 'use client'
 
 import { useState, ReactNode } from 'react'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
 import { Wrench, Calendar, Clock, User, Building2, ShieldCheck, Info, ClipboardList, FileText, Package, Gauge, History, Pencil, AlertCircle } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
+import { PrintMenu } from '@/components/ui/PrintMenu'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
 import { OsTransitionBar } from './OsTransitionBar'
+import { OsChecklistTab } from './OsChecklistTab'
+import { OsRelatoriosTab } from './OsRelatoriosTab'
+import { OsPecasTab } from './OsPecasTab'
+import { OsSignaturesSection } from './OsSignaturesSection'
+import { OsSignMenu } from './OsSignMenu'
+import toast from 'react-hot-toast'
 import { useOsStore } from '@/lib/store/osStore'
-import { MAINTENANCE_TYPE_LABEL, type OdooOs, isOsOverdue } from '@/lib/types/os'
+import { usePdfReport } from '@/lib/hooks/usePdfReport'
+import {
+  useGenerateChecklist,
+  useTransitionOs,
+  useCreateRelatorio,
+  useOsRelatorios,
+} from '@/lib/hooks/useOs'
+import { MAINTENANCE_TYPE_LABEL, OS_TERMINAL_STATES, type OdooOs, type OsRelatorio, isOsOverdue } from '@/lib/types/os'
+import { OsRelatorioModal } from './OsRelatorioModal'
+
+const PdfViewerModal = dynamic(
+  () => import('@/components/ui/PdfViewerModal').then((m) => m.PdfViewerModal),
+  { ssr: false }
+)
 
 type TabKey = 'geral' | 'checklist' | 'relatorios' | 'pecas' | 'calibracao' | 'historico'
 
@@ -25,6 +46,98 @@ export function OsDetail({ os }: { os: OdooOs }) {
   const [tab, setTab] = useState<TabKey>('geral')
   const openFormModal = useOsStore((s) => s.openFormModal)
   const overdue = isOsOverdue(os)
+  const isTerminal = os.state ? OS_TERMINAL_STATES.includes(os.state as never) : false
+  const canEdit = os.state === 'draft'
+  const pdf = usePdfReport()
+
+  // Fluxo "Iniciar execução"
+  const generateChecklist = useGenerateChecklist(os.id)
+  const transition = useTransitionOs()
+  const createRelatorio = useCreateRelatorio(os.id)
+  const { data: relatoriosList } = useOsRelatorios(os.id)
+  const [execRelatorio, setExecRelatorio] = useState<OsRelatorio | null>(null)
+  const [execModalOpen, setExecModalOpen] = useState(false)
+  const [execBusy, setExecBusy] = useState(false)
+
+  const handleOpenReport = (reportName: string, label: string, pattern?: string) => {
+    return pdf.openReport(reportName, [os.id], label, pattern, { id: os.id, name: os.name })
+  }
+
+  const handleIniciarExecucao = async () => {
+    if (execBusy) return
+    setExecBusy(true)
+    const t = toast.loading('Iniciando execução...')
+    try {
+      // 1. Gera checklist se aplicável e ainda não gerado
+      const checklistTypes = ['preventive', 'loan', 'calibration']
+      const shouldGenerate =
+        !os.check_list_created &&
+        os.maintenance_type &&
+        checklistTypes.includes(os.maintenance_type as never)
+      if (shouldGenerate) {
+        toast.loading('1/3 · Gerando checklist...', { id: t })
+        try {
+          await generateChecklist.mutateAsync()
+        } catch {
+          // ignora falha de checklist — segue fluxo
+        }
+      }
+      // 2. Transição para under_repair
+      toast.loading(`${shouldGenerate ? '2/3' : '1/2'} · Alterando status da OS para "Em execução"...`, { id: t })
+      await transition.mutateAsync({ id: os.id, targetState: 'under_repair' })
+      // 3. Cria relatório draft com defaults
+      toast.loading(`${shouldGenerate ? '3/3' : '2/2'} · Criando relatório de serviço...`, { id: t })
+      const pad = (n: number) => String(n).padStart(2, '0')
+      const fmt = (d: Date) =>
+        `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:00`
+      const start = new Date()
+      const end = new Date(start.getTime() + 60 * 60 * 1000) // +1h
+      const startIso = fmt(start)
+      const endIso = fmt(end)
+      const techIds = os.tecnico_id ? [os.tecnico_id[0]] : []
+      const newId = await createRelatorio.mutateAsync({
+        os_id: os.id,
+        report_type: 'manutencao',
+        fault_description: os.problem_description || '',
+        service_summary: '',
+        technicians: [[6, 0, techIds]] as never,
+        data_atendimento: startIso,
+        data_fim_atendimento: endIso,
+      } as never)
+      toast.success('Execução iniciada. Abrindo relatório...', { id: t })
+      // 4. Muda para tab Relatórios e abre modal de edição
+      setTab('relatorios')
+      // Monta um relatorio mínimo para o modal editar via id
+      setExecRelatorio({
+        id: newId as unknown as number,
+        name: '',
+        state: 'draft',
+        os_id: [os.id, os.name],
+        report_type: 'manutencao',
+        fault_description: os.problem_description || false,
+        service_summary: false,
+        observations: false,
+        pendency: false,
+        technicians: techIds,
+        state_equipment: false,
+        restriction_type: false,
+        data_atendimento: startIso,
+        data_fim_atendimento: endIso,
+        time_execution: false,
+        checklist_item_ids: [],
+      })
+      setExecModalOpen(true)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao iniciar execução', { id: t })
+    } finally {
+      setExecBusy(false)
+    }
+  }
+
+  // Se a lista de relatórios atualizar e tivermos um execRelatorio com ID, substitui pelo real
+  const liveRelatorio = execRelatorio
+    ? relatoriosList?.find((r) => r.id === execRelatorio.id) ?? execRelatorio
+    : null
 
   const tabs: TabDef[] = [
     { key: 'geral',       label: 'Geral',       icon: <Info size={14} /> },
@@ -44,6 +157,12 @@ export function OsDetail({ os }: { os: OdooOs }) {
               <h1 className="text-xl md:text-2xl font-bold text-white">{os.name}</h1>
               <OsStatusBadge state={os.state} />
               <OsPriorityBadge priority={os.priority} />
+              {os.maintenance_type && (
+                <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-neon-purple/10 text-neon-purple border border-neon-purple/30">
+                  <Wrench size={11} />
+                  {MAINTENANCE_TYPE_LABEL[os.maintenance_type]}
+                </span>
+              )}
               {overdue && (
                 <span className="inline-flex items-center gap-1 text-xs text-neon-pink font-medium">
                   <AlertCircle size={12} /> Atrasada
@@ -55,24 +174,56 @@ export function OsDetail({ os }: { os: OdooOs }) {
                 </span>
               )}
             </div>
-            {os.equipment_id && (
-              <p className="text-sm text-white/60 mt-2 flex items-center gap-2">
-                <Wrench size={14} className="text-neon-blue/70" />
-                {os.equipment_apelido ? `${os.equipment_apelido} · ` : ''}{os.equipment_id[1]}
-                {os.equipment_tag && <span className="text-white/40 text-xs">Tag {os.equipment_tag}</span>}
-              </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <OsSignMenu os={os} />
+            <PrintMenu
+              model="engc.os"
+              onOpenReport={handleOpenReport}
+              filterReports={(r) =>
+                r.report_name !== 'engc_os.report_checklist_blank_template' || !!os.check_list_created
+              }
+            />
+            {canEdit && (
+              <AnimatedButton variant="ghost" icon={<Pencil size={14} />} onClick={() => openFormModal(os.id)}>
+                Editar
+              </AnimatedButton>
             )}
           </div>
-          <div className="flex gap-2">
-            <AnimatedButton variant="ghost" icon={<Pencil size={14} />} onClick={() => openFormModal(os.id)}>
-              Editar
-            </AnimatedButton>
-          </div>
+
         </div>
 
+        {os.equipment_id && (
+          <div className="mt-5 pt-4 border-t border-white/10">
+            <div className="flex items-center gap-2 mb-3">
+              <Wrench size={13} className="text-neon-blue" />
+              <p className="text-[11px] uppercase tracking-wide text-white/40">Equipamento</p>
+            </div>
+            <div className="flex items-start gap-3 flex-wrap">
+              <div className="min-w-0 flex-1">
+                <p className="text-base font-semibold text-white">
+                  {os.equipment_apelido ? `${os.equipment_apelido} · ` : ''}{os.equipment_id[1]}
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1.5 mt-2 text-xs">
+                  {os.equipment_tag && <InfoLine label="Tag" value={os.equipment_tag} />}
+                  {os.equipment_model && <InfoLine label="Modelo" value={os.equipment_model} />}
+                  {os.equipment_patrimonio && <InfoLine label="Patrimônio" value={os.equipment_patrimonio} />}
+                  {os.equipment_serial_number && <InfoLine label="Nº de Série" value={os.equipment_serial_number} />}
+                  {os.equipment_category && <InfoLine label="Categoria" value={os.equipment_category} />}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mt-5 pt-4 border-t border-white/10">
-          <p className="text-[11px] uppercase tracking-wide text-white/40 mb-2">Transições</p>
-          <OsTransitionBar id={os.id} state={os.state} />
+          <p className="text-[11px] uppercase tracking-wide text-white/40 mb-2">Ações</p>
+          <OsTransitionBar
+            id={os.id}
+            state={os.state}
+            onIniciarExecucao={handleIniciarExecucao}
+            busy={execBusy}
+          />
         </div>
       </GlassCard>
 
@@ -91,9 +242,9 @@ export function OsDetail({ os }: { os: OdooOs }) {
           transition={{ duration: 0.18 }}
         >
           {tab === 'geral' && <TabGeral os={os} />}
-          {tab === 'checklist' && <TabEmpty icon={<ClipboardList size={32} />} title="Check-list" count={os.check_list_count || 0} created={os.check_list_created} />}
-          {tab === 'relatorios' && <TabEmpty icon={<FileText size={32} />} title="Relatórios" count={os.relatorios_count || 0} />}
-          {tab === 'pecas' && <TabEmpty icon={<Package size={32} />} title="Peças solicitadas" count={os.request_parts_count || 0} />}
+          {tab === 'checklist' && <OsChecklistTab os={os} />}
+          {tab === 'relatorios' && <OsRelatoriosTab os={os} />}
+          {tab === 'pecas' && <OsPecasTab os={os} />}
           {tab === 'calibracao' && (
             <TabEmpty
               icon={<Gauge size={32} />}
@@ -104,6 +255,23 @@ export function OsDetail({ os }: { os: OdooOs }) {
           {tab === 'historico' && <TabHistorico os={os} />}
         </motion.div>
       </AnimatePresence>
+
+      <PdfViewerModal
+        open={pdf.pdfOpen}
+        onOpenChange={pdf.setPdfOpen}
+        file={pdf.pdfBlob}
+        isLoading={pdf.pdfLoading}
+        title={pdf.pdfTitle}
+        filename={pdf.pdfServerFilename ?? pdf.pdfFallback}
+      />
+
+      <OsRelatorioModal
+        open={execModalOpen}
+        onClose={() => { setExecModalOpen(false); setExecRelatorio(null) }}
+        osId={os.id}
+        editing={liveRelatorio}
+        os={os}
+      />
     </div>
   )
 }
@@ -145,18 +313,9 @@ function TabGeral({ os }: { os: OdooOs }) {
         </div>
       </GlassCard>
 
-      <GlassCard className="p-5 space-y-3 lg:col-span-2">
-        <h3 className="text-sm font-semibold text-white/80 mb-2">Equipamento</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-          <InfoLine label="Nome" value={os.equipment_id ? os.equipment_id[1] : '—'} />
-          <InfoLine label="Apelido" value={os.equipment_apelido || '—'} />
-          <InfoLine label="Tag" value={os.equipment_tag || '—'} />
-          <InfoLine label="Modelo" value={os.equipment_model || '—'} />
-          <InfoLine label="Patrimônio" value={os.equipment_patrimonio || '—'} />
-          <InfoLine label="Nº de Série" value={os.equipment_serial_number || '—'} />
-          <InfoLine label="Categoria" value={os.equipment_category || '—'} />
-        </div>
-      </GlassCard>
+      <div className="lg:col-span-2">
+        <OsSignaturesSection os={os} />
+      </div>
     </div>
   )
 }

@@ -1,10 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, Clock, Wrench, AlertCircle, ShieldCheck } from 'lucide-react'
+import { Calendar, Clock, Wrench, AlertCircle, ShieldCheck, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { useOsStore } from '@/lib/store/osStore'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
 import {
@@ -12,6 +13,7 @@ import {
   type OdooOsSummary,
   isOsOverdue,
   isOsScheduledToday,
+  isOsDimmed,
 } from '@/lib/types/os'
 
 interface OsListItemProps {
@@ -21,8 +23,17 @@ interface OsListItemProps {
 
 export function OsListItem({ os, index = 0 }: OsListItemProps) {
   const router = useRouter()
-  const overdue = isOsOverdue(os)
-  const scheduledToday = !overdue && isOsScheduledToday(os)
+  const loadingDetailId = useOsStore((s) => s.loadingDetailId)
+  const setLoadingDetailId = useOsStore((s) => s.setLoadingDetailId)
+  const loading = loadingDetailId === os.id
+  const dimmed = isOsDimmed(os)
+  const overdue = !dimmed && isOsOverdue(os)
+  const scheduledToday = !dimmed && !overdue && isOsScheduledToday(os)
+
+  const handleClick = () => {
+    setLoadingDetailId(os.id)
+    router.push(`/os/${os.id}`)
+  }
 
   return (
     <motion.div
@@ -36,12 +47,22 @@ export function OsListItem({ os, index = 0 }: OsListItemProps) {
         variant="hover"
         noPadding
         className={clsx(
-          'cursor-pointer p-4',
+          'cursor-pointer p-4 relative transition-opacity',
           overdue && 'overdue-card-glow',
-          scheduledToday && 'scheduled-today-glow'
+          scheduledToday && 'scheduled-today-glow',
+          dimmed && 'opacity-50 grayscale-[40%] hover:opacity-75',
+          loading && 'pointer-events-none'
         )}
-        onClick={() => router.push(`/os/${os.id}`)}
+        onClick={handleClick}
       >
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-dark-900/60 backdrop-blur-sm">
+            <div className="flex items-center gap-2 text-neon-blue text-xs font-medium">
+              <Loader2 size={14} className="animate-spin" />
+              Abrindo...
+            </div>
+          </div>
+        )}
         <div className="min-w-0 grid grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr_0.8fr_auto] gap-3 items-center">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-white truncate">{os.name}</p>

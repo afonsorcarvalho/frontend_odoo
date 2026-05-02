@@ -17,6 +17,14 @@ export const APP_MODELS = [
   'engc.equipment',
   'afr.cycle.type',
   'ir.actions.report',
+  // OS
+  'engc.os',
+  'engc.os.verify.checklist',
+  'engc.os.relatorios',
+  'engc.os.request.parts',
+  'product.product',
+  'hr.employee',
+  'hr.department',
 ] as const
 
 type Operation = 'read' | 'write' | 'create' | 'unlink'
@@ -60,13 +68,21 @@ export async function loadModelSchema(model: string): Promise<void> {
   useSchemaStore.getState().setModel(model, fields, access)
 }
 
+const SCHEMA_TTL_MS = 24 * 60 * 60 * 1000
+
 /**
  * Carrega em paralelo os schemas de todos os models usados pela app.
+ * Pula models já carregados (store persistido) dentro da TTL.
  * Tolera falhas individuais; retorna contador de sucesso/falha para diagnóstico.
  */
-export async function preloadSchemas(): Promise<{ ok: number; failed: number }> {
-  const results = await Promise.allSettled(APP_MODELS.map((m) => loadModelSchema(m)))
+export async function preloadSchemas(): Promise<{ ok: number; failed: number; skipped: number }> {
+  const state = useSchemaStore.getState()
+  const fresh = Date.now() - state.loadedAt < SCHEMA_TTL_MS
+  const pending = APP_MODELS.filter((m) => !fresh || !state.isLoaded(m))
+  const skipped = APP_MODELS.length - pending.length
+  if (pending.length === 0) return { ok: 0, failed: 0, skipped }
+  const results = await Promise.allSettled(pending.map((m) => loadModelSchema(m)))
   const ok = results.filter((r) => r.status === 'fulfilled').length
   const failed = results.length - ok
-  return { ok, failed }
+  return { ok, failed, skipped }
 }

@@ -24,6 +24,23 @@ export const REPORTS: Record<string, OdooReport[]> = {
       filename_pattern: 'laudo_liberacao_{id}.pdf',
     },
   ],
+  'engc.os': [
+    {
+      report_name: 'engc_os.report_os_template',
+      label: 'Impressão de Ordem de Serviço',
+      filename_pattern: 'os_{name}.pdf',
+    },
+    {
+      report_name: 'engc_os.report_checklist_blank_template',
+      label: 'Checklist em branco',
+      filename_pattern: 'checklist_branco_{name}.pdf',
+    },
+    {
+      report_name: 'engc_os.report_relatorio_atendimento_blank_template',
+      label: 'Relatório de Atendimento em Branco',
+      filename_pattern: 'relatorio_branco_{name}.pdf',
+    },
+  ],
 }
 
 export function getReportsFor(model: string): OdooReport[] {

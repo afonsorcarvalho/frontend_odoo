@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, PenLine } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useOsStore } from '@/lib/store/osStore'
 import { useOsEquipments } from '@/lib/hooks/useOs'
@@ -27,7 +27,7 @@ export function OsFilterPanel() {
   const {
     ui, filters, closeFilterPanel,
     setStateFilter, setMaintenanceTypeFilter, setEquipmentFilter,
-    toggleOnlyOverdue, setDateFrom, setDateTo, resetFilters,
+    toggleOnlyOverdue, toggleOnlyUnsigned, setDateFrom, setDateTo, resetFilters,
   } = useOsStore()
 
   const { data: equipments } = useOsEquipments()
@@ -37,6 +37,7 @@ export function OsFilterPanel() {
     (filters.maintenance_type ? 1 : 0) +
     (filters.equipment_id ? 1 : 0) +
     (filters.only_overdue ? 1 : 0) +
+    (filters.only_unsigned ? 1 : 0) +
     (filters.date_from ? 1 : 0) +
     (filters.date_to ? 1 : 0)
 
@@ -159,6 +160,19 @@ export function OsFilterPanel() {
         >
           <AlertCircle size={14} />
           Somente atrasadas
+        </button>
+
+        <button
+          onClick={toggleOnlyUnsigned}
+          className={clsx(
+            'w-full flex items-center gap-2 p-3 rounded-xl border text-xs font-medium transition-all',
+            filters.only_unsigned
+              ? 'bg-neon-orange/10 border-neon-orange/40 text-neon-orange'
+              : 'bg-white/[0.03] border-white/10 text-white/60 hover:text-white'
+          )}
+        >
+          <PenLine size={14} />
+          Somente não assinadas
         </button>
       </section>
     </UiFilterPanel>

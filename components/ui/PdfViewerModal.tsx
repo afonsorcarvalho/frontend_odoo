@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Download, Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight,
-  ZoomIn, ZoomOut, Maximize2, FileText, Loader2,
+  ZoomIn, ZoomOut, Maximize2, MoveHorizontal, FileText, Loader2,
 } from 'lucide-react'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
@@ -39,6 +39,7 @@ export function PdfViewerModal({
   const [numPages, setNumPages] = useState(0)
   const [pageNumber, setPageNumber] = useState(1)
   const [scale, setScale] = useState(1.2)
+  const [pageWidth, setPageWidth] = useState<number | null>(null)
   const [query, setQuery] = useState('')
   const [pageInputValue, setPageInputValue] = useState('1')
 
@@ -278,7 +279,18 @@ export function PdfViewerModal({
                       onClick={() => setScale((s) => Math.min(s + 0.2, 3))}
                       title="Aumentar zoom"
                     />
-                    <ToolBtn icon={<Maximize2 size={15} />} onClick={() => setScale(1.2)} title="Ajustar" />
+                    <ToolBtn icon={<Maximize2 size={15} />} onClick={() => setScale(1.2)} title="Ajustar padrão" />
+                    <ToolBtn
+                      icon={<MoveHorizontal size={15} />}
+                      onClick={() => {
+                        const c = pageContainerRef.current
+                        if (!c || !pageWidth) return
+                        const available = c.clientWidth - 48 // p-6 = 24px cada lado
+                        const s = Math.max(0.3, Math.min(4, available / pageWidth))
+                        setScale(s)
+                      }}
+                      title="Ajustar à largura"
+                    />
                   </div>
 
                   <div className="w-px h-6 bg-white/10 mx-1" />
@@ -347,6 +359,12 @@ export function PdfViewerModal({
                             <Page
                               pageNumber={pageNumber}
                               scale={scale}
+                              onLoadSuccess={(p) => {
+                                // Largura natural (sem escala) em pontos CSS
+                                const w = (p as unknown as { width: number; originalWidth?: number }).originalWidth
+                                  ?? (p as unknown as { width: number }).width / scale
+                                if (w && w !== pageWidth) setPageWidth(w)
+                              }}
                               customTextRenderer={textRenderer}
                               onGetTextSuccess={(textContent) => {
                                 const items = (textContent as { items: Array<unknown> }).items

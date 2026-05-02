@@ -225,9 +225,11 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
             </div>
           </div>
 
-          <div className="mt-5">
-            <CyclePhaseBar cycle={cycle} variant="full" />
-          </div>
+          {cycle.state === 'em_andamento' && (
+            <div className="mt-5">
+              <CyclePhaseBar cycle={cycle} variant="full" />
+            </div>
+          )}
 
           <div className="mt-5 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2 mb-3">

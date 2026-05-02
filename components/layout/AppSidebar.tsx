@@ -1,10 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Activity, Users, Wrench, LogOut, Building2, MonitorPlay, ChevronDown } from 'lucide-react'
+import { Menu, X, Activity, Users, Wrench, LogOut, Building2, MonitorPlay, ChevronDown, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/lib/store/authStore'
@@ -31,6 +30,7 @@ const ITEMS: NavItem[] = [
 export function AppSidebar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [loadingHref, setLoadingHref] = useState<string | null>(null)
   const router = useRouter()
   const { logout, userName, companyName, companyLogo, availableCompanies, selectedCompanyId, setAvailableCompanies, setSelectedCompany } = useAuthStore()
   const queryClient = useQueryClient()
@@ -44,6 +44,17 @@ export function AppSidebar() {
       .then(setAvailableCompanies)
       .catch(() => { /* sem acesso a res.company — ignora */ })
   }, [setAvailableCompanies])
+
+  // Limpa spinner quando rota muda (navegação concluída)
+  useEffect(() => {
+    setLoadingHref(null)
+  }, [pathname])
+
+  const handleNavigate = (href: string) => {
+    if (pathname === href) return
+    setLoadingHref(href)
+    router.push(href)
+  }
 
   const handleLogout = async () => {
     try { await odooClient.logout() } catch { /* ignora */ }
@@ -61,6 +72,8 @@ export function AppSidebar() {
   const sidebarProps = {
     items: visibleItems,
     isActive,
+    loadingHref,
+    onNavigateItem: handleNavigate,
     userName,
     companyName,
     companyLogo,
@@ -120,12 +133,15 @@ export function AppSidebar() {
 }
 
 function SidebarContent({
-  items, isActive, userName, companyName, companyLogo,
+  items, isActive, loadingHref, onNavigateItem,
+  userName, companyName, companyLogo,
   availableCompanies, selectedCompanyId, onSelectCompany,
   onLogout, onNavigate,
 }: {
   items: NavItem[]
   isActive: (item: NavItem) => boolean
+  loadingHref: string | null
+  onNavigateItem: (href: string) => void
   userName: string | null
   companyName: string | null
   companyLogo: string | null
@@ -217,21 +233,24 @@ function SidebarContent({
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
         {items.map((item) => {
           const active = isActive(item)
+          const loading = loadingHref === item.href
           return (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
-              onClick={onNavigate}
+              onClick={() => { onNavigateItem(item.href); onNavigate?.() }}
+              disabled={loading}
               className={clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left',
                 active
                   ? 'bg-neon-blue/15 text-neon-blue border border-neon-blue/30'
-                  : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
+                  : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent',
+                loading && 'opacity-70 cursor-wait'
               )}
             >
-              {item.icon}
+              {loading ? <Loader2 size={18} className="animate-spin text-neon-blue" /> : item.icon}
               <span className="truncate">{item.label}</span>
-            </Link>
+              {loading && <span className="ml-auto text-[10px] text-neon-blue">Abrindo...</span>}
+            </button>
           )
         })}
       </nav>

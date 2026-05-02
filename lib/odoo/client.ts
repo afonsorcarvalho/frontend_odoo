@@ -272,7 +272,31 @@ class OdooClient {
       credentials: 'include',
       headers: { 'X-Odoo-Target': target },
     })
-    if (!res.ok) throw new OdooError(`Falha ao buscar binário (HTTP ${res.status})`, res.status)
+    if (!res.ok) {
+      // tenta extrair mensagem útil do servidor
+      let detail = ''
+      try {
+        const ct = res.headers.get('content-type') || ''
+        const text = await res.text()
+        if (ct.includes('application/json')) {
+          const parsed = JSON.parse(text) as { error?: { data?: { message?: string; arguments?: string[] }; message?: string } }
+          detail =
+            parsed?.error?.data?.message ||
+            parsed?.error?.data?.arguments?.[0] ||
+            parsed?.error?.message ||
+            ''
+        } else if (text) {
+          // Odoo retorna às vezes HTML — extrai <h1> ou primeira linha não vazia
+          const h1 = /<h1[^>]*>([^<]+)<\/h1>/i.exec(text)?.[1]
+          const pre = /<pre[^>]*>([\s\S]{0,400}?)<\/pre>/i.exec(text)?.[1]
+          detail = (h1 || pre || text.split('\n').find((l) => l.trim()) || '').trim().slice(0, 300)
+        }
+      } catch { /* ignore */ }
+      const msg = detail
+        ? `Falha ao gerar (HTTP ${res.status}): ${detail}`
+        : `Falha ao buscar binário (HTTP ${res.status})`
+      throw new OdooError(msg, res.status)
+    }
     const suggested = /filename\*?=(?:UTF-8'')?"?([^";\n]+)"?/i.exec(res.headers.get('content-disposition') ?? '')?.[1]
     const filename = suggested ? decodeURIComponent(suggested) : undefined
     const blob = await res.blob()

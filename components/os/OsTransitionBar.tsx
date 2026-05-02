@@ -61,11 +61,33 @@ const TRANSITIONS: Partial<Record<OsState, Transition[]>> = {
   ],
 }
 
-export function OsTransitionBar({ id, state }: { id: number; state: OsState | false }) {
+export function OsTransitionBar({
+  id,
+  state,
+  onIniciarExecucao,
+  busy,
+}: {
+  id: number
+  state: OsState | false
+  /** Se fornecido, substitui o click da transição "Iniciar execução" (execution_ready → under_repair) */
+  onIniciarExecucao?: () => void
+  /** Trava todos os botões enquanto uma ação externa está em andamento */
+  busy?: boolean
+}) {
   const transition = useTransitionOs()
   if (!state) return null
 
   const actions = TRANSITIONS[state] ?? []
+  const disabled = transition.isPending || !!busy
+
+  const handleClick = (a: Transition) => {
+    // Intercepta "Iniciar execução"
+    if (onIniciarExecucao && state === 'execution_ready' && a.targetState === 'under_repair') {
+      onIniciarExecucao()
+      return
+    }
+    transition.mutate({ id, action: a.action, targetState: a.targetState })
+  }
 
   if (actions.length === 0) {
     return (
@@ -80,11 +102,11 @@ export function OsTransitionBar({ id, state }: { id: number; state: OsState | fa
       {actions.map((a, i) => (
         <button
           key={i}
-          disabled={transition.isPending}
-          onClick={() => transition.mutate({ id, action: a.action, targetState: a.targetState })}
+          disabled={disabled}
+          onClick={() => handleClick(a)}
           className={clsx(
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all',
-            transition.isPending && 'opacity-50 cursor-wait',
+            disabled && 'opacity-50 cursor-wait',
             a.variant === 'success' && 'bg-neon-green/10 border-neon-green/40 text-neon-green hover:bg-neon-green/20',
             a.variant === 'danger'  && 'bg-neon-pink/10 border-neon-pink/40 text-neon-pink hover:bg-neon-pink/20',
             a.variant === 'warning' && 'bg-neon-orange/10 border-neon-orange/40 text-neon-orange hover:bg-neon-orange/20',

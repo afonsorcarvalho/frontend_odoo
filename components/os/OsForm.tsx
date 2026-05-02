@@ -1,11 +1,13 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useEffect } from 'react'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
-import { useCreateOs, useUpdateOs, useEmployees, useDepartments, useOsEquipments, useOsDetail } from '@/lib/hooks/useOs'
+import { ActionButton } from '@/components/ui/ActionButton'
+import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
+import { useCreateOs, useUpdateOs, useEmployees, useDepartments, useOsEquipments, useOsDetail, usePartners } from '@/lib/hooks/useOs'
 import {
   MAINTENANCE_TYPE_LABEL,
   OS_PRIORITY_LABEL,
@@ -32,7 +34,10 @@ const schema = z.object({
   is_warranty: z.boolean().optional(),
   warranty_type: z.enum(['servico', 'fabrica']).optional(),
   tecnico_id: z.number().optional(),
+  tecnico_aux_id: z.number().optional(),
   department: z.number().optional(),
+  empresa_manutencao: z.number().optional(),
+  client_id: z.number().optional(),
   problem_description: z.string().optional(),
   service_description: z.string().optional(),
   origin: z.string().optional(),
@@ -43,6 +48,10 @@ type FormValues = z.infer<typeof schema>
 interface OsFormProps {
   osId?: number | null
   onCancel: () => void
+}
+
+function toOptions(list: { id: number; name: string; display_name?: string }[] | undefined): ComboboxOption[] {
+  return (list || []).map((o) => ({ value: String(o.id), label: o.display_name || o.name }))
 }
 
 // Converte "YYYY-MM-DD HH:MM:SS" (Odoo, UTC) para "YYYY-MM-DDTHH:MM" (input datetime-local)
@@ -69,12 +78,14 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
   const { data: equipments } = useOsEquipments()
   const { data: employees } = useEmployees()
   const { data: departments } = useDepartments()
+  const { data: companies } = usePartners('company')
+  const { data: allPartners } = usePartners('all')
 
   const createMutation = useCreateOs()
   const updateMutation = useUpdateOs()
 
   const {
-    register, handleSubmit, watch, reset,
+    register, handleSubmit, watch, reset, control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -104,7 +115,10 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
         is_warranty: !!existing.is_warranty,
         warranty_type: (existing.warranty_type || undefined) as OsWarrantyType | undefined,
         tecnico_id: (existing.tecnico_id && existing.tecnico_id[0]) || undefined,
+        tecnico_aux_id: (existing.tecnico_aux_id && existing.tecnico_aux_id[0]) || undefined,
         department: (existing.department && existing.department[0]) || undefined,
+        empresa_manutencao: (existing.empresa_manutencao && existing.empresa_manutencao[0]) || undefined,
+        client_id: (existing.client_id && existing.client_id[0]) || undefined,
         problem_description: existing.problem_description || '',
         service_description: existing.service_description || '',
         origin: existing.origin || '',
@@ -127,7 +141,10 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
       is_warranty: data.is_warranty,
       warranty_type: data.warranty_type,
       tecnico_id: data.tecnico_id,
+      tecnico_aux_id: data.tecnico_aux_id,
       department: data.department,
+      empresa_manutencao: data.empresa_manutencao,
+      client_id: data.client_id,
       problem_description: data.problem_description,
       service_description: data.service_description,
       origin: data.origin,
@@ -157,17 +174,18 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="Equipamento *" error={errors.equipment_id?.message}>
-          <select
-            {...register('equipment_id', { valueAsNumber: true })}
-            className={inputCls}
-          >
-            <option value={0} className="bg-dark-800">Selecione...</option>
-            {equipments?.map((e) => (
-              <option key={e.id} value={e.id} className="bg-dark-800">
-                {e.display_name ?? e.name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="equipment_id"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                value={field.value ? String(field.value) : ''}
+                onChange={(v) => field.onChange(v ? Number(v) : 0)}
+                options={toOptions(equipments)}
+                placeholder="Buscar equipamento..."
+              />
+            )}
+          />
         </Field>
 
         <Field label="Tipo de Manutenção *" error={errors.maintenance_type?.message}>
@@ -219,31 +237,78 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
         </Field>
 
         <Field label="Técnico">
-          <select
-            {...register('tecnico_id', {
-              setValueAs: (v) => (v === '' || Number.isNaN(Number(v)) ? undefined : Number(v)),
-            })}
-            className={inputCls}
-          >
-            <option value="" className="bg-dark-800">—</option>
-            {employees?.map((e) => (
-              <option key={e.id} value={e.id} className="bg-dark-800">{e.name}</option>
-            ))}
-          </select>
+          <Controller
+            name="tecnico_id"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                value={field.value ? String(field.value) : ''}
+                onChange={(v) => field.onChange(v ? Number(v) : undefined)}
+                options={toOptions(employees)}
+                placeholder="Buscar técnico..."
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="Técnico Auxiliar">
+          <Controller
+            name="tecnico_aux_id"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                value={field.value ? String(field.value) : ''}
+                onChange={(v) => field.onChange(v ? Number(v) : undefined)}
+                options={toOptions(employees)}
+                placeholder="Buscar técnico auxiliar..."
+              />
+            )}
+          />
         </Field>
 
         <Field label="Departamento">
-          <select
-            {...register('department', {
-              setValueAs: (v) => (v === '' || Number.isNaN(Number(v)) ? undefined : Number(v)),
-            })}
-            className={inputCls}
-          >
-            <option value="" className="bg-dark-800">—</option>
-            {departments?.map((d) => (
-              <option key={d.id} value={d.id} className="bg-dark-800">{d.name}</option>
-            ))}
-          </select>
+          <Controller
+            name="department"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                value={field.value ? String(field.value) : ''}
+                onChange={(v) => field.onChange(v ? Number(v) : undefined)}
+                options={toOptions(departments)}
+                placeholder="Buscar departamento..."
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="Empresa (terceirizada)">
+          <Controller
+            name="empresa_manutencao"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                value={field.value ? String(field.value) : ''}
+                onChange={(v) => field.onChange(v ? Number(v) : undefined)}
+                options={toOptions(companies)}
+                placeholder="Buscar empresa..."
+              />
+            )}
+          />
+        </Field>
+
+        <Field label="Cliente">
+          <Controller
+            name="client_id"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                value={field.value ? String(field.value) : ''}
+                onChange={(v) => field.onChange(v ? Number(v) : undefined)}
+                options={toOptions(allPartners)}
+                placeholder="Buscar cliente..."
+              />
+            )}
+          />
         </Field>
 
         <Field label="Origem">
@@ -277,9 +342,9 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
         <AnimatedButton variant="ghost" type="button" onClick={onCancel} disabled={isPending}>
           Cancelar
         </AnimatedButton>
-        <AnimatedButton type="submit" disabled={isPending}>
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar OS'}
-        </AnimatedButton>
+        <ActionButton type="submit" variant="neon" pending={isPending} loadingText="Salvando...">
+          {isEditing ? 'Salvar alterações' : 'Criar OS'}
+        </ActionButton>
       </div>
     </form>
   )

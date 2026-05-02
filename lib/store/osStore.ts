@@ -10,6 +10,7 @@ const DEFAULT_FILTERS: OsFilters = {
   maintenance_type: undefined,
   equipment_id: undefined,
   only_overdue: false,
+  only_unsigned: false,
   date_from: undefined,
   date_to: undefined,
 }
@@ -28,6 +29,7 @@ interface OsStore {
   setMaintenanceTypeFilter: (maintenance_type: OsFilters['maintenance_type']) => void
   setEquipmentFilter: (equipment_id: number | undefined) => void
   toggleOnlyOverdue: () => void
+  toggleOnlyUnsigned: () => void
   setDateFrom: (d: string | undefined) => void
   setDateTo: (d: string | undefined) => void
   resetFilters: () => void
@@ -38,6 +40,9 @@ interface OsStore {
   closeFilterPanel: () => void
   openFormModal: (editingOsId?: number | null) => void
   closeFormModal: () => void
+
+  loadingDetailId: number | null
+  setLoadingDetailId: (id: number | null) => void
 }
 
 export const useOsStore = create<OsStore>()(
@@ -51,6 +56,7 @@ export const useOsStore = create<OsStore>()(
         setMaintenanceTypeFilter: (maintenance_type) => set((s) => ({ filters: { ...s.filters, maintenance_type } })),
         setEquipmentFilter: (equipment_id) => set((s) => ({ filters: { ...s.filters, equipment_id } })),
         toggleOnlyOverdue: () => set((s) => ({ filters: { ...s.filters, only_overdue: !s.filters.only_overdue } })),
+        toggleOnlyUnsigned: () => set((s) => ({ filters: { ...s.filters, only_unsigned: !s.filters.only_unsigned } })),
         setDateFrom: (date_from) => set((s) => ({ filters: { ...s.filters, date_from } })),
         setDateTo: (date_to) => set((s) => ({ filters: { ...s.filters, date_to } })),
         resetFilters: () => set({ filters: DEFAULT_FILTERS }),
@@ -61,6 +67,9 @@ export const useOsStore = create<OsStore>()(
         closeFilterPanel: () => set((s) => ({ ui: { ...s.ui, isFilterPanelOpen: false } })),
         openFormModal: (editingOsId = null) => set((s) => ({ ui: { ...s.ui, isFormModalOpen: true, editingOsId } })),
         closeFormModal: () => set((s) => ({ ui: { ...s.ui, isFormModalOpen: false, editingOsId: null } })),
+
+        loadingDetailId: null,
+        setLoadingDetailId: (id) => set({ loadingDetailId: id }),
       })),
       {
         name: 'os-store',

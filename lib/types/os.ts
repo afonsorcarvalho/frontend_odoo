@@ -116,6 +116,11 @@ export interface OdooOs extends OdooOsSummary {
   request_id: [number, string] | false
   request_service_id: [number, string] | false
   periodicity_ids: number[] | false
+  tecnico_aux_id: [number, string] | false
+  signature: string | false
+  signature2: string | false
+  technician_signature_date: string | false
+  supervisor_signature_date: string | false
 }
 
 export interface OsFilters {
@@ -126,6 +131,7 @@ export interface OsFilters {
   date_from?: string
   date_to?: string
   only_overdue: boolean
+  only_unsigned: boolean
 }
 
 export interface OsFormData {
@@ -141,6 +147,7 @@ export interface OsFormData {
   warranty_type?: OsWarrantyType
   client_id?: number
   tecnico_id?: number
+  tecnico_aux_id?: number
   empresa_manutencao?: number
   department?: number
   problem_description?: string
@@ -160,6 +167,10 @@ export interface HrDepartment {
   display_name?: string
 }
 
+export function isOsDimmed(os: Pick<OdooOsSummary, 'state'>): boolean {
+  return os.state === 'cancel' || os.state === 'reproved'
+}
+
 export function isOsOverdue(cycle: Pick<OdooOsSummary, 'date_scheduled' | 'state' | 'date_finish'>): boolean {
   if (!cycle.date_scheduled) return false
   if (cycle.state && OS_TERMINAL_STATES.includes(cycle.state as OsState)) return false
@@ -167,6 +178,132 @@ export function isOsOverdue(cycle: Pick<OdooOsSummary, 'date_scheduled' | 'state
   const scheduled = new Date(String(cycle.date_scheduled).replace(' ', 'T') + 'Z').getTime()
   if (isNaN(scheduled)) return false
   return scheduled < Date.now()
+}
+
+// ─────────────────────────────────────────────────────────────
+// Checklist
+// ─────────────────────────────────────────────────────────────
+
+export interface OsChecklistItem {
+  id: number
+  os_id: [number, string] | false
+  section: [number, string] | false
+  instruction: string | false
+  check: boolean
+  sequence: number
+  tem_medicao: boolean
+  medicao: number | false
+  magnitude: string | false
+  tipo_de_campo: 'float' | 'checkbox' | 'selection'
+  observations: string | false
+  state: 'draft' | 'done'
+  relatorio_id: [number, string] | false
+}
+
+// ─────────────────────────────────────────────────────────────
+// Relatórios
+// ─────────────────────────────────────────────────────────────
+
+export type OsRelatorioState = 'draft' | 'done' | 'cancel'
+export type OsRelatorioType = 'orcamento' | 'manutencao' | 'instalacao' | 'treinamento' | 'calibracao' | 'qualificacao'
+export type OsStateEquipment = 'parado' | 'funcionando' | 'restricao'
+
+export const OS_RELATORIO_TYPE_LABEL: Record<OsRelatorioType, string> = {
+  orcamento: 'Orçamento',
+  manutencao: 'Manutenção',
+  instalacao: 'Instalação',
+  treinamento: 'Treinamento',
+  calibracao: 'Calibração',
+  qualificacao: 'Qualificação',
+}
+
+export const OS_RELATORIO_STATE_LABEL: Record<OsRelatorioState, string> = {
+  draft: 'Criado',
+  done: 'Concluído',
+  cancel: 'Cancelado',
+}
+
+export const OS_STATE_EQUIPMENT_LABEL: Record<OsStateEquipment, string> = {
+  parado: 'Parado',
+  funcionando: 'Funcionando',
+  restricao: 'Com Restrição',
+}
+
+export interface OsRelatorio {
+  id: number
+  name: string
+  state: OsRelatorioState
+  os_id: [number, string]
+  report_type: OsRelatorioType | false
+  fault_description: string | false
+  service_summary: string | false
+  observations: string | false
+  pendency: string | false
+  technicians: number[]
+  state_equipment: OsStateEquipment | false
+  restriction_type: string | false
+  data_atendimento: string | false
+  data_fim_atendimento: string | false
+  time_execution: number | false
+  checklist_item_ids: number[]
+}
+
+export interface OsRelatorioFormData {
+  os_id: number
+  report_type: OsRelatorioType
+  fault_description: string
+  service_summary: string
+  technicians: unknown[]
+  data_atendimento: string
+  data_fim_atendimento: string
+  state_equipment?: OsStateEquipment
+  restriction_type?: string
+  observations?: string
+  pendency?: string
+}
+
+// ─────────────────────────────────────────────────────────────
+// Peças
+// ─────────────────────────────────────────────────────────────
+
+export type OsPartState = 'requisitada' | 'autorizada' | 'aplicada' | 'nao_autorizada' | 'cancel'
+
+export const OS_PART_STATE_LABEL: Record<OsPartState, string> = {
+  requisitada: 'Requisitada',
+  autorizada: 'Autorizada',
+  aplicada: 'Aplicada',
+  nao_autorizada: 'Não Autorizada',
+  cancel: 'Cancelada',
+}
+
+export interface OsRequestPart {
+  id: number
+  os_id: [number, string]
+  state: OsPartState
+  product_id: [number, string]
+  product_uom_qty: number
+  product_uom: [number, string] | false
+  relatorio_request_id: [number, string] | false
+  relatorio_application_id: [number, string] | false
+}
+
+export interface OsRequestPartFormData {
+  os_id: number
+  product_id: number
+  product_uom_qty: number
+  relatorio_request_id?: number
+  relatorio_application_id?: number
+}
+
+// ─────────────────────────────────────────────────────────────
+// Produto (selector de peças)
+// ─────────────────────────────────────────────────────────────
+
+export interface OsProduct {
+  id: number
+  name: string
+  display_name: string
+  uom_id: [number, string] | false
 }
 
 export function isOsScheduledToday(cycle: Pick<OdooOsSummary, 'date_scheduled' | 'state' | 'date_finish'>): boolean {

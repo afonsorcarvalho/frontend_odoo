@@ -1,18 +1,31 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Wrench } from 'lucide-react'
+import { useEffect } from 'react'
+import { ArrowLeft, Wrench, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useOsDetail } from '@/lib/hooks/useOs'
+import { useOsStore } from '@/lib/store/osStore'
 import { OsDetail } from '@/components/os/OsDetail'
 import { OsFormModal } from '@/components/os/OsFormModal'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
-import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
+import { GlassCard } from '@/components/ui/GlassCard'
 
 export default function OsDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const numericId = Number(params.id)
   const { data: os, isLoading, error } = useOsDetail(numericId)
+  const setLoadingDetailId = useOsStore((s) => s.setLoadingDetailId)
+
+  // Limpa spinner global quando página detalhe monta ou termina de carregar
+  useEffect(() => {
+    if (!isLoading) setLoadingDetailId(null)
+  }, [isLoading, setLoadingDetailId])
+
+  // Também limpa ao desmontar (caso user volte)
+  useEffect(() => {
+    return () => setLoadingDetailId(null)
+  }, [setLoadingDetailId])
 
   return (
     <div className="min-h-screen">
@@ -30,10 +43,13 @@ export default function OsDetailPage({ params }: { params: { id: string } }) {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {isLoading ? (
-          <div className="space-y-4">
-            <LoadingSkeleton variant="card" />
-            <LoadingSkeleton variant="card" />
-          </div>
+          <GlassCard className="p-10">
+            <div className="flex flex-col items-center justify-center gap-3 text-white/70">
+              <Loader2 size={28} className="animate-spin text-neon-blue" />
+              <p className="text-sm font-medium">Carregando OS #{numericId}...</p>
+              <p className="text-xs text-white/40">Buscando dados no servidor</p>
+            </div>
+          </GlassCard>
         ) : error ? (
           <motion.div
             initial={{ opacity: 0 }}

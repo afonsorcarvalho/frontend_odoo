@@ -8,6 +8,13 @@ import type {
   OsState,
   Employee,
   HrDepartment,
+  OsChecklistItem,
+  OsRelatorio,
+  OsRelatorioFormData,
+  OsRequestPart,
+  OsRequestPartFormData,
+  OsPartState,
+  OsProduct,
 } from '../types/os'
 import type { Equipment } from '../types/ciclo'
 
@@ -43,7 +50,8 @@ export const OS_DETAIL_FIELDS: string[] = [
   'calibration_id', 'calibration_created',
   'relatorios_count', 'request_parts_count',
   'request_id', 'request_service_id',
-  'periodicity_ids',
+  'periodicity_ids', 'tecnico_aux_id',
+  'signature', 'signature2', 'technician_signature_date', 'supervisor_signature_date',
 ]
 
 export function buildOsDomain(filters: OsFilters, companyId?: number | null): unknown[] {
@@ -75,6 +83,11 @@ export function buildOsDomain(filters: OsFilters, companyId?: number | null): un
     const nowIso = new Date().toISOString().slice(0, 19).replace('T', ' ')
     domain.push(['date_scheduled', '<', nowIso])
     domain.push(['state', 'not in', ['done', 'cancel', 'reproved']])
+  }
+
+  if (filters.only_unsigned) {
+    // signature OR signature2 vazia (false)
+    domain.push('|', ['signature', '=', false], ['signature2', '=', false])
   }
 
   return domain
@@ -165,6 +178,141 @@ export const osApi = {
       [],
       fieldsFor('engc.equipment', ['id', 'name', 'display_name']),
       { limit: 500, order: 'name asc' }
+    )
+  },
+
+  // ─── Checklist ────────────────────────────────────────────
+
+  async getChecklist(osId: number): Promise<OsChecklistItem[]> {
+    return odooClient.searchRead<OsChecklistItem>(
+      'engc.os.verify.checklist',
+      [['os_id', '=', osId]],
+      fieldsFor('engc.os.verify.checklist', [
+        'id', 'os_id', 'section', 'instruction', 'check', 'sequence',
+        'tem_medicao', 'medicao', 'magnitude', 'tipo_de_campo', 'observations', 'state',
+        'relatorio_id',
+      ]),
+      { limit: 500, order: 'sequence asc' }
+    )
+  },
+
+  async updateChecklistItem(id: number, vals: Partial<Pick<OsChecklistItem, 'check' | 'medicao' | 'observations'>>): Promise<boolean> {
+    return odooClient.write('engc.os.verify.checklist', [id], vals as Record<string, unknown>)
+  },
+
+  async generateChecklist(osId: number): Promise<unknown> {
+    return odooClient.callKw('engc.os', 'create_checklist', [[osId]])
+  },
+
+  // ─── Relatórios ───────────────────────────────────────────
+
+  async getRelatorios(osId: number): Promise<OsRelatorio[]> {
+    return odooClient.searchRead<OsRelatorio>(
+      'engc.os.relatorios',
+      [['os_id', '=', osId]],
+      fieldsFor('engc.os.relatorios', [
+        'id', 'name', 'state', 'os_id', 'report_type',
+        'fault_description', 'service_summary', 'observations', 'pendency',
+        'technicians', 'state_equipment', 'restriction_type',
+        'data_atendimento', 'data_fim_atendimento', 'time_execution',
+        'checklist_item_ids',
+      ]),
+      { limit: 200, order: 'id asc' }
+    )
+  },
+
+  async createRelatorio(vals: OsRelatorioFormData): Promise<number> {
+    assertCan('engc.os.relatorios', 'create')
+    return odooClient.create('engc.os.relatorios', vals as unknown as Record<string, unknown>)
+  },
+
+  async updateRelatorio(id: number, vals: Partial<OsRelatorioFormData>): Promise<boolean> {
+    assertCan('engc.os.relatorios', 'write')
+    return odooClient.write('engc.os.relatorios', [id], vals as Record<string, unknown>)
+  },
+
+  async deleteRelatorio(id: number): Promise<boolean> {
+    assertCan('engc.os.relatorios', 'unlink')
+    return odooClient.unlink('engc.os.relatorios', [id])
+  },
+
+  async doneRelatorio(id: number): Promise<unknown> {
+    return odooClient.callKw('engc.os.relatorios', 'action_done', [[id]])
+  },
+
+  async cancelRelatorio(id: number): Promise<unknown> {
+    return odooClient.callKw('engc.os.relatorios', 'action_cancel', [[id]])
+  },
+
+  // ─── Peças ────────────────────────────────────────────────
+
+  async getParts(osId: number): Promise<OsRequestPart[]> {
+    return odooClient.searchRead<OsRequestPart>(
+      'engc.os.request.parts',
+      [['os_id', '=', osId]],
+      fieldsFor('engc.os.request.parts', [
+        'id', 'os_id', 'state', 'product_id',
+        'product_uom_qty', 'product_uom',
+        'relatorio_request_id', 'relatorio_application_id',
+      ]),
+      { limit: 200, order: 'id asc' }
+    )
+  },
+
+  async createPart(vals: OsRequestPartFormData): Promise<number> {
+    assertCan('engc.os.request.parts', 'create')
+    return odooClient.create('engc.os.request.parts', vals as unknown as Record<string, unknown>)
+  },
+
+  async updatePartState(id: number, state: OsPartState): Promise<boolean> {
+    assertCan('engc.os.request.parts', 'write')
+    return odooClient.write('engc.os.request.parts', [id], { state })
+  },
+
+  async deletePart(id: number): Promise<boolean> {
+    assertCan('engc.os.request.parts', 'unlink')
+    return odooClient.unlink('engc.os.request.parts', [id])
+  },
+
+  async applyPartToRelatorio(partId: number, relatorioId: number): Promise<boolean> {
+    assertCan('engc.os.request.parts', 'write')
+    return odooClient.write('engc.os.request.parts', [partId], {
+      relatorio_application_id: relatorioId,
+      state: 'aplicada',
+    })
+  },
+
+  // ─── Produtos (selector) ──────────────────────────────────
+
+  async getProducts(search = ''): Promise<OsProduct[]> {
+    const domain: unknown[] = [['sale_ok', '=', true]]
+    if (search.trim()) domain.push(['name', 'ilike', search.trim()])
+    return odooClient.searchRead<OsProduct>(
+      'product.product',
+      domain,
+      fieldsFor('product.product', ['id', 'name', 'display_name', 'uom_id']),
+      { limit: 100, order: 'name asc' }
+    )
+  },
+
+  // ─── Parceiros (empresa_manutencao / client_id) ───────────
+
+  async getPeriodicityNames(ids: number[]): Promise<{ id: number; name: string }[]> {
+    if (!ids || ids.length === 0) return []
+    return odooClient.read<{ id: number; name: string }>(
+      'engc.maintenance_plan.periodicity',
+      ids,
+      ['id', 'name']
+    )
+  },
+
+  async getPartners(filter: 'company' | 'all' = 'all'): Promise<{ id: number; name: string }[]> {
+    const domain: unknown[] = filter === 'company' ? [['is_company', '=', true]] : []
+    return odooClient.searchRead<{ id: number; name: string }>(
+      'res.partner',
+      domain,
+      ['id', 'name'],
+      { limit: 200, order: 'name asc' }
     )
   },
 }
