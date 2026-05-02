@@ -27,7 +27,7 @@ interface ServerStatus {
 export default function LoginPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { setServerUrl, setDbName, setUser, setCompany, serverUrl: savedUrl, dbName: savedDb } = useAuthStore()
+  const { setServerUrl, setDbName, setUser, setCompany, serverUrl: savedUrl, dbName: savedDb, addServerUrlToHistory, serverUrlHistory } = useAuthStore()
 
   const [step, setStep] = useState<Step>('server')
   const [url, setUrl] = useState(savedUrl || '')
@@ -81,6 +81,7 @@ export default function LoginPage() {
         resetSessionCache(queryClient)
       }
       setServerUrl(normalized)
+      addServerUrlToHistory(normalized)
       odooClient.reset()
 
       setTimeout(() => setStep('credentials'), 400)
@@ -238,6 +239,8 @@ export default function LoginPage() {
                     status={serverStatus}
                     onCheck={handleCheckServer}
                     inputRef={urlInputRef}
+                    history={serverUrlHistory}
+                    onRemoveHistory={useAuthStore.getState().removeServerUrlFromHistory}
                   />
                 </motion.div>
               ) : (
@@ -287,13 +290,15 @@ export default function LoginPage() {
 // ─── Passo 1: Servidor ───────────────────────────────────────────────────────
 
 function ServerStep({
-  url, setUrl, status, onCheck, inputRef,
+  url, setUrl, status, onCheck, inputRef, history, onRemoveHistory,
 }: {
   url: string
   setUrl: (v: string) => void
   status: ServerStatus
   onCheck: () => void
   inputRef: React.RefObject<HTMLInputElement>
+  history: string[]
+  onRemoveHistory: (url: string) => void
 }) {
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') onCheck()
@@ -404,18 +409,28 @@ function ServerStep({
         </AnimatePresence>
       </div>
 
-      <div className="space-y-2">
-        <p className="text-xs text-white/30 font-medium">Exemplos de URL:</p>
-        {['https://mb.fitadigital.com.br', 'http://localhost:8069', 'https://meuodoo.com'].map((ex) => (
-          <button
-            key={ex}
-            onClick={() => setUrl(ex)}
-            className="block w-full text-left text-xs text-white/25 hover:text-neon-blue/70 transition-colors py-0.5 font-mono"
-          >
-            {ex}
-          </button>
-        ))}
-      </div>
+      {history.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-xs text-white/30 font-medium">Histórico:</p>
+          {history.map((h) => (
+            <div key={h} className="flex items-center gap-1 group/item">
+              <button
+                onClick={() => setUrl(h)}
+                className="flex-1 text-left text-xs text-white/40 hover:text-neon-blue/80 transition-colors py-0.5 font-mono truncate"
+              >
+                {h}
+              </button>
+              <button
+                onClick={() => onRemoveHistory(h)}
+                className="opacity-0 group-hover/item:opacity-100 p-0.5 text-white/20 hover:text-white/60 transition-all flex-shrink-0"
+                title="Remover"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

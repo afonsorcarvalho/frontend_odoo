@@ -3,6 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { CICLOS_KEY } from './useCiclos'
 import { useCiclosStore } from '../store/ciclosStore'
+import { useAuthStore } from '../store/authStore'
 
 interface InfiniteCache {
   pages: Array<{
@@ -19,9 +20,10 @@ interface InfiniteCache {
  */
 export function useCicloNavigation(currentId: number) {
   const filters = useCiclosStore((s) => s.filters)
+  const selectedCompanyId = useAuthStore((s) => s.selectedCompanyId)
   const client = useQueryClient()
 
-  const data = client.getQueryData<InfiniteCache>([CICLOS_KEY, filters])
+  const data = client.getQueryData<InfiniteCache>([CICLOS_KEY, filters, selectedCompanyId])
   const ids = data?.pages.flatMap((p) => p.records.map((r) => r.id)) ?? []
 
   const total = data?.pages[0]?.total ?? 0

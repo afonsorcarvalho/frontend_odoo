@@ -8,6 +8,7 @@ import { clsx } from 'clsx'
 import { useCiclos } from '@/lib/hooks/useCiclos'
 import { useCiclosBus } from '@/lib/hooks/useCiclosBus'
 import { useCiclosStore } from '@/lib/store/ciclosStore'
+import { useCiclosPermissions } from '@/lib/hooks/useCiclosPermissions'
 import { CycleCard } from '@/components/ciclos/CycleCard'
 import { CycleListItem } from '@/components/ciclos/CycleListItem'
 import { SearchBar } from '@/components/ciclos/SearchBar'
@@ -16,9 +17,24 @@ import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 
 export default function CiclosPage() {
+  const { canRead, isLoaded } = useCiclosPermissions()
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useCiclos()
   const { ui, setViewMode, openFilterPanel, filters } = useCiclosStore()
   useCiclosBus()
+
+  if (isLoaded && !canRead) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-16 h-16 mx-auto rounded-full bg-neon-pink/10 border border-neon-pink/20 flex items-center justify-center">
+            <Activity size={28} className="text-neon-pink/60" />
+          </div>
+          <h2 className="text-lg font-semibold text-white">Sem acesso</h2>
+          <p className="text-white/40 text-sm">Não tem permissão para visualizar ciclos de esterilização.</p>
+        </div>
+      </div>
+    )
+  }
 
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 

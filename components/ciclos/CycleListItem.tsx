@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Activity, Calendar, Clock, Package, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Activity, Calendar, Clock, Package, AlertCircle, CheckCircle2, WashingMachine } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
@@ -63,12 +63,6 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
           </div>
 
           <div className="hidden lg:flex flex-col gap-0.5 text-xs text-white/60">
-            {cycle.batch_number && (
-              <span className="flex items-center gap-1">
-                <Package size={10} className="text-neon-blue/60" />
-                {cycle.batch_number}
-              </span>
-            )}
             {cycle.end_date && (
               <span className="flex items-center gap-1 text-white/50">
                 <Calendar size={10} className="text-neon-blue/60" />
@@ -91,13 +85,30 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
               {cycle.is_signed && <CheckCircle2 size={13} className="text-neon-green" />}
               <CycleStatusBadge state={cycle.state} />
             </div>
-            {cycle.equipment_nickname && (
-              <span
-                className="text-2xl uppercase tracking-tight text-white/50 leading-none truncate max-w-full"
-                title={cycle.equipment_nickname}
-              >
-                {cycle.equipment_nickname}
-              </span>
+            {(cycle.equipment_nickname || cycle.batch_number) && (
+              <div className="flex items-center gap-0 overflow-hidden">
+                {cycle.equipment_nickname && (
+                  <span
+                    className="flex items-center gap-1.5 text-2xl uppercase tracking-tight text-white/50 leading-none flex-shrink-0"
+                    title={cycle.equipment_nickname}
+                  >
+                    <WashingMachine size={16} className="text-white/30 flex-shrink-0" />
+                    {cycle.equipment_nickname}
+                  </span>
+                )}
+                {cycle.equipment_nickname && cycle.batch_number && (
+                  <span className="mx-3 w-px h-5 bg-white/15 flex-shrink-0 self-center" />
+                )}
+                {cycle.batch_number && (
+                  <span
+                    className="flex items-center gap-1.5 text-2xl uppercase tracking-tight text-white/30 leading-none flex-shrink-0"
+                    title={cycle.batch_number}
+                  >
+                    <Package size={16} className="text-white/20 flex-shrink-0" />
+                    {cycle.batch_number}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>

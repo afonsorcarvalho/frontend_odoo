@@ -8,6 +8,13 @@ import type {
   Equipment,
   CycleType,
   CycleFeatures,
+  IBLote,
+  IBFormData,
+  IBLoteCreateData,
+  MaterialCatalog,
+  MaterialLineFormData,
+  CicloFoto,
+  CicloFotoCreateData,
 } from '../types/ciclo'
 
 function fieldsFor(model: string, fields: string[]): string[] {
@@ -136,6 +143,81 @@ export const ciclosApi = {
       ]),
       { limit: 500, order: 'id asc' }
     )
+  },
+
+  async getIBLotes(): Promise<IBLote[]> {
+    return odooClient.searchRead<IBLote>(
+      'afr.indicador.biologico',
+      [],
+      fieldsFor('afr.indicador.biologico', ['id', 'name', 'marca', 'modelo', 'data_validade', 'vencido']),
+      { limit: 500, order: 'name asc' }
+    )
+  },
+
+  async createIBLote(data: IBLoteCreateData): Promise<number> {
+    return odooClient.create('afr.indicador.biologico', data as unknown as Record<string, unknown>)
+  },
+
+  async updateIB(cycleId: number, data: IBFormData): Promise<boolean> {
+    return odooClient.write('afr.supervisorio.ciclos', [cycleId], data as unknown as Record<string, unknown>)
+  },
+
+  async getMaterialsCatalog(): Promise<MaterialCatalog[]> {
+    return odooClient.searchRead<MaterialCatalog>(
+      'afr.supervisorio.materials',
+      [['active', '=', true]],
+      fieldsFor('afr.supervisorio.materials', ['id', 'descricao', 'fabricante_id', 'fabricante_nome']),
+      { limit: 1000, order: 'descricao asc' }
+    )
+  },
+
+  async addMaterialLine(cycleId: number, data: MaterialLineFormData): Promise<number> {
+    return odooClient.create('afr.supervisorio.cycle.materials.lines', {
+      ciclo_id: cycleId,
+      ...data,
+    })
+  },
+
+  async updateMaterialLine(lineId: number, data: Partial<MaterialLineFormData>): Promise<boolean> {
+    return odooClient.write('afr.supervisorio.cycle.materials.lines', [lineId], data as Record<string, unknown>)
+  },
+
+  async deleteMaterialLine(lineId: number): Promise<boolean> {
+    return odooClient.unlink('afr.supervisorio.cycle.materials.lines', [lineId])
+  },
+
+  async getFotos(cycleId: number): Promise<CicloFoto[]> {
+    return odooClient.searchRead<CicloFoto>(
+      'afr.ciclo.fotos',
+      [['ciclo_id', '=', cycleId]],
+      fieldsFor('afr.ciclo.fotos', ['id', 'titulo', 'legenda', 'nome_arquivo', 'data_criacao', 'sequence']),
+      { limit: 200, order: 'sequence asc, id asc' }
+    )
+  },
+
+  async createFoto(cycleId: number, data: CicloFotoCreateData): Promise<number> {
+    return odooClient.create('afr.ciclo.fotos', {
+      ciclo_id: cycleId,
+      ...data,
+    })
+  },
+
+  async deleteFoto(id: number): Promise<boolean> {
+    return odooClient.unlink('afr.ciclo.fotos', [id])
+  },
+
+  async updateFoto(id: number, data: { titulo?: string; legenda?: string }): Promise<boolean> {
+    return odooClient.write('afr.ciclo.fotos', [id], data as Record<string, unknown>)
+  },
+
+  async forceConclude(cycleId: number): Promise<boolean> {
+    const now = new Date()
+    const p = (n: number) => String(n).padStart(2, '0')
+    const nowUtc = `${now.getUTCFullYear()}-${p(now.getUTCMonth() + 1)}-${p(now.getUTCDate())} ${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())}`
+    return odooClient.write('afr.supervisorio.ciclos', [cycleId], {
+      state: 'concluido',
+      end_date: nowUtc,
+    })
   },
 }
 

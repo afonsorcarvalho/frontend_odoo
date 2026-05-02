@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { odooClient } from '@/lib/odoo/client'
 import { useAuthStore } from '@/lib/store/authStore'
+import { preloadSchemas } from '@/lib/odoo/schema'
 
 const PUBLIC_PATHS = ['/login']
 
@@ -67,7 +68,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           if (!cancelled) router.replace('/login')
           return
         }
-        setChecked(true)
+        try { await preloadSchemas() } catch { /* tolera falhas de rede */ }
+        if (!cancelled) setChecked(true)
       } catch {
         await forceLogout()
         if (!cancelled) router.replace('/login')

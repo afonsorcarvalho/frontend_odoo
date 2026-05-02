@@ -7,6 +7,7 @@ import { clsx } from 'clsx'
 interface GlassCardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
   variant?: 'default' | 'hover' | 'selected' | 'elevated'
   glow?: 'blue' | 'purple' | 'pink' | 'none'
+  alert?: boolean
   noPadding?: boolean
   children?: React.ReactNode
 }
@@ -22,6 +23,7 @@ export function GlassCard({
   children,
   variant = 'default',
   glow = 'none',
+  alert = false,
   noPadding = false,
   className,
   ...props
@@ -31,7 +33,7 @@ export function GlassCard({
       className={clsx(
         'relative overflow-hidden rounded-2xl border backdrop-blur-xl',
         'bg-white/[0.04] transition-colors duration-300',
-        glowStyles[glow],
+        alert ? 'card-alert-glow' : glowStyles[glow],
         !noPadding && 'p-6',
         variant === 'selected' && 'border-neon-blue/40 bg-neon-blue/5 shadow-glow-blue',
         variant === 'elevated' && 'shadow-glass-lg bg-white/[0.06]',
@@ -49,7 +51,10 @@ export function GlassCard({
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       {...props}
     >
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className={clsx(
+        'absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent to-transparent',
+        alert ? 'via-red-500/50' : 'via-white/20',
+      )} />
       {children}
     </motion.div>
   )

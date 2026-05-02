@@ -25,12 +25,17 @@ interface AuthState {
   availableCompanies: AvailableCompany[]
   selectedCompanyId: number | null  // null = todas as empresas
 
+  // Histórico de servidores usados
+  serverUrlHistory: string[]
+
   setServerUrl: (url: string) => void
   setDbName: (db: string) => void
   setUser: (id: number, name: string) => void
   setCompany: (id: number | null, name: string, logo: string | null) => void
   setAvailableCompanies: (companies: AvailableCompany[]) => void
   setSelectedCompany: (id: number | null) => void
+  addServerUrlToHistory: (url: string) => void
+  removeServerUrlFromHistory: (url: string) => void
   logout: () => void
 }
 
@@ -48,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
         companyLogo: null,
         availableCompanies: [],
         selectedCompanyId: null,
+        serverUrlHistory: [],
 
         setServerUrl: (serverUrl) => {
           if (serverUrl !== get().serverUrl) {
@@ -76,6 +82,15 @@ export const useAuthStore = create<AuthState>()(
         setSelectedCompany: (selectedCompanyId) =>
           set({ selectedCompanyId }),
 
+        addServerUrlToHistory: (url) => {
+          const prev = get().serverUrlHistory.filter((u) => u !== url)
+          set({ serverUrlHistory: [url, ...prev].slice(0, 8) })
+        },
+
+        removeServerUrlFromHistory: (url) => {
+          set({ serverUrlHistory: get().serverUrlHistory.filter((u) => u !== url) })
+        },
+
         logout: () => {
           useSchemaStore.getState().clear()
           set({
@@ -100,6 +115,7 @@ export const useAuthStore = create<AuthState>()(
           companyName: s.companyName,
           companyLogo: s.companyLogo,
           selectedCompanyId: s.selectedCompanyId,
+          serverUrlHistory: s.serverUrlHistory,
         }),
       }
     ),

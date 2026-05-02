@@ -122,6 +122,61 @@ export interface OdooCycleMaterial {
   validade: string | false
 }
 
+export interface IBLote {
+  id: number
+  name: string
+  marca: string | false
+  modelo: string | false
+  data_validade: string | false
+  vencido: boolean
+}
+
+export interface IBLoteCreateData {
+  name: string
+  marca: string
+  modelo?: string
+  data_validade?: string
+}
+
+export interface MaterialCatalog {
+  id: number
+  descricao: string
+  fabricante_id: [number, string] | false
+  fabricante_nome: string | false
+}
+
+export interface IBFormData {
+  ib_lote: number | false
+  ib_resultado: 'positivo' | 'negativo' | false
+  ib_data_inicio: string | false
+  ib_data_fim: string | false
+}
+
+export interface CicloFoto {
+  id: number
+  titulo: string
+  legenda: string | false
+  nome_arquivo: string | false
+  data_criacao: string
+  sequence: number
+}
+
+export interface CicloFotoCreateData {
+  titulo: string
+  imagem: string
+  nome_arquivo?: string
+  legenda?: string
+}
+
+export interface MaterialLineFormData {
+  material_id: number
+  quantidade: number
+  unidade: CycleMaterialUnit
+  lote: string | false
+  fabricante_id: number | false
+  validade: string | false
+}
+
 export interface Equipment {
   id: number
   name: string

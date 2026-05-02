@@ -26,6 +26,14 @@
     background: rgba(0, 212, 255, 0.2);
     color: white;
   }
+
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"],
+  input[type="month"],
+  input[type="week"] {
+    color-scheme: dark;
+  }
 }
 
 @layer utilities {
@@ -249,6 +257,85 @@
 
 @media (prefers-reduced-motion: reduce) {
   .phase-label-glow { animation: none; }
+}
+
+/* Glow respirando modo alerta (vermelho) para cards */
+@keyframes card-alert-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(239, 68, 68, 0.25),
+      0 0 16px rgba(239, 68, 68, 0.15),
+      inset 0 0 40px rgba(239, 68, 68, 0.04);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(239, 68, 68, 0.65),
+      0 0 36px rgba(239, 68, 68, 0.42),
+      0 0 72px rgba(239, 68, 68, 0.20),
+      inset 0 0 40px rgba(239, 68, 68, 0.09);
+  }
+}
+
+.card-alert-glow {
+  animation: card-alert-pulse 2.4s ease-in-out infinite;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  background-color: rgba(239, 68, 68, 0.04) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-alert-glow {
+    animation: none;
+    border-color: rgba(239, 68, 68, 0.45) !important;
+  }
+}
+
+/* Glow respirando para IB negativo (verde) */
+@keyframes ib-negativo-breathe {
+  0%, 100% {
+    opacity: 0.85;
+    text-shadow:
+      0 0 4px rgba(16, 185, 129, 0.40),
+      0 0 8px rgba(16, 185, 129, 0.20);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 10px rgba(16, 185, 129, 0.95),
+      0 0 22px rgba(16, 185, 129, 0.60),
+      0 0 40px rgba(16, 185, 129, 0.35);
+  }
+}
+
+.ib-negativo-glow {
+  animation: ib-negativo-breathe 2.8s ease-in-out infinite;
+  will-change: opacity, text-shadow;
+}
+
+/* Glow respirando para IB positivo (vermelho) */
+@keyframes ib-positivo-breathe {
+  0%, 100% {
+    opacity: 0.85;
+    text-shadow:
+      0 0 4px rgba(239, 68, 68, 0.40),
+      0 0 8px rgba(239, 68, 68, 0.20);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 10px rgba(239, 68, 68, 0.95),
+      0 0 22px rgba(239, 68, 68, 0.60),
+      0 0 40px rgba(239, 68, 68, 0.35);
+  }
+}
+
+.ib-positivo-glow {
+  animation: ib-positivo-breathe 2.8s ease-in-out infinite;
+  will-change: opacity, text-shadow;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ib-negativo-glow,
+  .ib-positivo-glow { animation: none; }
 }
 
 /* Modo dashboard: derruba os max-width das páginas para ocupar toda a tela */

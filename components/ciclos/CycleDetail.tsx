@@ -13,6 +13,7 @@ import { GlassCard } from '@/components/ui/GlassCard'
 import { ImageViewerModal } from '@/components/ui/ImageViewerModal'
 import { TextViewerModal } from '@/components/ui/TextViewerModal'
 import { MaterialsSection } from './MaterialsSection'
+import { FotosSection } from './FotosSection'
 
 const PdfViewerModal = dynamic(
   () => import('@/components/ui/PdfViewerModal').then((m) => m.PdfViewerModal),
@@ -20,17 +21,23 @@ const PdfViewerModal = dynamic(
 )
 import { CycleStatusBadge } from './CycleStatusBadge'
 import { CyclePhaseBar } from './CyclePhaseBar'
+import { IBEditModal } from './IBEditModal'
 import type { OdooCycle } from '@/lib/types/ciclo'
 import { ReactNode, useEffect, useState } from 'react'
 import odooClient from '@/lib/odoo/client'
 import { getReportsFor, formatFilename } from '@/lib/odoo/reports'
 import { formatOverdue } from '@/lib/utils/cycleTime'
+import { useCiclosPermissions } from '@/lib/hooks/useCiclosPermissions'
+import { useForceConcludeCycle } from '@/lib/hooks/useCiclos'
 
 interface CycleDetailProps {
   cycle: OdooCycle
 }
 
 export function CycleDetail({ cycle }: CycleDetailProps) {
+  const { hasField, canWrite, canReadMaterials, canPrint } = useCiclosPermissions()
+  const forceConclude = useForceConcludeCycle(cycle.id)
+  const [ibEditOpen, setIbEditOpen] = useState(false)
   const [graphOpen, setGraphOpen] = useState(false)
   const [txtOpen, setTxtOpen] = useState(false)
   const [txtContent, setTxtContent] = useState<string | null>(null)
@@ -175,10 +182,11 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
                   </span>
                 )}
                 {cycle.ib_resultado && (
-                  <span className={
-                    'inline-flex items-center gap-1 text-xs font-medium ' +
-                    (cycle.ib_resultado === 'positivo' ? 'text-neon-pink' : 'text-neon-green')
-                  }>
+                  <span className={`inline-flex items-center gap-1 text-xs font-medium ${
+                    cycle.ib_resultado === 'positivo'
+                      ? 'text-red-400 ib-positivo-glow'
+                      : 'text-neon-green ib-negativo-glow'
+                  }`}>
                     <Beaker size={12} /> IB {cycle.ib_resultado}
                   </span>
                 )}
@@ -194,7 +202,27 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
               )}
             </div>
 
-            <PrintMenu onOpenReport={handleOpenReport} />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {canWrite && cycle.is_overdue && cycle.state !== 'concluido' && cycle.state !== 'cancelado' && (
+                <motion.button
+                  onClick={() => {
+                    if (window.confirm('Forçar conclusão deste ciclo agora? O fim será registado como a hora actual.')) {
+                      forceConclude.mutate()
+                    }
+                  }}
+                  disabled={forceConclude.isPending}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink/20 to-neon-orange/20 border border-neon-pink/30 text-neon-pink font-medium text-sm hover:border-neon-pink/50 transition-all disabled:opacity-50"
+                >
+                  {forceConclude.isPending
+                    ? <Loader2 size={14} className="animate-spin" />
+                    : <CheckCircle2 size={14} />}
+                  {forceConclude.isPending ? 'Concluindo...' : 'Forçar conclusão'}
+                </motion.button>
+              )}
+              {canPrint && <PrintMenu onOpenReport={handleOpenReport} />}
+            </div>
           </div>
 
           <div className="mt-5">
@@ -235,7 +263,7 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
             <Field label="Início" value={formatDateTime(cycle.start_date)} />
             <Field label="Categoria equip." value={cycle.equipment_category_id ? cycle.equipment_category_id[1] : '—'} />
             <Field label="Fim" value={formatDateTime(cycle.end_date)} />
-            <Field label="Duração prevista" value={cycle.duration_planned ? `${Math.round(cycle.duration_planned)} min` : '—'} />
+            <Field label="Duração prevista" value={formatDuration(cycle.duration_planned ? cycle.duration_planned / 60 : false)} />
             <Field
               label="Duração"
               value={
@@ -247,20 +275,51 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
           </div>
         </Section>
 
-        <MaterialsSection cycleId={cycle.id} delay={0.25} />
+        {canReadMaterials && <MaterialsSection cycleId={cycle.id} delay={0.25} />}
 
-        <Section title="Indicador Biológico" icon={<Beaker size={14} />} delay={0.3} wide>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-            <Field label="Resultado" value={cycle.ib_resultado || '—'} />
-            <Field label="Lote" value={cycle.ib_lote ? cycle.ib_lote[1] : '—'} />
-            <Field label="Marca" value={asStr(cycle.ib_marca)} />
-            <Field label="Modelo" value={asStr(cycle.ib_modelo)} />
-            <Field label="Início incubação" value={formatDateTime(cycle.ib_data_inicio)} />
-            <Field label="Fim incubação" value={formatDateTime(cycle.ib_data_fim)} />
-          </div>
-        </Section>
+        {hasField('ib_resultado') && (
+          <Section
+            title="Indicador Biológico"
+            icon={<Beaker size={14} />}
+            delay={0.3}
+            wide
+            alert={cycle.ib_resultado === 'positivo'}
+            action={canWrite && (
+              <button
+                onClick={() => setIbEditOpen(true)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-neon-blue border border-neon-blue/30 bg-neon-blue/5 hover:bg-neon-blue/10 hover:border-neon-blue/50 transition-all"
+              >
+                Editar
+              </button>
+            )}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+              <Field
+                label="Resultado"
+                value={
+                  cycle.ib_resultado
+                    ? (
+                      <span className={`font-medium capitalize ${
+                        cycle.ib_resultado === 'positivo'
+                          ? 'text-red-400 ib-positivo-glow'
+                          : 'text-neon-green ib-negativo-glow'
+                      }`}>
+                        {cycle.ib_resultado}
+                      </span>
+                    )
+                    : '—'
+                }
+              />
+              <Field label="Lote" value={cycle.ib_lote ? cycle.ib_lote[1] : '—'} />
+              <Field label="Marca" value={asStr(cycle.ib_marca)} />
+              <Field label="Modelo" value={asStr(cycle.ib_modelo)} />
+              <Field label="Início incubação" value={formatDateTime(cycle.ib_data_inicio)} />
+              <Field label="Fim incubação" value={formatDateTime(cycle.ib_data_fim)} />
+            </div>
+          </Section>
+        )}
 
-        {cycle.is_signed && (
+        {hasField('is_signed') && cycle.is_signed && (
           <Section title="Assinatura" icon={<Signature size={14} />} delay={0.35}>
             <Field label="Assinante" value={asStr(cycle.signature_employee_name) || (cycle.signature_employee_id ? cycle.signature_employee_id[1] : '—')} />
             <Field label="Data" value={formatDateTime(cycle.signature_date)} />
@@ -270,7 +329,7 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
         )}
       </div>
 
-      {(graphSrc || cycle.is_eto_equipment) && (
+      {(graphSrc || cycle.is_eto_equipment) && (hasField('massa_eto') || hasField('cycle_graph')) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -348,7 +407,9 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
         </motion.div>
       )}
 
-      {cycle.notes && (
+      <FotosSection cycleId={cycle.id} delay={0.42} />
+
+      {cycle.notes && hasField('notes') && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -385,13 +446,19 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
         filename={pdfServerFilename || pdfFallback || pdfFallbackName}
         onDownload={handleDownloadPdf}
       />
+
+      <IBEditModal
+        open={ibEditOpen}
+        onClose={() => setIbEditOpen(false)}
+        cycle={cycle}
+      />
     </div>
   )
 }
 
 function Section({
-  title, icon, delay, children, wide,
-}: { title: string; icon: ReactNode; delay: number; children: ReactNode; wide?: boolean }) {
+  title, icon, delay, children, wide, action, alert,
+}: { title: string; icon: ReactNode; delay: number; children: ReactNode; wide?: boolean; action?: ReactNode; alert?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -399,10 +466,13 @@ function Section({
       transition={{ delay }}
       className={wide ? 'md:col-span-2' : undefined}
     >
-      <GlassCard>
-        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-white/10">
-          <span className="text-neon-blue">{icon}</span>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+      <GlassCard alert={alert}>
+        <div className="flex items-center justify-between gap-2 mb-3 pb-3 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className={alert ? 'text-red-400' : 'text-neon-blue'}>{icon}</span>
+            <h3 className="text-sm font-semibold text-white">{title}</h3>
+          </div>
+          {action}
         </div>
         <div className="space-y-2">{children}</div>
       </GlassCard>

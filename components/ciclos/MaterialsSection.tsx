@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Package, Factory, Hash, Calendar, Loader2, PackageX } from 'lucide-react'
+import { Package, Factory, Hash, Calendar, Loader2, PackageX, Plus, Pencil, Trash2 } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
-import { useCycleMaterials } from '@/lib/hooks/useCiclos'
+import { useCycleMaterials, useDeleteMaterialLine } from '@/lib/hooks/useCiclos'
+import { useCiclosPermissions } from '@/lib/hooks/useCiclosPermissions'
 import { CYCLE_MATERIAL_UNIT_LABEL, type OdooCycleMaterial } from '@/lib/types/ciclo'
+import { MaterialEditModal } from './MaterialEditModal'
 
 interface MaterialsSectionProps {
   cycleId: number
@@ -13,6 +16,14 @@ interface MaterialsSectionProps {
 
 export function MaterialsSection({ cycleId, delay = 0.32 }: MaterialsSectionProps) {
   const { data: materials, isLoading, error } = useCycleMaterials(cycleId)
+  const { canWriteMaterials, canCreateMaterials, canUnlinkMaterials } = useCiclosPermissions()
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingMaterial, setEditingMaterial] = useState<OdooCycleMaterial | null>(null)
+
+  const openAdd = () => { setEditingMaterial(null); setModalOpen(true) }
+  const openEdit = (m: OdooCycleMaterial) => { setEditingMaterial(m); setModalOpen(true) }
+  const closeModal = () => { setModalOpen(false); setEditingMaterial(null) }
 
   return (
     <motion.div
@@ -27,11 +38,21 @@ export function MaterialsSection({ cycleId, delay = 0.32 }: MaterialsSectionProp
             <Package size={14} className="text-neon-blue" />
             <h3 className="text-sm font-semibold text-white">Materiais Esterilizados</h3>
           </div>
-          {materials && (
-            <span className="text-[10px] text-white/40 font-mono">
-              {materials.length} {materials.length === 1 ? 'item' : 'itens'}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {materials && (
+              <span className="text-[10px] text-white/40 font-mono">
+                {materials.length} {materials.length === 1 ? 'item' : 'itens'}
+              </span>
+            )}
+            {canCreateMaterials && (
+              <button
+                onClick={openAdd}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-neon-blue border border-neon-blue/30 bg-neon-blue/5 hover:bg-neon-blue/10 hover:border-neon-blue/50 transition-all"
+              >
+                <Plus size={11} /> Adicionar
+              </button>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -51,16 +72,42 @@ export function MaterialsSection({ cycleId, delay = 0.32 }: MaterialsSectionProp
         ) : (
           <div className="space-y-2">
             {materials.map((m, i) => (
-              <MaterialRow key={m.id} material={m} index={i} />
+              <MaterialRow
+                key={m.id}
+                material={m}
+                index={i}
+                cycleId={cycleId}
+                canEdit={canWriteMaterials}
+                canDelete={canUnlinkMaterials}
+                onEdit={() => openEdit(m)}
+              />
             ))}
           </div>
         )}
       </GlassCard>
+
+      <MaterialEditModal
+        open={modalOpen}
+        onClose={closeModal}
+        cycleId={cycleId}
+        editing={editingMaterial}
+      />
     </motion.div>
   )
 }
 
-function MaterialRow({ material, index }: { material: OdooCycleMaterial; index: number }) {
+function MaterialRow({
+  material, index, cycleId, canEdit, canDelete, onEdit,
+}: {
+  material: OdooCycleMaterial
+  index: number
+  cycleId: number
+  canEdit: boolean
+  canDelete: boolean
+  onEdit: () => void
+}) {
+  const deleteMutation = useDeleteMaterialLine(cycleId)
+
   const name =
     (material.material_descricao && String(material.material_descricao)) ||
     (material.material_id ? material.material_id[1] : '—')
@@ -72,12 +119,18 @@ function MaterialRow({ material, index }: { material: OdooCycleMaterial; index: 
   const unidade = material.unidade ? CYCLE_MATERIAL_UNIT_LABEL[material.unidade] : ''
   const qtd = material.quantidade !== false && material.quantidade !== null ? material.quantidade : 0
 
+  const handleDelete = () => {
+    if (confirm(`Remover "${name}"?`)) {
+      deleteMutation.mutate(material.id)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.025, type: 'spring', stiffness: 400, damping: 28 }}
-      className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-colors"
+      className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-colors group"
     >
       <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center">
         <Package size={14} className="text-neon-blue" />
@@ -107,12 +160,38 @@ function MaterialRow({ material, index }: { material: OdooCycleMaterial; index: 
         </div>
       </div>
 
-      <div className="flex-shrink-0 text-right">
-        <div className="text-sm font-semibold text-white tabular-nums">
-          {Number.isInteger(qtd) ? qtd : Number(qtd).toLocaleString('pt-BR', { maximumFractionDigits: 3 })}
+      <div className="flex items-center gap-2">
+        <div className="text-right">
+          <div className="text-sm font-semibold text-white tabular-nums">
+            {Number.isInteger(qtd) ? qtd : Number(qtd).toLocaleString('pt-BR', { maximumFractionDigits: 3 })}
+          </div>
+          {unidade && (
+            <div className="text-[10px] text-white/40 uppercase tracking-wider">{unidade}</div>
+          )}
         </div>
-        {unidade && (
-          <div className="text-[10px] text-white/40 uppercase tracking-wider">{unidade}</div>
+
+        {(canEdit || canDelete) && (
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {canEdit && (
+              <button
+                onClick={onEdit}
+                className="p-1.5 rounded-lg text-white/40 hover:text-neon-blue hover:bg-neon-blue/10 transition-all"
+                title="Editar"
+              >
+                <Pencil size={12} />
+              </button>
+            )}
+            {canDelete && (
+              <button
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="p-1.5 rounded-lg text-white/40 hover:text-neon-pink hover:bg-neon-pink/10 transition-all disabled:opacity-50"
+                title="Remover"
+              >
+                <Trash2 size={12} />
+              </button>
+            )}
+          </div>
         )}
       </div>
     </motion.div>

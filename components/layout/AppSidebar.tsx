@@ -8,6 +8,7 @@ import { Menu, X, Activity, Users, Wrench, LogOut, Building2, MonitorPlay, Chevr
 import { clsx } from 'clsx'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/lib/store/authStore'
+import { useSchemaStore } from '@/lib/store/schemaStore'
 import { odooClient } from '@/lib/odoo/client'
 import { resetSessionCache } from '@/lib/store/resetSessionCache'
 import { fetchAvailableCompanies } from '@/lib/odoo/companies'
@@ -17,13 +18,14 @@ interface NavItem {
   label: string
   icon: React.ReactNode
   matchPrefix?: string
+  requireModel?: string
 }
 
 const ITEMS: NavItem[] = [
-  { href: '/ciclos',   label: 'Ciclos',   icon: <Activity size={18} />, matchPrefix: '/ciclos' },
-  { href: '/wall',     label: 'Parede de TVs', icon: <MonitorPlay size={18} />, matchPrefix: '/wall' },
+  { href: '/ciclos',   label: 'Ciclos',        icon: <Activity size={18} />,    matchPrefix: '/ciclos', requireModel: 'afr.supervisorio.ciclos' },
+  { href: '/wall',     label: 'Parede de TVs', icon: <MonitorPlay size={18} />, matchPrefix: '/wall',   requireModel: 'afr.supervisorio.ciclos' },
   { href: '/os',       label: 'Ordens de Serviço', icon: <Wrench size={18} />, matchPrefix: '/os' },
-  { href: '/contacts', label: 'Contatos', icon: <Users size={18} />, matchPrefix: '/contacts' },
+  { href: '/contacts', label: 'Contatos',      icon: <Users size={18} />,       matchPrefix: '/contacts' },
 ]
 
 export function AppSidebar() {
@@ -32,6 +34,10 @@ export function AppSidebar() {
   const router = useRouter()
   const { logout, userName, companyName, companyLogo, availableCompanies, selectedCompanyId, setAvailableCompanies, setSelectedCompany } = useAuthStore()
   const queryClient = useQueryClient()
+  const accessMap = useSchemaStore((s) => s.access)
+  const visibleItems = ITEMS.filter(
+    (item) => !item.requireModel || (accessMap[item.requireModel]?.read ?? true)
+  )
 
   useEffect(() => {
     fetchAvailableCompanies()
@@ -53,7 +59,7 @@ export function AppSidebar() {
   }
 
   const sidebarProps = {
-    items: ITEMS,
+    items: visibleItems,
     isActive,
     userName,
     companyName,

@@ -62,6 +62,12 @@ export function CycleCard({ cycle, index = 0 }: CycleCardProps) {
                   : cycle.equipment_id[1]}
               </p>
             )}
+            {cycle.batch_number && (
+              <p className="text-xs text-white/50 mt-0.5 truncate flex items-center gap-1">
+                <Package size={10} className="text-white/30" />
+                {cycle.batch_number}
+              </p>
+            )}
           </div>
           <div className="flex-shrink-0">
             <CycleStatusBadge state={cycle.state} />
@@ -83,13 +89,6 @@ export function CycleCard({ cycle, index = 0 }: CycleCardProps) {
               icon={<Clock size={11} />}
               label="Duração"
               value={formatDuration(cycle.duration)}
-            />
-          )}
-          {cycle.batch_number && (
-            <InfoRow
-              icon={<Package size={11} />}
-              label="Lote"
-              value={cycle.batch_number}
             />
           )}
           {cycle.end_date && (
