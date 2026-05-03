@@ -15,6 +15,7 @@ import { useAuthStore } from '@/lib/store/authStore'
 import { useSchemaStore } from '@/lib/store/schemaStore'
 import { resetSessionCache } from '@/lib/store/resetSessionCache'
 import { parseLoginParams, normalizeServerUrl } from '@/lib/utils/loginUrlParams'
+import { getCompanyLogoUrl } from '@/lib/odoo/publicCompany'
 import { clsx } from 'clsx'
 
 type Step = 'server' | 'credentials'
@@ -40,6 +41,8 @@ function LoginPageInner() {
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
+  const [companyLogoFailed, setCompanyLogoFailed] = useState(false)
 
   const urlInputRef = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
   const loginInputRef = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
@@ -76,6 +79,8 @@ function LoginPageInner() {
         ? preselectDb
         : (savedDb && dbs.includes(savedDb) ? savedDb : dbs[0])
       setSelectedDb(targetDb)
+      setCompanyLogoFailed(false)
+      setCompanyLogoUrl(getCompanyLogoUrl(normalized, targetDb))
 
       // Mudou de server? Limpa cache de empresa/ciclos/filtros/schema ANTES de persistir
       if (savedUrl && savedUrl !== normalized) {
@@ -99,6 +104,13 @@ function LoginPageInner() {
   async function handleCheckServer() {
     await checkServer(url)
   }
+
+  // Recalcula logo quando url ou selectedDb mudam (ex.: troca de DB no dropdown)
+  useEffect(() => {
+    if (!url || !selectedDb) return
+    setCompanyLogoFailed(false)
+    setCompanyLogoUrl(getCompanyLogoUrl(url, selectedDb))
+  }, [url, selectedDb])
 
   // Pré-preenchimento via URL: /login?server=...&db=... avança direto ao
   // passo de credenciais. Executa uma única vez no mount. Não limpa a URL
@@ -199,7 +211,7 @@ function LoginPageInner() {
           transition={{ delay: 0.1 }}
         >
           <motion.div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neon-blue/10 border border-neon-blue/20 mb-4"
+            className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-neon-blue/10 border border-neon-blue/20 mb-4 overflow-hidden p-2"
             animate={{
               boxShadow: [
                 '0 0 20px rgba(0,212,255,0.1)',
@@ -209,12 +221,22 @@ function LoginPageInner() {
             }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <Server size={28} className="text-neon-blue" />
-            </motion.div>
+            {companyLogoUrl && !companyLogoFailed ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={companyLogoUrl}
+                alt="Logo da empresa"
+                className="max-w-full max-h-full object-contain"
+                onError={() => setCompanyLogoFailed(true)}
+              />
+            ) : (
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Server size={28} className="text-neon-blue" />
+              </motion.div>
+            )}
           </motion.div>
 
           <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-neon-blue/80 to-neon-purple bg-clip-text text-transparent">
