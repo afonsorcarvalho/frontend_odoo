@@ -2,9 +2,11 @@
 
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, ChevronRight } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { Avatar } from '@/components/ui/Avatar'
 import { NeonBadge } from '@/components/ui/NeonBadge'
+import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
+import { useContactsStore } from '@/lib/store/contactsStore'
+import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import type { OdooPartnerSummary } from '@/lib/types/partner'
 import { clsx } from 'clsx'
 
@@ -14,7 +16,12 @@ interface ContactListItemProps {
 }
 
 export function ContactListItem({ contact, index = 0 }: ContactListItemProps) {
-  const router = useRouter()
+  const loadingDetailId = useContactsStore((s) => s.loadingDetailId)
+  const setLoadingDetailId = useContactsStore((s) => s.setLoadingDetailId)
+  const { navigate, isLoadingId } = useCardNavigation({
+    loadingId: loadingDetailId,
+    setLoadingId: setLoadingDetailId,
+  })
 
   return (
     <motion.div
@@ -25,14 +32,15 @@ export function ContactListItem({ contact, index = 0 }: ContactListItemProps) {
       layout
     >
       <div
-        onClick={() => router.push(`/contacts/${contact.id}`)}
+        onClick={() => navigate(contact.id, `/contacts/${contact.id}`)}
         className={clsx(
-          'group flex items-center gap-4 p-4 rounded-2xl cursor-pointer',
+          'group relative flex items-center gap-4 p-4 rounded-2xl cursor-pointer',
           'border border-white/[0.06] bg-white/[0.02]',
           'hover:bg-white/[0.05] hover:border-white/10',
           'transition-all duration-200'
         )}
       >
+        <CardLoadingOverlay isLoading={isLoadingId(contact.id)} />
         <Avatar
           src={contact.image_128}
           name={contact.name}

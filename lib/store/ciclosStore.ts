@@ -36,6 +36,9 @@ interface CiclosStore {
   setViewMode: (mode: 'grid' | 'list') => void
   openFilterPanel: () => void
   closeFilterPanel: () => void
+
+  loadingDetailId: number | null
+  setLoadingDetailId: (id: number | null) => void
 }
 
 export const useCiclosStore = create<CiclosStore>()(
@@ -58,6 +61,9 @@ export const useCiclosStore = create<CiclosStore>()(
         setViewMode: (viewMode) => set((s) => ({ ui: { ...s.ui, viewMode } })),
         openFilterPanel: () => set((s) => ({ ui: { ...s.ui, isFilterPanelOpen: true } })),
         closeFilterPanel: () => set((s) => ({ ui: { ...s.ui, isFilterPanelOpen: false } })),
+
+        loadingDetailId: null,
+        setLoadingDetailId: (id) => set({ loadingDetailId: id }),
       })),
       {
         name: 'ciclos-store',

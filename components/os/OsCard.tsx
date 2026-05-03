@@ -1,12 +1,13 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, Clock, Wrench, AlertCircle, ExternalLink, ShieldCheck, User, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { Calendar, Clock, Wrench, AlertCircle, ExternalLink, ShieldCheck, User } from 'lucide-react'
 import { ReactNode } from 'react'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
 import { useOsStore } from '@/lib/store/osStore'
+import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
 import {
@@ -32,18 +33,15 @@ const cardVariants = {
 }
 
 export function OsCard({ os, index = 0 }: OsCardProps) {
-  const router = useRouter()
   const loadingDetailId = useOsStore((s) => s.loadingDetailId)
   const setLoadingDetailId = useOsStore((s) => s.setLoadingDetailId)
-  const loading = loadingDetailId === os.id
+  const { navigate, isLoadingId } = useCardNavigation({
+    loadingId: loadingDetailId,
+    setLoadingId: setLoadingDetailId,
+  })
   const dimmed = isOsDimmed(os)
   const overdue = !dimmed && isOsOverdue(os)
   const scheduledToday = !dimmed && !overdue && isOsScheduledToday(os)
-
-  const handleClick = () => {
-    setLoadingDetailId(os.id)
-    router.push(`/os/${os.id}`)
-  }
 
   return (
     <motion.div variants={cardVariants} initial="hidden" animate="visible" exit="exit" custom={index} layout>
@@ -54,19 +52,11 @@ export function OsCard({ os, index = 0 }: OsCardProps) {
           'cursor-pointer group relative p-5 h-full transition-opacity',
           overdue && 'overdue-card-glow',
           scheduledToday && 'scheduled-today-glow',
-          dimmed && 'opacity-50 grayscale-[40%] hover:opacity-75',
-          loading && 'pointer-events-none'
+          dimmed && 'opacity-50 grayscale-[40%] hover:opacity-75'
         )}
-        onClick={handleClick}
+        onClick={() => navigate(os.id, `/os/${os.id}`)}
       >
-        {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-dark-900/60 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-neon-blue text-xs font-medium">
-              <Loader2 size={14} className="animate-spin" />
-              Abrindo...
-            </div>
-          </div>
-        )}
+        <CardLoadingOverlay isLoading={isLoadingId(os.id)} />
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-white text-sm leading-tight truncate">

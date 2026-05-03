@@ -2,13 +2,15 @@
 
 import { motion } from 'framer-motion'
 import { Calendar, Clock, Package, Activity, AlertCircle, CheckCircle2, Beaker, ExternalLink } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
 import { CycleStatusBadge } from './CycleStatusBadge'
 import { CyclePhaseBar } from './CyclePhaseBar'
 import { CycleActiveHeader } from './CycleActiveHeader'
 import type { OdooCycleSummary } from '@/lib/types/ciclo'
 import { formatOverdue } from '@/lib/utils/cycleTime'
+import { useCiclosStore } from '@/lib/store/ciclosStore'
+import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import { ReactNode } from 'react'
 import { clsx } from 'clsx'
 
@@ -29,7 +31,12 @@ const cardVariants = {
 }
 
 export function CycleCard({ cycle, index = 0 }: CycleCardProps) {
-  const router = useRouter()
+  const loadingDetailId = useCiclosStore((s) => s.loadingDetailId)
+  const setLoadingDetailId = useCiclosStore((s) => s.setLoadingDetailId)
+  const { navigate, isLoadingId } = useCardNavigation({
+    loadingId: loadingDetailId,
+    setLoadingId: setLoadingDetailId,
+  })
 
   return (
     <motion.div
@@ -47,8 +54,9 @@ export function CycleCard({ cycle, index = 0 }: CycleCardProps) {
           'cursor-pointer group relative p-5 h-full',
           cycle.state === 'em_andamento' && 'in-progress-glow'
         )}
-        onClick={() => router.push(`/ciclos/${cycle.id}`)}
+        onClick={() => navigate(cycle.id, `/ciclos/${cycle.id}`)}
       >
+        <CardLoadingOverlay isLoading={isLoadingId(cycle.id)} />
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-white text-sm leading-tight truncate">

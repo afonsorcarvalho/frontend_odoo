@@ -2,14 +2,16 @@
 
 import { motion } from 'framer-motion'
 import { Activity, Calendar, Clock, Package, AlertCircle, CheckCircle2, WashingMachine } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
 import { CycleStatusBadge } from './CycleStatusBadge'
 import { CyclePhaseBar } from './CyclePhaseBar'
 import { CycleActiveHeader } from './CycleActiveHeader'
 import type { OdooCycleSummary } from '@/lib/types/ciclo'
 import { formatOverdue } from '@/lib/utils/cycleTime'
+import { useCiclosStore } from '@/lib/store/ciclosStore'
+import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 
 interface CycleListItemProps {
   cycle: OdooCycleSummary
@@ -17,7 +19,12 @@ interface CycleListItemProps {
 }
 
 export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
-  const router = useRouter()
+  const loadingDetailId = useCiclosStore((s) => s.loadingDetailId)
+  const setLoadingDetailId = useCiclosStore((s) => s.setLoadingDetailId)
+  const { navigate, isLoadingId } = useCardNavigation({
+    loadingId: loadingDetailId,
+    setLoadingId: setLoadingDetailId,
+  })
 
   return (
     <motion.div
@@ -31,11 +38,12 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
         variant="hover"
         noPadding
         className={clsx(
-          'cursor-pointer p-4 flex flex-col gap-3',
+          'cursor-pointer relative p-4 flex flex-col gap-3',
           cycle.state === 'em_andamento' && 'in-progress-glow'
         )}
-        onClick={() => router.push(`/ciclos/${cycle.id}`)}
+        onClick={() => navigate(cycle.id, `/ciclos/${cycle.id}`)}
       >
+        <CardLoadingOverlay isLoading={isLoadingId(cycle.id)} />
         <div className="min-w-0 grid grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr_0.6fr_auto] gap-3 items-center">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-white truncate">{cycle.name}</p>

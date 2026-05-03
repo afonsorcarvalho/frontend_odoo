@@ -1,11 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, Clock, Wrench, AlertCircle, ShieldCheck, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { Calendar, Clock, Wrench, AlertCircle, ShieldCheck } from 'lucide-react'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
 import { useOsStore } from '@/lib/store/osStore'
+import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
 import {
@@ -22,18 +23,15 @@ interface OsListItemProps {
 }
 
 export function OsListItem({ os, index = 0 }: OsListItemProps) {
-  const router = useRouter()
   const loadingDetailId = useOsStore((s) => s.loadingDetailId)
   const setLoadingDetailId = useOsStore((s) => s.setLoadingDetailId)
-  const loading = loadingDetailId === os.id
+  const { navigate, isLoadingId } = useCardNavigation({
+    loadingId: loadingDetailId,
+    setLoadingId: setLoadingDetailId,
+  })
   const dimmed = isOsDimmed(os)
   const overdue = !dimmed && isOsOverdue(os)
   const scheduledToday = !dimmed && !overdue && isOsScheduledToday(os)
-
-  const handleClick = () => {
-    setLoadingDetailId(os.id)
-    router.push(`/os/${os.id}`)
-  }
 
   return (
     <motion.div
@@ -50,19 +48,11 @@ export function OsListItem({ os, index = 0 }: OsListItemProps) {
           'cursor-pointer p-4 relative transition-opacity',
           overdue && 'overdue-card-glow',
           scheduledToday && 'scheduled-today-glow',
-          dimmed && 'opacity-50 grayscale-[40%] hover:opacity-75',
-          loading && 'pointer-events-none'
+          dimmed && 'opacity-50 grayscale-[40%] hover:opacity-75'
         )}
-        onClick={handleClick}
+        onClick={() => navigate(os.id, `/os/${os.id}`)}
       >
-        {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-dark-900/60 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-neon-blue text-xs font-medium">
-              <Loader2 size={14} className="animate-spin" />
-              Abrindo...
-            </div>
-          </div>
-        )}
+        <CardLoadingOverlay isLoading={isLoadingId(os.id)} />
         <div className="min-w-0 grid grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr_0.8fr_auto] gap-3 items-center">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-white truncate">{os.name}</p>

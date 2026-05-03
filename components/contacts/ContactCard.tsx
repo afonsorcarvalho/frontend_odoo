@@ -2,10 +2,12 @@
 
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Building2, ExternalLink } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
 import { Avatar } from '@/components/ui/Avatar'
 import { NeonBadge } from '@/components/ui/NeonBadge'
+import { useContactsStore } from '@/lib/store/contactsStore'
+import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import type { OdooPartnerSummary } from '@/lib/types/partner'
 import { ReactNode } from 'react'
 
@@ -31,7 +33,12 @@ const cardVariants = {
 }
 
 export function ContactCard({ contact, index = 0 }: ContactCardProps) {
-  const router = useRouter()
+  const loadingDetailId = useContactsStore((s) => s.loadingDetailId)
+  const setLoadingDetailId = useContactsStore((s) => s.setLoadingDetailId)
+  const { navigate, isLoadingId } = useCardNavigation({
+    loadingId: loadingDetailId,
+    setLoadingId: setLoadingDetailId,
+  })
 
   return (
     <motion.div
@@ -46,8 +53,9 @@ export function ContactCard({ contact, index = 0 }: ContactCardProps) {
         variant="hover"
         noPadding
         className="cursor-pointer group relative p-5 h-full"
-        onClick={() => router.push(`/contacts/${contact.id}`)}
+        onClick={() => navigate(contact.id, `/contacts/${contact.id}`)}
       >
+        <CardLoadingOverlay isLoading={isLoadingId(contact.id)} />
         <div className="absolute top-3 right-3">
           <NeonBadge color={contact.is_company ? 'purple' : 'blue'} dot>
             {contact.is_company ? 'Empresa' : 'Pessoa'}

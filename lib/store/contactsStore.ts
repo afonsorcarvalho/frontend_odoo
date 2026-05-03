@@ -37,6 +37,9 @@ interface ContactsStore {
   closeFilterPanel: () => void
   openFormModal: (partnerId?: number) => void
   closeFormModal: () => void
+
+  loadingDetailId: number | null
+  setLoadingDetailId: (id: number | null) => void
 }
 
 export const useContactsStore = create<ContactsStore>()(
@@ -114,6 +117,9 @@ export const useContactsStore = create<ContactsStore>()(
               editingPartnerId: null,
             },
           })),
+
+        loadingDetailId: null,
+        setLoadingDetailId: (id) => set({ loadingDetailId: id }),
       })),
       {
         name: 'contacts-store',
