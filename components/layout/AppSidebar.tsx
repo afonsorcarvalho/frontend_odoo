@@ -11,6 +11,7 @@ import { useSchemaStore } from '@/lib/store/schemaStore'
 import { odooClient } from '@/lib/odoo/client'
 import { resetSessionCache } from '@/lib/store/resetSessionCache'
 import { fetchAvailableCompanies } from '@/lib/odoo/companies'
+import { buildPostLogoutLoginPath } from '@/lib/utils/loginUrlParams'
 
 interface NavItem {
   href: string
@@ -57,11 +58,12 @@ export function AppSidebar() {
   }
 
   const handleLogout = async () => {
+    const { serverUrl, dbName } = useAuthStore.getState()
     try { await odooClient.logout() } catch { /* ignora */ }
     logout()
     odooClient.reset()
     resetSessionCache(queryClient)
-    router.push('/login')
+    router.push(buildPostLogoutLoginPath(serverUrl, dbName))
   }
 
   const isActive = (item: NavItem) => {

@@ -93,11 +93,12 @@ export const useAuthStore = create<AuthState>()(
 
         logout: () => {
           useSchemaStore.getState().clear()
+          // Preserva serverUrl e dbName para o próximo login reabrir no mesmo
+          // contexto (pré-preenchimento via URL ou último server/db usado).
           set({
             userId: null,
             userName: '',
             isAuthenticated: false,
-            dbName: '',
             availableCompanies: [],
             selectedCompanyId: null,
           })

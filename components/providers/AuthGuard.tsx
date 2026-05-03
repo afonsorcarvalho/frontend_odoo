@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { odooClient } from '@/lib/odoo/client'
 import { useAuthStore } from '@/lib/store/authStore'
 import { preloadSchemas } from '@/lib/odoo/schema'
+import { buildPostLogoutLoginPath } from '@/lib/utils/loginUrlParams'
 
 const PUBLIC_PATHS = ['/login']
 
@@ -48,11 +49,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!hydrated || isPublic) return
 
     let cancelled = false
-    const { serverUrl } = useAuthStore.getState()
+    const { serverUrl, dbName } = useAuthStore.getState()
+    const loginPath = buildPostLogoutLoginPath(serverUrl, dbName)
 
     if (!serverUrl) {
       forceLogout().finally(() => {
-        if (!cancelled) router.replace('/login')
+        if (!cancelled) router.replace(loginPath)
       })
       return () => {
         cancelled = true
@@ -65,14 +67,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         if (cancelled) return
         if (!info || !info.uid) {
           await forceLogout()
-          if (!cancelled) router.replace('/login')
+          if (!cancelled) router.replace(loginPath)
           return
         }
         try { await preloadSchemas() } catch { /* tolera falhas de rede */ }
         if (!cancelled) setChecked(true)
       } catch {
         await forceLogout()
-        if (!cancelled) router.replace('/login')
+        if (!cancelled) router.replace(loginPath)
       }
     }
 

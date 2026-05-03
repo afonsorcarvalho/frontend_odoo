@@ -1,19 +1,20 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Server, Database, User, Lock, Eye, EyeOff,
   ChevronRight, AlertCircle, CheckCircle2, Loader2,
   Wifi, WifiOff,
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { odooClient } from '@/lib/odoo/client'
 import { preloadSchemas } from '@/lib/odoo/schema'
 import { useAuthStore } from '@/lib/store/authStore'
 import { useSchemaStore } from '@/lib/store/schemaStore'
 import { resetSessionCache } from '@/lib/store/resetSessionCache'
+import { parseLoginParams, normalizeServerUrl } from '@/lib/utils/loginUrlParams'
 import { clsx } from 'clsx'
 
 type Step = 'server' | 'credentials'
@@ -24,8 +25,9 @@ interface ServerStatus {
   databases?: string[]
 }
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const queryClient = useQueryClient()
   const { setServerUrl, setDbName, setUser, setCompany, serverUrl: savedUrl, dbName: savedDb, addServerUrlToHistory, serverUrlHistory } = useAuthStore()
 
@@ -53,16 +55,12 @@ export default function LoginPage() {
   }, [step])
 
   function normalizeUrl(raw: string): string {
-    let u = raw.trim().replace(/\/+$/, '')
-    if (u && !u.startsWith('http://') && !u.startsWith('https://')) {
-      u = 'https://' + u
-    }
-    return u
+    return normalizeServerUrl(raw)
   }
 
-  async function handleCheckServer() {
-    const normalized = normalizeUrl(url)
-    if (!normalized) return
+  async function checkServer(rawUrl: string, preselectDb?: string | null): Promise<boolean> {
+    const normalized = normalizeUrl(rawUrl)
+    if (!normalized) return false
 
     setUrl(normalized)
     setServerStatus({ state: 'checking' })
@@ -71,10 +69,13 @@ export default function LoginPage() {
       const dbs = await odooClient.getDatabases(normalized)
       if (dbs.length === 0) {
         setServerStatus({ state: 'error', message: 'Nenhum banco de dados encontrado neste servidor.' })
-        return
+        return false
       }
       setServerStatus({ state: 'ok', databases: dbs })
-      setSelectedDb(savedDb && dbs.includes(savedDb) ? savedDb : dbs[0])
+      const targetDb = preselectDb && dbs.includes(preselectDb)
+        ? preselectDb
+        : (savedDb && dbs.includes(savedDb) ? savedDb : dbs[0])
+      setSelectedDb(targetDb)
 
       // Mudou de server? Limpa cache de empresa/ciclos/filtros/schema ANTES de persistir
       if (savedUrl && savedUrl !== normalized) {
@@ -85,13 +86,32 @@ export default function LoginPage() {
       odooClient.reset()
 
       setTimeout(() => setStep('credentials'), 400)
+      return true
     } catch {
       setServerStatus({
         state: 'error',
         message: 'Não foi possível conectar. Verifique a URL e se o servidor está acessível.',
       })
+      return false
     }
   }
+
+  async function handleCheckServer() {
+    await checkServer(url)
+  }
+
+  // Pré-preenchimento via URL: /login?server=...&db=... avança direto ao
+  // passo de credenciais. Executa uma única vez no mount. Não limpa a URL
+  // (mantém bookmark/reload e permite que o logout redirecione de volta).
+  const prefillRan = useRef(false)
+  useEffect(() => {
+    if (prefillRan.current) return
+    prefillRan.current = true
+    const { server, db } = parseLoginParams(searchParams)
+    if (!server) return
+    checkServer(server, db)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -284,6 +304,18 @@ export default function LoginPage() {
         </motion.p>
       </motion.div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-white/60" />
+      </div>
+    }>
+      <LoginPageInner />
+    </Suspense>
   )
 }
 
