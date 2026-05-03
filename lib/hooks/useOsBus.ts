@@ -6,6 +6,7 @@ import { subscribeBus } from '../odoo/bus'
 import { OS_KEY } from './useOs'
 
 const EVENT_TYPE = 'engc_os.changed'
+const LIST_INVALIDATE_DEBOUNCE_MS = 1500
 
 interface OsChangePayload {
   event: 'created' | 'updated'
@@ -20,6 +21,9 @@ interface OsChangePayload {
  * e invalida os caches do React Query correspondentes.
  *
  * Deve ser montado uma única vez na árvore (ex.: na página de listagem).
+ *
+ * Invalidação da LISTA é debounced para agrupar rajadas de eventos em janela.
+ * Detalhe é invalidado imediatamente (só dispara para o ID específico).
  */
 export function useOsBus(enabled = true) {
   const queryClient = useQueryClient()
@@ -27,16 +31,28 @@ export function useOsBus(enabled = true) {
   useEffect(() => {
     if (!enabled) return
 
+    let listTimer: ReturnType<typeof setTimeout> | null = null
+    const scheduleListInvalidate = () => {
+      if (listTimer) return
+      listTimer = setTimeout(() => {
+        listTimer = null
+        queryClient.invalidateQueries({ queryKey: [OS_KEY] })
+      }, LIST_INVALIDATE_DEBOUNCE_MS)
+    }
+
     const sub = subscribeBus('/api/os/bus', (msg) => {
       if (msg.type !== EVENT_TYPE) return
       const payload = msg.payload as OsChangePayload | undefined
       if (!payload) return
-      queryClient.invalidateQueries({ queryKey: [OS_KEY] })
+      scheduleListInvalidate()
       if (typeof payload.id === 'number') {
         queryClient.invalidateQueries({ queryKey: ['os-detail', payload.id] })
       }
     })
 
-    return () => sub.close()
+    return () => {
+      sub.close()
+      if (listTimer) clearTimeout(listTimer)
+    }
   }, [enabled, queryClient])
 }

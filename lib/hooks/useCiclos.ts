@@ -9,8 +9,8 @@ import type { IBFormData, IBLoteCreateData, MaterialLineFormData, CicloFotoCreat
 
 export const CICLOS_KEY = 'ciclos'
 
-const LIST_REFETCH_MS = 30_000
-const DETAIL_ACTIVE_REFETCH_MS = 15_000
+const LIST_REFETCH_MS = 5 * 60_000
+const DETAIL_ACTIVE_REFETCH_MS = 2 * 60_000
 
 export function useCiclos() {
   const filters = useCiclosStore((s) => s.filters)
