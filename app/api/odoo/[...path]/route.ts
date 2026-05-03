@@ -20,7 +20,7 @@ async function handler(
   const cookieTarget = request.cookies.get('odoo-target')?.value
   const base = normalizeTarget(headerTarget ?? cookieTarget)
 
-  const targetUrl = `${base}/${path.join('/')}`
+  const targetUrl = `${base}/${path.join('/')}${request.nextUrl.search}`
 
   const forwardHeaders = new Headers()
   const incomingCT = request.headers.get('content-type')

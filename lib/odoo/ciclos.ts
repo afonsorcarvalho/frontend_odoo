@@ -211,14 +211,93 @@ export const ciclosApi = {
   },
 
   async forceConclude(cycleId: number): Promise<boolean> {
-    const now = new Date()
-    const p = (n: number) => String(n).padStart(2, '0')
-    const nowUtc = `${now.getUTCFullYear()}-${p(now.getUTCMonth() + 1)}-${p(now.getUTCDate())} ${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())}`
+    // Estratégia: replica o que o backend faz ao processar a fita digital —
+    // pega o datetime de "CICLO FINALIZADO" (ou último horário registado),
+    // não a hora atual.
+    //
+    // 1) Tenta `action_atualizar_dados_ciclo_atual` — relê a fita e o método
+    //    `process_cycle_data_*` preenche `end_date` a partir do tag de
+    //    finalização ou do último ponto da fita (vide
+    //    afr_supervisorio_ciclos_vapor/eto/...).
+    // 2) Se a fita não preencher (sem file_path / sem dados), faz fallback
+    //    com base em `cycle_statistics_data` (último timestamp).
+    // 3) Em último caso, usa `start_date + duration_planned`.
+    try {
+      await odooClient.callKw(
+        'afr.supervisorio.ciclos',
+        'action_atualizar_dados_ciclo_atual',
+        [[cycleId]]
+      )
+    } catch {
+      // ignora — o fallback abaixo cuida de ciclos sem fita
+    }
+
+    const recs = await odooClient.read<{
+      end_date: string | false
+      start_date: string | false
+      duration_planned: number | false
+      cycle_statistics_data: unknown
+    }>(
+      'afr.supervisorio.ciclos',
+      [cycleId],
+      ['end_date', 'start_date', 'duration_planned', 'cycle_statistics_data']
+    )
+    const rec = recs[0]
+
+    let endDate: string | null = rec?.end_date || null
+    if (!endDate) {
+      endDate = lastTimestampFromStatistics(rec?.cycle_statistics_data)
+    }
+    if (!endDate && rec?.start_date && typeof rec.duration_planned === 'number' && rec.duration_planned > 0) {
+      const start = new Date(String(rec.start_date).replace(' ', 'T') + 'Z').getTime()
+      if (!isNaN(start)) {
+        endDate = formatOdooUtc(new Date(start + rec.duration_planned * 60_000))
+      }
+    }
+    if (!endDate) {
+      endDate = formatOdooUtc(new Date())
+    }
+
     return odooClient.write('afr.supervisorio.ciclos', [cycleId], {
       state: 'concluido',
-      end_date: nowUtc,
+      end_date: endDate,
     })
   },
+}
+
+function formatOdooUtc(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`
+}
+
+/**
+ * Extrai o último timestamp de `cycle_statistics_data` (lista de tuplas
+ * `[fase, {hora_inicio, hora_fim, ...}]` ou estrutura similar). Devolve string
+ * pronta para gravar em `end_date` (UTC, "YYYY-MM-DD HH:MM:SS") ou null se
+ * não conseguir extrair.
+ */
+function lastTimestampFromStatistics(stats: unknown): string | null {
+  if (!stats || !Array.isArray(stats)) return null
+  let last: number | null = null
+  const consider = (raw: unknown) => {
+    if (typeof raw !== 'string') return
+    // Aceita "YYYY-MM-DD HH:MM:SS" ou ISO. Backend grava timestamps com offset
+    // de +3h (vide process_cycle_data_*); aqui não somamos nada — apenas
+    // copiamos o último horário tal qual o backend já normalizou.
+    const t = new Date(raw.replace(' ', 'T')).getTime()
+    if (!isNaN(t) && (last === null || t > last)) last = t
+  }
+  for (const entry of stats as unknown[]) {
+    if (Array.isArray(entry) && entry.length >= 2 && entry[1] && typeof entry[1] === 'object') {
+      const dados = entry[1] as Record<string, unknown>
+      consider(dados.hora_fim)
+      consider(dados.hora_inicio)
+      consider(dados.data_fim)
+      consider(dados.data_inicio)
+    }
+  }
+  if (last === null) return null
+  return formatOdooUtc(new Date(last))
 }
 
 export default ciclosApi

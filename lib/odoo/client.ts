@@ -100,7 +100,7 @@ class OdooClient {
         // ignora erros de parse
       }
     }
-    return normalizeTarget(process.env.NEXT_PUBLIC_ODOO_URL || 'http://localhost:8069')
+    return normalizeTarget('http://localhost:8069')
   }
 
   // Força recriação do cliente (usado após troca de servidor)
@@ -260,17 +260,49 @@ class OdooClient {
   }
 
   /**
+   * Renderiza o Laudo de Liberação restrito aos materiais selecionados.
+   *
+   * Usa o método `get_laudo_public_url` no backend (já existente) para obter uma
+   * URL assinada (HMAC) e depois baixa o PDF via rota pública existente
+   * `/laudo/liberacao/public/<ciclo_id>?token=...&materials=...`.
+   * Não requer novo controller no Odoo.
+   */
+  async fetchLaudoPdf(cycleId: number, materialLineIds: number[]): Promise<{ blob: Blob; filename?: string }> {
+    const url = await this.callKw<string>(
+      'afr.supervisorio.ciclos',
+      'get_laudo_public_url',
+      [[cycleId]],
+      { material_line_ids: materialLineIds }
+    )
+    // Extrai apenas o path + query (descarta scheme/host — fetch passa pelo proxy interno).
+    let path: string
+    try {
+      const u = new URL(url)
+      path = `${u.pathname}${u.search}`
+    } catch {
+      path = url.startsWith('/') ? url : `/${url}`
+    }
+    return this.fetchBinary(path)
+  }
+
+  /**
    * Busca qualquer endpoint binário via proxy como Blob (para visualização inline).
    * Não dispara download.
    */
-  async fetchBinary(path: string): Promise<{ blob: Blob; filename?: string }> {
+  async fetchBinary(
+    path: string,
+    options?: { method?: 'GET' | 'POST'; body?: BodyInit; contentType?: string }
+  ): Promise<{ blob: Blob; filename?: string }> {
     if (typeof window === 'undefined') throw new Error('fetchBinary só funciona no navegador')
     const target = this.resolveTarget()
     const url = `${PROXY_BASE}${path.startsWith('/') ? path : '/' + path}`
+    const headers: Record<string, string> = { 'X-Odoo-Target': target }
+    if (options?.contentType) headers['Content-Type'] = options.contentType
     const res = await fetch(url, {
-      method: 'GET',
+      method: options?.method ?? 'GET',
       credentials: 'include',
-      headers: { 'X-Odoo-Target': target },
+      headers,
+      body: options?.body,
     })
     if (!res.ok) {
       // tenta extrair mensagem útil do servidor

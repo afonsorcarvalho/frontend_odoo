@@ -115,6 +115,11 @@ export function CyclePhaseBar({
     </div>
   )
 
+  const etaIso = isActive && cycle.start_date && totalPlannedMin > 0
+    ? new Date(new Date(String(cycle.start_date).replace(' ', 'T') + 'Z').getTime() + totalPlannedMin * 60_000)
+    : null
+  const etaValid = etaIso && !isNaN(etaIso.getTime()) ? etaIso : null
+
   return (
     <div className={clsx('w-full select-none', className)}>
       <div className="flex items-center justify-between gap-3 mb-2 text-sm">
@@ -139,8 +144,37 @@ export function CyclePhaseBar({
         finished={finished}
         state={cycle.state}
       />
+
+      {etaValid && (
+        <div className="flex justify-end mt-1">
+          <span
+            className={clsx(
+              'text-[11px] tabular-nums whitespace-nowrap',
+              overdueMs > 0 ? 'text-neon-pink/70' : 'text-white/45'
+            )}
+            title={`Previsão de término: ${etaValid.toLocaleString('pt-BR')}`}
+          >
+            Termina às <span className="font-mono text-white/70">{formatEta(etaValid)}</span>
+          </span>
+        </div>
+      )}
     </div>
   )
+}
+
+function formatEta(d: Date): string {
+  const now = new Date()
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  if (sameDay) {
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  }
+  return d.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  })
 }
 
 function computePhaseFillPct(

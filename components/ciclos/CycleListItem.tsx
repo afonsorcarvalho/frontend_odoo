@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Activity, Calendar, Clock, Package, AlertCircle, CheckCircle2, WashingMachine } from 'lucide-react'
+import { Activity, Calendar, Clock, Package, AlertCircle, CheckCircle2, WashingMachine, Beaker } from 'lucide-react'
 import { clsx } from 'clsx'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { CardLoadingOverlay } from '@/components/ui/CardLoadingOverlay'
@@ -80,7 +80,7 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
           </div>
 
           <div className="flex flex-col items-end gap-1.5 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               {cycle.is_overdue && (
                 <span
                   className="overdue-glow inline-flex items-center gap-1 text-[10px] text-neon-pink font-medium whitespace-nowrap"
@@ -88,6 +88,27 @@ export function CycleListItem({ cycle, index = 0 }: CycleListItemProps) {
                 >
                   <AlertCircle size={11} />
                   {formatOverdue(cycle) || 'Atrasado'}
+                </span>
+              )}
+              {cycle.material_count !== false && cycle.material_count !== null && cycle.material_count > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] text-white/60 whitespace-nowrap"
+                  title={`${cycle.material_count} ${cycle.material_count === 1 ? 'material' : 'materiais'}`}
+                >
+                  <Package size={11} className="text-neon-blue/70" />
+                  {cycle.material_count}
+                </span>
+              )}
+              {cycle.ib_resultado && (
+                <span
+                  className={clsx(
+                    'inline-flex items-center gap-1 text-[10px] font-medium whitespace-nowrap',
+                    cycle.ib_resultado === 'positivo' ? 'text-neon-pink ib-positivo-glow' : 'text-neon-green ib-negativo-glow'
+                  )}
+                  title={`IB ${cycle.ib_resultado}`}
+                >
+                  <Beaker size={11} />
+                  IB {cycle.ib_resultado}
                 </span>
               )}
               {cycle.is_signed && <CheckCircle2 size={13} className="text-neon-green" />}

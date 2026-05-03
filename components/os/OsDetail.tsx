@@ -25,7 +25,7 @@ import {
   useCreateRelatorio,
   useOsRelatorios,
 } from '@/lib/hooks/useOs'
-import { MAINTENANCE_TYPE_LABEL, OS_TERMINAL_STATES, type OdooOs, type OsRelatorio, isOsOverdue } from '@/lib/types/os'
+import { MAINTENANCE_TYPE_LABEL, type OdooOs, type OsRelatorio, isOsOverdue } from '@/lib/types/os'
 import { OsRelatorioModal } from './OsRelatorioModal'
 
 const PdfViewerModal = dynamic(
@@ -46,7 +46,6 @@ export function OsDetail({ os }: { os: OdooOs }) {
   const [tab, setTab] = useState<TabKey>('geral')
   const openFormModal = useOsStore((s) => s.openFormModal)
   const overdue = isOsOverdue(os)
-  const isTerminal = os.state ? OS_TERMINAL_STATES.includes(os.state as never) : false
   const canEdit = os.state === 'draft'
   const pdf = usePdfReport()
 

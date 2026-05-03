@@ -14,6 +14,7 @@ import { ImageViewerModal } from '@/components/ui/ImageViewerModal'
 import { TextViewerModal } from '@/components/ui/TextViewerModal'
 import { MaterialsSection } from './MaterialsSection'
 import { FotosSection } from './FotosSection'
+import { LaudoMaterialSelectionModal } from './LaudoMaterialSelectionModal'
 
 const PdfViewerModal = dynamic(
   () => import('@/components/ui/PdfViewerModal').then((m) => m.PdfViewerModal),
@@ -53,6 +54,8 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
 
   // URL atualmente aberta (pra evitar recarregar o mesmo PDF de novo)
   const [pdfSourceKey, setPdfSourceKey] = useState<string>('')
+
+  const [laudoSelOpen, setLaudoSelOpen] = useState(false)
 
   const graphSrc = cycle.cycle_graph
     ? `data:image/png;base64,${cycle.cycle_graph}`
@@ -113,13 +116,26 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
   }
 
   const handleDownloadPdf = async () => {
-    const isReport = pdfSourceKey.startsWith('report:')
-    const path = isReport
-      ? `/report/pdf/${encodeURIComponent(pdfSourceKey.replace('report:', '').split('|')[0])}/${cycle.id}`
-      : pdfPath
     const name = pdfServerFilename ?? pdfFallback ?? pdfFallbackName
     const t = toast.loading('Baixando PDF...')
     try {
+      // Laudo selecionado: usa o blob já em memória (não dá pra refazer GET — endpoint é POST).
+      if (pdfSourceKey.startsWith('laudo:') && pdfBlob) {
+        const url = URL.createObjectURL(pdfBlob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = name
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(url)
+        toast.success('PDF baixado', { id: t })
+        return
+      }
+      const isReport = pdfSourceKey.startsWith('report:')
+      const path = isReport
+        ? `/report/pdf/${encodeURIComponent(pdfSourceKey.replace('report:', '').split('|')[0])}/${cycle.id}`
+        : pdfPath
       await odooClient.downloadBinary(path, name)
       toast.success('PDF baixado', { id: t })
     } catch (err) {
@@ -130,8 +146,18 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
   /**
    * Abre o visualizador de PDF com um report (ex: Impressão de Ciclo, Laudo).
    * Reusa o mesmo PdfViewerModal; trocando a fonte, faz novo fetch.
+   *
+   * Caso especial: laudo de liberação abre antes um modal de seleção de
+   * materiais (a renderização ocorre só após confirmação).
    */
+  const LAUDO_REPORT = 'afr_supervisorio_ciclos_extras.report_laudo_liberacao_template'
+
   const handleOpenReport = async (reportName: string, label: string, filenamePattern?: string) => {
+    if (reportName === LAUDO_REPORT) {
+      setLaudoSelOpen(true)
+      return
+    }
+
     const key = `report:${reportName}|${cycle.id}`
     const fallback = formatFilename(filenamePattern, { id: cycle.id, name: cycle.name })
     setPdfTitle(`${label} · ${cycle.name}`)
@@ -149,6 +175,28 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
       setPdfSourceKey(key)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao gerar relatório')
+      setPdfOpen(false)
+    } finally {
+      setPdfLoading(false)
+    }
+  }
+
+  const handleConfirmLaudoSelection = async (materialIds: number[]) => {
+    setLaudoSelOpen(false)
+    const fallback = formatFilename('laudo_liberacao_{id}.pdf', { id: cycle.id, name: cycle.name })
+    setPdfTitle(`Laudo de Liberação · ${cycle.name}`)
+    setPdfFallback(fallback)
+    setPdfOpen(true)
+    setPdfLoading(true)
+    setPdfBlob(null)
+    setPdfServerFilename(undefined)
+    setPdfSourceKey(`laudo:${cycle.id}|${materialIds.join(',')}`)
+    try {
+      const { blob, filename } = await odooClient.fetchLaudoPdf(cycle.id, materialIds)
+      setPdfBlob(blob)
+      setPdfServerFilename(filename)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao gerar laudo')
       setPdfOpen(false)
     } finally {
       setPdfLoading(false)
@@ -453,6 +501,14 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
         open={ibEditOpen}
         onClose={() => setIbEditOpen(false)}
         cycle={cycle}
+      />
+
+      <LaudoMaterialSelectionModal
+        open={laudoSelOpen}
+        onClose={() => setLaudoSelOpen(false)}
+        cycleId={cycle.id}
+        cycleName={cycle.name}
+        onConfirm={handleConfirmLaudoSelection}
       />
     </div>
   )

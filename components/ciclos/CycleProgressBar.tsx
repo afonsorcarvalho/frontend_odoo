@@ -19,6 +19,16 @@ function formatRemaining(ms: number): string {
   return `${h}h ${m}min`
 }
 
+function formatEta(d: Date): string {
+  const now = new Date()
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  if (sameDay) return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+}
+
 interface CycleProgressBarProps {
   cycle: OdooCycleSummary
   className?: string
@@ -83,11 +93,27 @@ export function CycleProgressBar({ cycle, className, showLabel = false }: CycleP
         )}
       </div>
       {remainingMs !== null && (
-        <span className={clsx('text-[10px] tabular-nums', labelClass)}>
-          {remainingMs > 0
-            ? `Faltam ${formatRemaining(remainingMs)}`
-            : `Atrasado há ${formatRemaining(-remainingMs)}`}
-        </span>
+        <div className="flex items-center justify-between gap-2">
+          <span className={clsx('text-[10px] tabular-nums', labelClass)}>
+            {remainingMs > 0
+              ? `Faltam ${formatRemaining(remainingMs)}`
+              : `Atrasado há ${formatRemaining(-remainingMs)}`}
+          </span>
+          {cycle.start_date && cycle.duration_planned && (() => {
+            const start = parseStart(cycle.start_date)
+            if (start === null) return null
+            const eta = new Date(start + cycle.duration_planned * 60_000)
+            if (isNaN(eta.getTime())) return null
+            return (
+              <span
+                className={clsx('text-[10px] tabular-nums', overdue ? 'text-neon-pink/70' : 'text-white/45')}
+                title={`Previsão de término: ${eta.toLocaleString('pt-BR')}`}
+              >
+                Termina às <span className="font-mono text-white/70">{formatEta(eta)}</span>
+              </span>
+            )
+          })()}
+        </div>
       )}
     </div>
   )

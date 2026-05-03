@@ -46,17 +46,6 @@ export function ChecklistManagerModal({
     })
   }, [items, included, currentRelatorioId])
 
-  // Agrupar por secção
-  const groups = useMemo(() => {
-    const map = new Map<string, OsChecklistItem[]>()
-    for (const it of availableItems) {
-      const key = it.section ? it.section[1] : 'Sem seção'
-      if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(it)
-    }
-    return Array.from(map.entries()).map(([name, its]) => ({ name, items: its }))
-  }, [availableItems])
-
   const [activeTab, setActiveTab] = useState<string>('')
   const [showExcluded, setShowExcluded] = useState(false)
 

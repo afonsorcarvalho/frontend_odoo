@@ -97,21 +97,33 @@ export function CycleActiveHeader({ cycle, size = 'md', className }: CycleActive
         </div>
       </div>
 
-      {currentPhaseLabel && (
+      {plannedMs > 0 && (
         <div className="text-right min-w-0 shrink-0">
-          <div className={clsx('uppercase tracking-wider text-white/40 font-medium', labelSize)}>
-            Fase atual
-          </div>
           <div
             className={clsx(
-              'phase-label-glow font-mono font-semibold uppercase tracking-wider mt-1 truncate',
-              phaseSize,
-              overdue ? 'text-neon-pink' : 'text-neon-green'
+              'font-mono font-semibold tabular-nums leading-none tracking-tight',
+              timerSize,
+              overdue ? 'text-neon-pink' : 'text-white/70'
             )}
-            title={currentPhaseLabel}
+            title={overdue ? 'Tempo de atraso' : 'Tempo restante previsto'}
           >
-            {currentPhaseLabel}
+            {overdue ? `+${formatHms(overtimeMs)}` : formatHms(plannedMs - elapsedMs)}
           </div>
+          <div className={clsx('mt-1 font-mono text-white/40 tabular-nums', labelSize)}>
+            {overdue ? 'de atraso' : 'restantes'}
+          </div>
+          {currentPhaseLabel && (
+            <div
+              className={clsx(
+                'phase-label-glow font-mono font-semibold uppercase tracking-wider mt-1 truncate',
+                phaseSize,
+                overdue ? 'text-neon-pink' : 'text-neon-green'
+              )}
+              title={currentPhaseLabel}
+            >
+              {currentPhaseLabel}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -22,6 +22,14 @@ export default function CiclosPage() {
   const { ui, setViewMode, openFilterPanel, filters } = useCiclosStore()
   useCiclosBus()
 
+  const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+
   if (isLoaded && !canRead) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -35,14 +43,6 @@ export default function CiclosPage() {
       </div>
     )
   }
-
-  const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
-
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const cycles = data?.allCycles ?? []
   const total = data?.total ?? 0

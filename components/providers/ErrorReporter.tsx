@@ -70,6 +70,10 @@ export function ErrorReporter() {
     console.error = (...args: unknown[]) => {
       origError(...args)
       try {
+        // Ignora bailout esperado de useSearchParams sem Suspense em prerender
+        const digest = args.find((a) => a instanceof Error)
+        if (digest && (digest as Error & { digest?: string }).digest === 'BAILOUT_TO_CLIENT_SIDE_RENDERING') return
+
         queue.push({
           ...base(),
           kind: 'console.error',
