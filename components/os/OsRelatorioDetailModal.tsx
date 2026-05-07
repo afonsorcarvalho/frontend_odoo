@@ -344,6 +344,7 @@ export function OsRelatorioDetailModal({ open, onClose, relatorio, onEdit }: OsR
         isLoading={pdf.pdfLoading}
         title={pdf.pdfTitle}
         filename={pdf.pdfServerFilename ?? pdf.pdfFallback}
+        onDownload={pdf.pdfBlob ? pdf.downloadPdf : undefined}
       />
       {relatorio && (
         <>

@@ -9,8 +9,9 @@ import { useOsStore } from '@/lib/store/osStore'
 import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
+import { OsMaintenanceTypeBadge } from './OsMaintenanceTypeBadge'
+import { EquipmentAvatar } from '@/components/ui/EquipmentAvatar'
 import {
-  MAINTENANCE_TYPE_LABEL,
   type OdooOsSummary,
   isOsOverdue,
   isOsScheduledToday,
@@ -54,16 +55,20 @@ export function OsListItem({ os, index = 0 }: OsListItemProps) {
       >
         <CardLoadingOverlay isLoading={isLoadingId(os.id)} />
         <div className="min-w-0 grid grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr_0.8fr_auto] gap-3 items-center">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{os.name}</p>
+          <div className="min-w-0 flex items-center gap-2.5">
             {os.equipment_id && (
-              <p className="text-xs text-white/50 truncate flex items-center gap-1 mt-0.5">
-                <Wrench size={10} className="text-neon-blue/70 flex-shrink-0" />
-                {os.equipment_apelido
-                  ? `${os.equipment_apelido} · ${os.equipment_id[1]}`
-                  : os.equipment_id[1]}
-              </p>
+              <EquipmentAvatar equipmentId={os.equipment_id[0]} size="sm" />
             )}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white truncate">{os.name}</p>
+              {os.equipment_id && (
+                <p className="text-xs text-white/50 truncate mt-0.5">
+                  {os.equipment_apelido
+                    ? `${os.equipment_apelido} · ${os.equipment_id[1]}`
+                    : os.equipment_id[1]}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="hidden lg:flex flex-col gap-0.5 text-xs text-white/60">
@@ -81,15 +86,10 @@ export function OsListItem({ os, index = 0 }: OsListItemProps) {
             )}
           </div>
 
-          <div className="hidden lg:flex flex-col gap-0.5 text-xs text-white/60">
-            {os.maintenance_type && (
-              <span className="flex items-center gap-1">
-                <Wrench size={10} className="text-neon-blue/60" />
-                {MAINTENANCE_TYPE_LABEL[os.maintenance_type]}
-              </span>
-            )}
+          <div className="hidden lg:flex flex-col gap-1">
+            <OsMaintenanceTypeBadge type={os.maintenance_type} />
             {os.solicitante && (
-              <span className="text-white/50 truncate">{os.solicitante}</span>
+              <span className="text-xs text-white/50 truncate">{os.solicitante}</span>
             )}
           </div>
 

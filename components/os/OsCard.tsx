@@ -10,8 +10,9 @@ import { useOsStore } from '@/lib/store/osStore'
 import { useCardNavigation } from '@/lib/hooks/useCardNavigation'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
+import { OsMaintenanceTypeBadge } from './OsMaintenanceTypeBadge'
+import { EquipmentAvatar } from '@/components/ui/EquipmentAvatar'
 import {
-  MAINTENANCE_TYPE_LABEL,
   type OdooOsSummary,
   isOsOverdue,
   isOsScheduledToday,
@@ -58,18 +59,22 @@ export function OsCard({ os, index = 0 }: OsCardProps) {
       >
         <CardLoadingOverlay isLoading={isLoadingId(os.id)} />
         <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-white text-sm leading-tight truncate">
-              {os.name}
-            </h3>
+          <div className="flex items-start gap-2.5 flex-1 min-w-0">
             {os.equipment_id && (
-              <p className="text-xs text-white/50 mt-1 truncate flex items-center gap-1">
-                <Wrench size={10} className="text-neon-blue/70" />
-                {os.equipment_apelido
-                  ? `${os.equipment_apelido} · ${os.equipment_id[1]}`
-                  : os.equipment_id[1]}
-              </p>
+              <EquipmentAvatar equipmentId={os.equipment_id[0]} size="md" />
             )}
+            <div className="min-w-0">
+              <h3 className="font-semibold text-white text-sm leading-tight truncate">
+                {os.name}
+              </h3>
+              {os.equipment_id && (
+                <p className="text-xs text-white/50 mt-1 truncate">
+                  {os.equipment_apelido
+                    ? `${os.equipment_apelido} · ${os.equipment_id[1]}`
+                    : os.equipment_id[1]}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex-shrink-0 flex flex-col items-end gap-1">
             <OsStatusBadge state={os.state} />
@@ -81,11 +86,11 @@ export function OsCard({ os, index = 0 }: OsCardProps) {
 
         <div className="space-y-1.5">
           {os.maintenance_type && (
-            <InfoRow
-              icon={<Wrench size={11} />}
-              label="Tipo"
-              value={MAINTENANCE_TYPE_LABEL[os.maintenance_type]}
-            />
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-neon-blue/70 flex-shrink-0"><Wrench size={11} /></span>
+              <span className="text-white/40 w-20 flex-shrink-0">Tipo</span>
+              <OsMaintenanceTypeBadge type={os.maintenance_type} />
+            </div>
           )}
           {os.date_request && (
             <InfoRow icon={<Calendar size={11} />} label="Requisição" value={formatDateTime(os.date_request)} />

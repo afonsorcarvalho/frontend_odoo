@@ -102,18 +102,25 @@ export const osApi = {
   ): Promise<{ records: OdooOsSummary[]; nextCursor: number | null; total: number }> {
     const domain = buildOsDomain(filters, companyId)
 
-    const [records, total] = await Promise.all([
-      odooClient.searchRead<OdooOsSummary>(
-        'engc.os',
-        domain,
-        fieldsFor('engc.os', OS_LIST_FIELDS),
-        { limit: pageSize, offset: pageParam, order: 'date_scheduled desc, id desc' }
-      ),
-      odooClient.searchCount('engc.os', domain),
-    ])
+    const searchReadPromise = odooClient.searchRead<OdooOsSummary>(
+      'engc.os',
+      domain,
+      fieldsFor('engc.os', OS_LIST_FIELDS),
+      { limit: pageSize, offset: pageParam, order: 'date_scheduled desc, id desc' }
+    )
 
-    const nextCursor = pageParam + records.length < total ? pageParam + pageSize : null
-    return { records, nextCursor, total }
+    if (pageParam === 0) {
+      const [records, total] = await Promise.all([
+        searchReadPromise,
+        odooClient.searchCount('engc.os', domain),
+      ])
+      const nextCursor = pageParam + records.length < total ? pageParam + pageSize : null
+      return { records, nextCursor, total }
+    }
+
+    const records = await searchReadPromise
+    const nextCursor = records.length === pageSize ? pageParam + pageSize : null
+    return { records, nextCursor, total: 0 }
   },
 
   async getById(id: number): Promise<OdooOs> {
@@ -296,6 +303,15 @@ export const osApi = {
   },
 
   // ─── Parceiros (empresa_manutencao / client_id) ───────────
+
+  async getPeriodicities(): Promise<{ id: number; name: string }[]> {
+    return odooClient.searchRead<{ id: number; name: string }>(
+      'engc.maintenance_plan.periodicity',
+      [],
+      ['id', 'name'],
+      { limit: 200, order: 'name asc' }
+    )
+  },
 
   async getPeriodicityNames(ids: number[]): Promise<{ id: number; name: string }[]> {
     if (!ids || ids.length === 0) return []

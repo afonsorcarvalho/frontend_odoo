@@ -69,8 +69,9 @@ export interface OdooCycle extends OdooCycleSummary {
   cycle_graph_filename: string | false
   cycle_txt_filename: string | false
   file_path: string | false
-  cycle_graph: string | false
-  cycle_statistics_data?: unknown | false
+  /** Booleano: indica presença. Conteúdo é baixado via /web/image. */
+  cycle_graph: boolean
+  write_date?: string
 }
 
 export interface CyclePhase {

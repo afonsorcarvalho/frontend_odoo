@@ -53,6 +53,30 @@ export const MAINTENANCE_TYPE_LABEL: Record<MaintenanceType, string> = {
   calibration:   'Calibração',
 }
 
+/** Classe Tailwind para a cor do ícone de cada tipo — fonte única de verdade. */
+export const MAINTENANCE_TYPE_ICON_COLOR: Record<MaintenanceType, string> = {
+  corrective:    'text-neon-pink',
+  preventive:    'text-neon-green',
+  preditiva:     'text-neon-blue',
+  qualification: 'text-neon-purple',
+  instalacao:    'text-neon-orange',
+  treinamento:   'text-amber-400',
+  calibration:   'text-cyan-400',
+  loan:          'text-white/40',
+}
+
+/** Nome do ícone lucide para cada tipo — fonte única de verdade. */
+export const MAINTENANCE_TYPE_ICON_NAME: Record<MaintenanceType, string> = {
+  corrective:    'Wrench',
+  preventive:    'ShieldCheck',
+  preditiva:     'Activity',
+  qualification: 'ClipboardCheck',
+  instalacao:    'Settings',
+  treinamento:   'BookOpen',
+  calibration:   'SlidersHorizontal',
+  loan:          'ArrowLeftRight',
+}
+
 export type OsPriority = '0' | '1' | '2' | '3'
 
 export const OS_PRIORITY_LABEL: Record<OsPriority, string> = {

@@ -48,9 +48,19 @@ export function usePdfReport() {
     }
   }
 
+  function downloadPdf() {
+    if (!pdfBlob) return
+    const url = URL.createObjectURL(pdfBlob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = pdfServerFilename ?? pdfFallback ?? 'relatorio.pdf'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return {
     pdfOpen, setPdfOpen,
     pdfBlob, pdfLoading, pdfServerFilename, pdfTitle, pdfFallback,
-    openReport,
+    openReport, downloadPdf,
   }
 }

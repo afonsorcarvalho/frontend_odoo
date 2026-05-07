@@ -5,6 +5,7 @@ import { QueryProvider } from '@/components/providers/QueryProvider'
 import { ErrorReporter } from '@/components/providers/ErrorReporter'
 import { AuthGuard } from '@/components/providers/AuthGuard'
 import { AppShell } from '@/components/layout/AppShell'
+import { PageTitle } from '@/components/providers/PageTitle'
 import './globals.css'
 
 const geistSans = localFont({
@@ -19,8 +20,8 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Contatos | Odoo CRM',
-  description: 'Gerenciamento de contatos Odoo 16',
+  title: 'frontend',
+  description: 'Gestão de OS e Ciclos',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             aria-hidden
           />
 
+          <PageTitle />
           <AuthGuard>
             <AppShell>{children}</AppShell>
           </AuthGuard>

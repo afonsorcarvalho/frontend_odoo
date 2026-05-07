@@ -6,10 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
 import { Wrench, Calendar, Clock, User, Building2, ShieldCheck, Info, ClipboardList, FileText, Package, Gauge, History, Pencil, AlertCircle } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
+import { EquipmentAvatar } from '@/components/ui/EquipmentAvatar'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { PrintMenu } from '@/components/ui/PrintMenu'
 import { OsStatusBadge } from './OsStatusBadge'
 import { OsPriorityBadge } from './OsPriorityBadge'
+import { OsMaintenanceTypeBadge } from './OsMaintenanceTypeBadge'
 import { OsTransitionBar } from './OsTransitionBar'
 import { OsChecklistTab } from './OsChecklistTab'
 import { OsRelatoriosTab } from './OsRelatoriosTab'
@@ -25,7 +27,7 @@ import {
   useCreateRelatorio,
   useOsRelatorios,
 } from '@/lib/hooks/useOs'
-import { MAINTENANCE_TYPE_LABEL, type OdooOs, type OsRelatorio, isOsOverdue } from '@/lib/types/os'
+import { type OdooOs, type OsRelatorio, isOsOverdue } from '@/lib/types/os'
 import { OsRelatorioModal } from './OsRelatorioModal'
 
 const PdfViewerModal = dynamic(
@@ -156,12 +158,7 @@ export function OsDetail({ os }: { os: OdooOs }) {
               <h1 className="text-xl md:text-2xl font-bold text-white">{os.name}</h1>
               <OsStatusBadge state={os.state} />
               <OsPriorityBadge priority={os.priority} />
-              {os.maintenance_type && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-neon-purple/10 text-neon-purple border border-neon-purple/30">
-                  <Wrench size={11} />
-                  {MAINTENANCE_TYPE_LABEL[os.maintenance_type]}
-                </span>
-              )}
+              <OsMaintenanceTypeBadge type={os.maintenance_type} size={11} />
               {overdue && (
                 <span className="inline-flex items-center gap-1 text-xs text-neon-pink font-medium">
                   <AlertCircle size={12} /> Atrasada
@@ -199,6 +196,7 @@ export function OsDetail({ os }: { os: OdooOs }) {
               <p className="text-[11px] uppercase tracking-wide text-white/40">Equipamento</p>
             </div>
             <div className="flex items-start gap-3 flex-wrap">
+              <EquipmentAvatar equipmentId={os.equipment_id[0]} size="lg" />
               <div className="min-w-0 flex-1">
                 <p className="text-base font-semibold text-white">
                   {os.equipment_apelido ? `${os.equipment_apelido} · ` : ''}{os.equipment_id[1]}
@@ -262,6 +260,7 @@ export function OsDetail({ os }: { os: OdooOs }) {
         isLoading={pdf.pdfLoading}
         title={pdf.pdfTitle}
         filename={pdf.pdfServerFilename ?? pdf.pdfFallback}
+        onDownload={pdf.pdfBlob ? pdf.downloadPdf : undefined}
       />
 
       <OsRelatorioModal
@@ -280,7 +279,7 @@ function TabGeral({ os }: { os: OdooOs }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <GlassCard className="p-5 space-y-3">
         <h3 className="text-sm font-semibold text-white/80 mb-2">Informações gerais</h3>
-        <Field icon={<Wrench size={13} />} label="Tipo" value={os.maintenance_type ? MAINTENANCE_TYPE_LABEL[os.maintenance_type] : '—'} />
+        <Field icon={<Wrench size={13} />} label="Tipo" value={<OsMaintenanceTypeBadge type={os.maintenance_type} size={11} />} />
         <Field icon={<User size={13} />} label="Solicitante" value={os.solicitante || '—'} />
         <Field icon={<User size={13} />} label="Técnico" value={os.tecnico_id ? os.tecnico_id[1] : '—'} />
         <Field icon={<Building2 size={13} />} label="Departamento" value={os.department ? os.department[1] : '—'} />
@@ -372,12 +371,12 @@ function TabButton({ active, onClick, icon, label, count }: { active: boolean; o
   )
 }
 
-function Field({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function Field({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) {
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-neon-blue/70 flex-shrink-0">{icon}</span>
       <span className="text-white/40 w-32 flex-shrink-0">{label}</span>
-      <span className="text-white/80 truncate">{value}</span>
+      <span className="text-white/80 truncate min-w-0">{value}</span>
     </div>
   )
 }

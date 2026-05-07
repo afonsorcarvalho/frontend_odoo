@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { ActionButton } from '@/components/ui/ActionButton'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
-import { useCreateOs, useUpdateOs, useEmployees, useDepartments, useOsEquipments, useOsDetail, usePartners } from '@/lib/hooks/useOs'
+import { useCreateOs, useUpdateOs, useEmployees, useDepartments, useOsEquipments, useOsDetail, usePartners, usePeriodicities } from '@/lib/hooks/useOs'
 import {
   MAINTENANCE_TYPE_LABEL,
   OS_PRIORITY_LABEL,
@@ -25,6 +25,7 @@ const schema = z.object({
     'corrective', 'preventive', 'instalacao', 'treinamento',
     'preditiva', 'qualification', 'loan', 'calibration',
   ]),
+  periodicity_id: z.number().optional(),
   priority: z.enum(['0', '1', '2', '3']),
   who_executor: z.enum(['3rd_party', 'own']),
   solicitante: z.string().min(1, 'Solicitante é obrigatório'),
@@ -41,6 +42,14 @@ const schema = z.object({
   problem_description: z.string().optional(),
   service_description: z.string().optional(),
   origin: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.maintenance_type === 'preventive' && !data.periodicity_id) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Periodicidade é obrigatória para preventiva',
+      path: ['periodicity_id'],
+    })
+  }
 })
 
 type FormValues = z.infer<typeof schema>
@@ -80,6 +89,7 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
   const { data: departments } = useDepartments()
   const { data: companies } = usePartners('company')
   const { data: allPartners } = usePartners('all')
+  const { data: periodicities } = usePeriodicities()
 
   const createMutation = useCreateOs()
   const updateMutation = useUpdateOs()
@@ -92,6 +102,7 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
     defaultValues: {
       equipment_id: 0,
       maintenance_type: 'corrective',
+      periodicity_id: undefined,
       priority: '0',
       who_executor: 'own',
       solicitante: '',
@@ -106,6 +117,9 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
       reset({
         equipment_id: (existing.equipment_id && existing.equipment_id[0]) || 0,
         maintenance_type: (existing.maintenance_type || 'corrective') as MaintenanceType,
+        periodicity_id: (existing.periodicity_ids && existing.periodicity_ids.length > 0)
+          ? existing.periodicity_ids[0]
+          : undefined,
         priority: (existing.priority || '0') as OsPriority,
         who_executor: (existing.who_executor || 'own') as OsWhoExecutor,
         solicitante: existing.solicitante || '',
@@ -127,6 +141,7 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
   }, [isEditing, existing, reset])
 
   const isWarranty = watch('is_warranty')
+  const maintenanceType = watch('maintenance_type')
 
   const onSubmit = (data: FormValues) => {
     const payload: OsFormData = {
@@ -156,6 +171,11 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
         delete rec[k]
       }
     })
+    if (data.periodicity_id) {
+      rec.periodicity_ids = [[6, 0, [data.periodicity_id]]]
+    } else {
+      rec.periodicity_ids = [[6, 0, []]]
+    }
 
     if (isEditing) {
       updateMutation.mutate({ id: osId!, data: payload })
@@ -197,6 +217,24 @@ export function OsForm({ osId, onCancel }: OsFormProps) {
             ))}
           </select>
         </Field>
+
+        {maintenanceType === 'preventive' && (
+          <Field label="Periodicidade *" error={(errors as Record<string, { message?: string }>).periodicity_id?.message}>
+            <Controller
+              name="periodicity_id"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  value={field.value ? String(field.value) : ''}
+                  onChange={(v) => field.onChange(v ? Number(v) : undefined)}
+                  options={(periodicities || []).map((p) => ({ value: String(p.id), label: p.name }))}
+                  placeholder="Selecionar periodicidade..."
+                  emptyLabel="— Nenhuma —"
+                />
+              )}
+            />
+          </Field>
+        )}
 
         <Field label="Prioridade *" error={errors.priority?.message}>
           <select {...register('priority')} className={inputCls}>

@@ -9,9 +9,6 @@ import type { IBFormData, IBLoteCreateData, MaterialLineFormData, CicloFotoCreat
 
 export const CICLOS_KEY = 'ciclos'
 
-const LIST_REFETCH_MS = 5 * 60_000
-const DETAIL_ACTIVE_REFETCH_MS = 2 * 60_000
-
 export function useCiclos() {
   const filters = useCiclosStore((s) => s.filters)
   const selectedCompanyId = useAuthStore((s) => s.selectedCompanyId)
@@ -21,11 +18,9 @@ export function useCiclos() {
     queryFn: ({ pageParam }) => ciclosApi.listPage(filters, pageParam as number, 24, selectedCompanyId),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    staleTime: 1000 * 60 * 2,
-    gcTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
-    refetchInterval: LIST_REFETCH_MS,
-    refetchIntervalInBackground: false,
     select: (data) => ({
       pages: data.pages,
       pageParams: data.pageParams,
@@ -40,10 +35,7 @@ export function useCiclo(id: number | null) {
     queryKey: ['ciclo', id],
     queryFn: () => ciclosApi.getById(id!),
     enabled: id !== null && id > 0,
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: (query) =>
-      query.state.data?.state === 'em_andamento' ? DETAIL_ACTIVE_REFETCH_MS : false,
-    refetchIntervalInBackground: false,
+    staleTime: 1000 * 60 * 10,
     retry: (failureCount, error: unknown) => {
       const err = error as { code?: number }
       if (err?.code === 401 || err?.code === 403) return false
@@ -73,6 +65,16 @@ export function useCycleFeatures() {
     queryKey: ['cycle-features'],
     queryFn: ciclosApi.getCycleFeatures,
     staleTime: Infinity,
+  })
+}
+
+export function useCyclePhaseData(cycleId: number | null, isActive = false) {
+  return useQuery({
+    queryKey: ['cycle-phase-data', cycleId],
+    queryFn: () => ciclosApi.getPhaseData(cycleId!),
+    enabled: cycleId !== null && cycleId > 0,
+    staleTime: isActive ? 1000 * 60 : 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
   })
 }
 

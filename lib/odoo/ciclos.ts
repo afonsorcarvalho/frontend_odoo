@@ -36,9 +36,9 @@ export const CYCLE_DETAIL_FIELDS: string[] = [
   'is_eto_equipment', 'massa_eto', 'massa_gas_eto', 'massa_gas_eto_setpoint',
   'notes', 'signature_date', 'signature_employee_id', 'signature_employee_name',
   'signature_professional_council', 'signature_professional_council_number',
-  'company_id', 'create_date', 'create_uid',
+  'company_id', 'create_date', 'create_uid', 'write_date',
   'cycle_pdf_filename', 'cycle_graph_filename', 'cycle_txt_filename', 'file_path',
-  'cycle_graph', 'cycle_statistics_data',
+  'cycle_graph',
 ]
 
 export function buildCycleDomain(filters: CycleFilters, companyId?: number | null): unknown[] {
@@ -79,18 +79,25 @@ export const ciclosApi = {
   ): Promise<{ records: OdooCycleSummary[]; nextCursor: number | null; total: number }> {
     const domain = buildCycleDomain(filters, companyId)
 
-    const [records, total] = await Promise.all([
-      odooClient.searchRead<OdooCycleSummary>(
-        'afr.supervisorio.ciclos',
-        domain,
-        fieldsFor('afr.supervisorio.ciclos', CYCLE_LIST_FIELDS),
-        { limit: pageSize, offset: pageParam, order: 'start_date desc, id desc' }
-      ),
-      odooClient.searchCount('afr.supervisorio.ciclos', domain),
-    ])
+    const searchReadPromise = odooClient.searchRead<OdooCycleSummary>(
+      'afr.supervisorio.ciclos',
+      domain,
+      fieldsFor('afr.supervisorio.ciclos', CYCLE_LIST_FIELDS),
+      { limit: pageSize, offset: pageParam, order: 'start_date desc, id desc' }
+    )
 
-    const nextCursor = pageParam + records.length < total ? pageParam + pageSize : null
-    return { records, nextCursor, total }
+    if (pageParam === 0) {
+      const [records, total] = await Promise.all([
+        searchReadPromise,
+        odooClient.searchCount('afr.supervisorio.ciclos', domain),
+      ])
+      const nextCursor = pageParam + records.length < total ? pageParam + pageSize : null
+      return { records, nextCursor, total }
+    }
+
+    const records = await searchReadPromise
+    const nextCursor = records.length === pageSize ? pageParam + pageSize : null
+    return { records, nextCursor, total: 0 }
   },
 
   async getById(id: number): Promise<OdooCycle> {
@@ -101,6 +108,15 @@ export const ciclosApi = {
     )
     if (!records?.length) throw new Error(`Ciclo #${id} não encontrado`)
     return records[0]
+  },
+
+  async getPhaseData(id: number): Promise<unknown> {
+    const records = await odooClient.read<{ cycle_statistics_data: unknown }>(
+      'afr.supervisorio.ciclos',
+      [id],
+      ['cycle_statistics_data']
+    )
+    return records?.[0]?.cycle_statistics_data ?? null
   },
 
   async getEquipments(): Promise<Equipment[]> {

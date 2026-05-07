@@ -29,7 +29,7 @@ import odooClient from '@/lib/odoo/client'
 import { getReportsFor, formatFilename } from '@/lib/odoo/reports'
 import { formatOverdue } from '@/lib/utils/cycleTime'
 import { useCiclosPermissions } from '@/lib/hooks/useCiclosPermissions'
-import { useForceConcludeCycle } from '@/lib/hooks/useCiclos'
+import { useForceConcludeCycle, useCyclePhaseData } from '@/lib/hooks/useCiclos'
 
 interface CycleDetailProps {
   cycle: OdooCycle
@@ -57,9 +57,12 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
 
   const [laudoSelOpen, setLaudoSelOpen] = useState(false)
 
+  const graphCacheKey = cycle.write_date ?? String(cycle.id)
   const graphSrc = cycle.cycle_graph
-    ? `data:image/png;base64,${cycle.cycle_graph}`
+    ? `/api/odoo/web/image/afr.supervisorio.ciclos/${cycle.id}/cycle_graph?unique=${encodeURIComponent(graphCacheKey)}`
     : null
+
+  const { data: phaseData } = useCyclePhaseData(cycle.id, cycle.state === 'em_andamento')
 
   const txtPath = `/web/content/download_file_txt/${cycle.id}`
   const txtFallbackName = cycle.cycle_txt_filename || `ciclo_${cycle.id}.txt`
@@ -275,7 +278,7 @@ export function CycleDetail({ cycle }: CycleDetailProps) {
 
           {cycle.state === 'em_andamento' && (
             <div className="mt-5">
-              <CyclePhaseBar cycle={cycle} variant="full" />
+              <CyclePhaseBar cycle={cycle} variant="full" statisticsData={phaseData} />
             </div>
           )}
 

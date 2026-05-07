@@ -19,9 +19,8 @@ interface CyclePhaseBarProps {
   className?: string
 }
 
-function getStatistics(cycle: AnyCycle, override?: unknown): unknown {
-  if (override !== undefined) return override
-  return (cycle as OdooCycle).cycle_statistics_data
+function getStatistics(_cycle: AnyCycle, override?: unknown): unknown {
+  return override ?? null
 }
 
 export function CyclePhaseBar({

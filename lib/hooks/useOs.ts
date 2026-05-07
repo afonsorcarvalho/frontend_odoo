@@ -6,7 +6,6 @@ import osApi from '../odoo/os'
 import { useOsStore } from '../store/osStore'
 import { useAuthStore } from '../store/authStore'
 import {
-  OS_ACTIVE_STATES,
   type OsFormData,
   type OsState,
   type OsRelatorioFormData,
@@ -15,9 +14,6 @@ import {
 } from '../types/os'
 
 export const OS_KEY = 'os'
-
-const LIST_REFETCH_MS = 5 * 60_000
-const DETAIL_ACTIVE_REFETCH_MS = 2 * 60_000
 
 export function useOsList() {
   const filters = useOsStore((s) => s.filters)
@@ -28,11 +24,9 @@ export function useOsList() {
     queryFn: ({ pageParam }) => osApi.listPage(filters, pageParam as number, 24, selectedCompanyId),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    staleTime: 1000 * 60 * 2,
-    gcTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
-    refetchInterval: LIST_REFETCH_MS,
-    refetchIntervalInBackground: false,
     select: (data) => ({
       pages: data.pages,
       pageParams: data.pageParams,
@@ -47,12 +41,7 @@ export function useOsDetail(id: number | null) {
     queryKey: ['os-detail', id],
     queryFn: () => osApi.getById(id!),
     enabled: id !== null && id > 0,
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: (query) => {
-      const state = query.state.data?.state
-      return state && OS_ACTIVE_STATES.includes(state as OsState) ? DETAIL_ACTIVE_REFETCH_MS : false
-    },
-    refetchIntervalInBackground: false,
+    staleTime: 1000 * 60 * 10,
     retry: (failureCount, error: unknown) => {
       const err = error as { code?: number }
       if (err?.code === 401 || err?.code === 403) return false
@@ -356,6 +345,14 @@ export function useProducts(search = '') {
     queryKey: ['os-products', search],
     queryFn: () => osApi.getProducts(search),
     staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function usePeriodicities() {
+  return useQuery({
+    queryKey: ['periodicities'],
+    queryFn: osApi.getPeriodicities,
+    staleTime: Infinity,
   })
 }
 
