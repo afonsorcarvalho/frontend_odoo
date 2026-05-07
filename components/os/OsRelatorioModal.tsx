@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { clsx } from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, FileText, Search, User, ClipboardList, CheckCheck, Wand2 } from 'lucide-react'
+import { X, FileText, Search, User, ClipboardList, CheckCheck, Wand2, Package, AlertCircle } from 'lucide-react'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { ActionButton } from '@/components/ui/ActionButton'
 import { GlassCard } from '@/components/ui/GlassCard'
@@ -19,16 +19,19 @@ import {
   useEmployees,
   useOsChecklist,
   usePeriodicityNames,
+  useOsParts,
 } from '@/lib/hooks/useOs'
 import { ChecklistManagerModal } from './ChecklistManagerModal'
 import {
   OS_RELATORIO_TYPE_LABEL,
   OS_STATE_EQUIPMENT_LABEL,
+  OS_PART_STATE_LABEL,
   type OsRelatorio,
   type OsRelatorioType,
   type OsStateEquipment,
   type OsChecklistItem,
   type OdooOs,
+  type OsPartState,
 } from '@/lib/types/os'
 
 const schema = z.object({
@@ -65,6 +68,17 @@ const schema = z.object({
 })
 
 type FormValues = z.infer<typeof schema>
+type TabKey = 'falha' | 'checklist' | 'pecas'
+
+const TAB_ERROR_FIELDS: Record<TabKey, (keyof FormValues)[]> = {
+  falha: [
+    'report_type', 'fault_description', 'service_summary',
+    'technicians', 'data_atendimento', 'data_fim_atendimento',
+    'state_equipment', 'restriction_type',
+  ],
+  checklist: ['checklist_item_ids'],
+  pecas: [],
+}
 
 function toInputDT(iso: string | false | undefined): string {
   if (!iso || typeof iso !== 'string') return ''
@@ -93,12 +107,15 @@ interface OsRelatorioModalProps {
 export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelatorioModalProps) {
   const { data: employees } = useEmployees()
   const { data: checklistItems } = useOsChecklist(osId)
+  const { data: allParts } = useOsParts(osId)
   const periodIds = os?.periodicity_ids || []
   const { data: periodicities } = usePeriodicityNames(periodIds)
   const createMutation = useCreateRelatorio(osId)
   const updateMutation = useUpdateRelatorio(osId)
 
   const isEditing = !!editing
+
+  const [tab, setTab] = useState<TabKey>('falha')
 
   const {
     register, handleSubmit, watch, reset, control, setValue, getValues, trigger,
@@ -120,6 +137,7 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
 
   useEffect(() => {
     if (open) {
+      setTab('falha')
       if (editing) {
         reset({
           report_type: (editing.report_type || 'manutencao') as OsRelatorioType,
@@ -135,7 +153,6 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
           checklist_item_ids: editing.checklist_item_ids || [],
         })
       } else {
-        // Default: início = agora, fim = agora + 1h
         const pad = (n: number) => String(n).padStart(2, '0')
         const now = new Date()
         const plusHour = new Date(now.getTime() + 60 * 60 * 1000)
@@ -154,7 +171,6 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
     }
   }, [open, editing, reset])
 
-  // Dispara validação imediata ao abrir — destaca campos obrigatórios vazios
   useEffect(() => {
     if (open) {
       const t = setTimeout(() => { trigger() }, 50)
@@ -163,10 +179,23 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
   }, [open, editing, trigger])
 
   const stateEquipment = watch('state_equipment')
+  const checklist_item_ids = watch('checklist_item_ids')
 
   useEffect(() => {
     if (open && stateEquipment === 'restricao') trigger('restriction_type')
   }, [stateEquipment, open, trigger])
+
+  // Peças vinculadas a este relatório
+  const relatorioId = editing?.id
+  const linkedParts = allParts?.filter(
+    (p) =>
+      (p.relatorio_request_id && p.relatorio_request_id[0] === relatorioId) ||
+      (p.relatorio_application_id && p.relatorio_application_id[0] === relatorioId)
+  ) ?? []
+
+  // Indicador de erro por tab
+  const tabHasError = (t: TabKey) =>
+    TAB_ERROR_FIELDS[t].some((f) => !!errors[f])
 
   const onSubmit = (data: FormValues) => {
     const techCmd = [[6, 0, data.technicians]]
@@ -217,10 +246,11 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-2xl max-h-[90vh] flex flex-col"
           >
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-5">
+            <GlassCard className="p-6 flex flex-col min-h-0">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4 flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <FileText size={16} className="text-neon-blue" />
                   <h2 className="text-base font-semibold text-white">
@@ -235,206 +265,190 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Tipo de Relatório" required error={errors.report_type?.message}>
-                    <select {...register('report_type')} className={inputClass(!!errors.report_type)}>
-                      {(Object.keys(OS_RELATORIO_TYPE_LABEL) as OsRelatorioType[]).map((t) => (
-                        <option key={t} value={t} className="bg-dark-800">
-                          {OS_RELATORIO_TYPE_LABEL[t]}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
+              {/* Tabs */}
+              <div className="flex gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/8 mb-4 flex-shrink-0">
+                <TabBtn
+                  active={tab === 'falha'}
+                  onClick={() => setTab('falha')}
+                  icon={<FileText size={12} />}
+                  label="Falha e Serviço"
+                  hasError={tabHasError('falha')}
+                />
+                <TabBtn
+                  active={tab === 'checklist'}
+                  onClick={() => setTab('checklist')}
+                  icon={<ClipboardList size={12} />}
+                  label="Check-list"
+                  count={checklist_item_ids?.length}
+                  hasError={tabHasError('checklist')}
+                />
+                <TabBtn
+                  active={tab === 'pecas'}
+                  onClick={() => setTab('pecas')}
+                  icon={<Package size={12} />}
+                  label="Peças"
+                  count={isEditing ? linkedParts.length : undefined}
+                />
+              </div>
 
-                  <Field label="Estado do Equipamento">
-                    <select {...register('state_equipment')} className={inputClass(false)}>
-                      <option value="" className="bg-dark-800">—</option>
-                      {(Object.keys(OS_STATE_EQUIPMENT_LABEL) as OsStateEquipment[]).map((s) => (
-                        <option key={s} value={s} className="bg-dark-800">
-                          {OS_STATE_EQUIPMENT_LABEL[s]}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
+              {/* Form — overflow scroll on content area */}
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
+                <div className="overflow-y-auto flex-1 pr-1">
 
-                {stateEquipment === 'restricao' && (
-                  <Field label="Descrição da Restrição" required error={errors.restriction_type?.message}>
-                    <textarea {...register('restriction_type')} rows={2} className={inputClass(!!errors.restriction_type)} />
-                  </Field>
-                )}
+                  {/* ── TAB: Falha e Serviço ── */}
+                  <div className={clsx('space-y-4', tab !== 'falha' && 'hidden')}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field label="Tipo de Relatório" required error={errors.report_type?.message}>
+                        <select {...register('report_type')} className={inputClass(!!errors.report_type)}>
+                          {(Object.keys(OS_RELATORIO_TYPE_LABEL) as OsRelatorioType[]).map((t) => (
+                            <option key={t} value={t} className="bg-dark-800">
+                              {OS_RELATORIO_TYPE_LABEL[t]}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Início do Atendimento" required error={errors.data_atendimento?.message}>
-                    <input type="datetime-local" {...register('data_atendimento')} className={inputClass(!!errors.data_atendimento)} />
-                  </Field>
-                  <Field label="Fim do Atendimento" required error={errors.data_fim_atendimento?.message}>
-                    <input type="datetime-local" {...register('data_fim_atendimento')} className={inputClass(!!errors.data_fim_atendimento)} />
-                  </Field>
-                </div>
+                      <Field label="Estado do Equipamento">
+                        <select {...register('state_equipment')} className={inputClass(false)}>
+                          <option value="" className="bg-dark-800">—</option>
+                          {(Object.keys(OS_STATE_EQUIPMENT_LABEL) as OsStateEquipment[]).map((s) => (
+                            <option key={s} value={s} className="bg-dark-800">
+                              {OS_STATE_EQUIPMENT_LABEL[s]}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                    </div>
 
-                <Field label="Técnicos" required error={errors.technicians?.message}>
-                  <Controller
-                    name="technicians"
-                    control={control}
-                    render={({ field }) => (
-                      <TechnicianPicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        employees={employees || []}
-                        hasError={!!errors.technicians}
-                      />
+                    {stateEquipment === 'restricao' && (
+                      <Field label="Descrição da Restrição" required error={errors.restriction_type?.message}>
+                        <textarea {...register('restriction_type')} rows={2} className={inputClass(!!errors.restriction_type)} />
+                      </Field>
                     )}
-                  />
-                </Field>
 
-                {checklistItems && checklistItems.length > 0 && (
-                  <Controller
-                    name="checklist_item_ids"
-                    control={control}
-                    render={({ field }) => (
-                      <ChecklistField
-                        osId={osId}
-                        items={checklistItems}
-                        included={field.value || []}
-                        onChange={field.onChange}
-                        currentRelatorioId={editing?.id}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field label="Início do Atendimento" required error={errors.data_atendimento?.message}>
+                        <input type="datetime-local" {...register('data_atendimento')} className={inputClass(!!errors.data_atendimento)} />
+                      </Field>
+                      <Field label="Fim do Atendimento" required error={errors.data_fim_atendimento?.message}>
+                        <input type="datetime-local" {...register('data_fim_atendimento')} className={inputClass(!!errors.data_fim_atendimento)} />
+                      </Field>
+                    </div>
+
+                    <Field label="Técnicos" required error={errors.technicians?.message}>
+                      <Controller
+                        name="technicians"
+                        control={control}
+                        render={({ field }) => (
+                          <TechnicianPicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            employees={employees || []}
+                            hasError={!!errors.technicians}
+                          />
+                        )}
                       />
+                    </Field>
+
+                    {os?.maintenance_type === 'preventive' &&
+                      checklistItems && checklistItems.length > 0 && (
+                        <AutoFillButton
+                          os={os}
+                          periodicities={periodicities}
+                          checklistItems={checklistItems}
+                          getValues={getValues}
+                          setValue={setValue}
+                          editing={editing}
+                          checklist_item_ids={checklist_item_ids}
+                        />
+                      )}
+
+                    <Field label="Descrição da Falha" required error={errors.fault_description?.message}>
+                      <textarea {...register('fault_description')} rows={3} className={inputClass(!!errors.fault_description)} />
+                    </Field>
+
+                    <Field label="Resumo do Serviço" required error={errors.service_summary?.message}>
+                      <textarea {...register('service_summary')} rows={3} className={inputClass(!!errors.service_summary)} />
+                    </Field>
+
+                    <Field label="Observações">
+                      <textarea {...register('observations')} rows={2} className={inputClass(false)} />
+                    </Field>
+
+                    <Field label="Pendências">
+                      <textarea {...register('pendency')} rows={2} className={inputClass(false)} />
+                    </Field>
+                  </div>
+
+                  {/* ── TAB: Check-list ── */}
+                  <div className={clsx('space-y-4', tab !== 'checklist' && 'hidden')}>
+                    {checklistItems && checklistItems.length > 0 ? (
+                      <Controller
+                        name="checklist_item_ids"
+                        control={control}
+                        render={({ field }) => (
+                          <ChecklistField
+                            osId={osId}
+                            items={checklistItems}
+                            included={field.value || []}
+                            onChange={field.onChange}
+                            currentRelatorioId={editing?.id}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 py-16 text-white/30">
+                        <ClipboardList size={28} />
+                        <span className="text-xs">Nenhum item de check-list disponível</span>
+                      </div>
                     )}
-                  />
-                )}
+                  </div>
 
-                {os?.maintenance_type === 'preventive' &&
-                  checklistItems &&
-                  checklistItems.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const periodNames = (periodicities || []).map((p) => p.name).join(', ')
-                        const fault = `Manutenção Preventiva${periodNames ? ` (${periodNames})` : ''}`
-                        const includedIds = (getValues('checklist_item_ids') || []) as number[]
-                        const currentRelatorioId = editing?.id
-                        // Items disponíveis (mesma regra do manager)
-                        const availableItems = checklistItems.filter((it) => {
-                          if (includedIds.includes(it.id)) return true
-                          if (currentRelatorioId && it.relatorio_id && it.relatorio_id[0] === currentRelatorioId) return true
-                          if (it.check && it.relatorio_id && it.relatorio_id[0] !== currentRelatorioId) return false
-                          if (it.relatorio_id && it.relatorio_id[0] !== currentRelatorioId) return false
-                          return true
-                        })
-                        // Resumo: apenas items verificados (check=true) entre os incluídos
-                        const chosen = availableItems.filter((it) => includedIds.includes(it.id) && it.check)
-                        // Pendências: items excluídos (disponíveis mas fora do relatório)
-                        const excluded = availableItems.filter((it) => !includedIds.includes(it.id))
-
-                        // Mescla novos items agrupados por seção ao texto existente
-                        // sem duplicar bullets ou headers ## Seção ##
-                        const mergeSectioned = (existing: string, list: OsChecklistItem[]): string => {
-                          // Parse existing em map seção→Set(bullets)
-                          const existingMap = new Map<string, Set<string>>()
-                          const order: string[] = []
-                          const looseBullets = new Set<string>() // bullets sem seção declarada
-                          let currentSec: string | null = null
-                          for (const rawLine of (existing || '').split('\n')) {
-                            const line = rawLine.trim()
-                            if (!line) continue
-                            const hdr = line.match(/^##\s*(.+?)\s*##$/)
-                            if (hdr) {
-                              currentSec = hdr[1]
-                              if (!existingMap.has(currentSec)) {
-                                existingMap.set(currentSec, new Set())
-                                order.push(currentSec)
-                              }
-                            } else if (line.startsWith('-')) {
-                              const b = line.replace(/^-+\s*/, '').trim().toLowerCase()
-                              if (currentSec) existingMap.get(currentSec)!.add(b)
-                              else looseBullets.add(b)
-                            }
-                          }
-
-                          // Agrupa novos
-                          const newMap = new Map<string, string[]>()
-                          const newOrder: string[] = []
-                          for (const it of list) {
-                            const sec = it.section ? it.section[1] : 'Sem seção'
-                            const instr = (it.instruction || '').trim()
-                            if (!instr) continue
-                            const key = instr.toLowerCase()
-                            // Já presente em qualquer seção do texto? pula
-                            const already =
-                              looseBullets.has(key) ||
-                              Array.from(existingMap.values()).some((s) => s.has(key))
-                            if (already) continue
-                            if (!newMap.has(sec)) { newMap.set(sec, []); newOrder.push(sec) }
-                            newMap.get(sec)!.push(`- ${instr}`)
-                          }
-
-                          // Se nada novo, mantém existente
-                          const hasNew = Array.from(newMap.values()).some((b) => b.length > 0)
-                          if (!hasNew) return existing || ''
-
-                          const existingTrimmed = (existing || '').replace(/\s+$/, '')
-                          const appendix = newOrder
-                            .map((sec) => `## ${sec} ##\n${newMap.get(sec)!.join('\n')}`)
-                            .join('\n\n')
-                          return existingTrimmed
-                            ? `${existingTrimmed}\n\n${appendix}`
-                            : appendix
-                        }
-
-                        // fault_description: só seta se ainda não contém o texto gerado
-                        const currentFault = (getValues('fault_description') || '').trim()
-                        if (!currentFault.toLowerCase().includes(fault.toLowerCase())) {
-                          const newFault = currentFault ? `${currentFault}\n${fault}` : fault
-                          setValue('fault_description', newFault, { shouldValidate: true })
-                        }
-
-                        // service_summary: merge sem duplicar; só verificados entram
-                        const currentSummary = (getValues('service_summary') || '')
-                        const mergedSummary = chosen.length > 0
-                          ? mergeSectioned(currentSummary, chosen)
-                          : currentSummary
-                        setValue('service_summary', mergedSummary, { shouldValidate: true })
-
-                        // pendency: merge sem duplicar
-                        let addedPendencies = 0
-                        if (excluded.length > 0) {
-                          const currentPendency = getValues('pendency') || ''
-                          const mergedPendency = mergeSectioned(currentPendency, excluded)
-                          if (mergedPendency !== currentPendency) addedPendencies = excluded.length
-                          setValue('pendency', mergedPendency, { shouldValidate: true })
-                        }
-                        toast.success(
-                          addedPendencies > 0
-                            ? `Preenchido · ${addedPendencies} pendência${addedPendencies === 1 ? '' : 's'}`
-                            : 'Preenchimento automático aplicado'
+                  {/* ── TAB: Peças ── */}
+                  <div className={clsx('space-y-2', tab !== 'pecas' && 'hidden')}>
+                    {!isEditing ? (
+                      <div className="flex flex-col items-center gap-3 py-16 text-white/30">
+                        <Package size={28} />
+                        <span className="text-xs text-center">Salve o relatório primeiro para gerenciar peças</span>
+                      </div>
+                    ) : linkedParts.length === 0 ? (
+                      <div className="flex flex-col items-center gap-3 py-16 text-white/30">
+                        <Package size={28} />
+                        <span className="text-xs">Nenhuma peça vinculada a este relatório</span>
+                      </div>
+                    ) : (
+                      linkedParts.map((p) => {
+                        const qty = typeof p.product_uom_qty === 'number'
+                          ? Number.isInteger(p.product_uom_qty)
+                            ? p.product_uom_qty
+                            : p.product_uom_qty.toLocaleString('pt-BR', { maximumFractionDigits: 3 })
+                          : 0
+                        const uom = p.product_uom ? p.product_uom[1] : ''
+                        return (
+                          <div
+                            key={p.id}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                          >
+                            <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-neon-purple/10 border border-neon-purple/20 flex items-center justify-center">
+                              <Package size={12} className="text-neon-purple" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-white truncate">{p.product_id[1]}</p>
+                              <PartStateBadge state={p.state} />
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-sm font-semibold text-white tabular-nums">{qty}</p>
+                              {uom && <p className="text-[10px] text-white/40 uppercase">{uom}</p>}
+                            </div>
+                          </div>
                         )
-                      }}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-neon-purple/10 to-neon-blue/10 border border-neon-purple/30 text-neon-purple hover:border-neon-purple/50 hover:bg-neon-purple/15 transition-all"
-                    >
-                      <Wand2 size={12} />
-                      Preenchimento automático (Preventiva)
-                    </button>
-                  )}
+                      })
+                    )}
+                  </div>
+                </div>
 
-                <Field label="Descrição da Falha" required error={errors.fault_description?.message}>
-                  <textarea {...register('fault_description')} rows={3} className={inputClass(!!errors.fault_description)} />
-                </Field>
-
-                <Field label="Resumo do Serviço" required error={errors.service_summary?.message}>
-                  <textarea {...register('service_summary')} rows={3} className={inputClass(!!errors.service_summary)} />
-                </Field>
-
-                <Field label="Observações">
-                  <textarea {...register('observations')} rows={2} className={inputClass(false)} />
-                </Field>
-
-                <Field label="Pendências">
-                  <textarea {...register('pendency')} rows={2} className={inputClass(false)} />
-                </Field>
-
-                <div className="flex items-center justify-end gap-2 pt-4 border-t border-white/10">
+                {/* Footer — sempre visível */}
+                <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-white/10 flex-shrink-0">
                   <AnimatedButton variant="ghost" type="button" onClick={onClose} disabled={isPending}>
                     Cancelar
                   </AnimatedButton>
@@ -454,6 +468,137 @@ export function OsRelatorioModal({ open, onClose, osId, editing, os }: OsRelator
   return createPortal(content, document.body)
 }
 
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function TabBtn({
+  active, onClick, icon, label, count, hasError,
+}: {
+  active: boolean
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+  count?: number
+  hasError?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={clsx(
+        'flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all relative',
+        active
+          ? 'bg-neon-blue/15 text-neon-blue border border-neon-blue/30'
+          : 'text-white/50 hover:text-white hover:bg-white/5',
+      )}
+    >
+      {icon}
+      {label}
+      {count !== undefined && count > 0 && (
+        <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-white/10 text-white/60 tabular-nums">{count}</span>
+      )}
+      {hasError && (
+        <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-neon-pink" />
+      )}
+    </button>
+  )
+}
+
+function AutoFillButton({
+  os, periodicities, checklistItems, getValues, setValue, editing, checklist_item_ids,
+}: {
+  os: OdooOs
+  periodicities: { id: number; name: string }[] | undefined
+  checklistItems: OsChecklistItem[]
+  getValues: () => FormValues
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setValue: (field: keyof FormValues, value: any, opts?: object) => void
+  editing?: OsRelatorio | null
+  checklist_item_ids: number[]
+}) {
+  const mergeSectioned = (existing: string, list: OsChecklistItem[]): string => {
+    const existingMap = new Map<string, Set<string>>()
+    const order: string[] = []
+    const looseBullets = new Set<string>()
+    let currentSec: string | null = null
+    for (const rawLine of (existing || '').split('\n')) {
+      const line = rawLine.trim()
+      if (!line) continue
+      const hdr = line.match(/^##\s*(.+?)\s*##$/)
+      if (hdr) {
+        currentSec = hdr[1]
+        if (!existingMap.has(currentSec)) { existingMap.set(currentSec, new Set()); order.push(currentSec) }
+      } else if (line.startsWith('-')) {
+        const b = line.replace(/^-+\s*/, '').trim().toLowerCase()
+        if (currentSec) existingMap.get(currentSec)!.add(b)
+        else looseBullets.add(b)
+      }
+    }
+    const newMap = new Map<string, string[]>()
+    const newOrder: string[] = []
+    for (const it of list) {
+      const sec = it.section ? it.section[1] : 'Sem seção'
+      const instr = (it.instruction || '').trim()
+      if (!instr) continue
+      const key = instr.toLowerCase()
+      const already = looseBullets.has(key) || Array.from(existingMap.values()).some((s) => s.has(key))
+      if (already) continue
+      if (!newMap.has(sec)) { newMap.set(sec, []); newOrder.push(sec) }
+      newMap.get(sec)!.push(`- ${instr}`)
+    }
+    const hasNew = Array.from(newMap.values()).some((b) => b.length > 0)
+    if (!hasNew) return existing || ''
+    const existingTrimmed = (existing || '').replace(/\s+$/, '')
+    const appendix = newOrder.map((sec) => `## ${sec} ##\n${newMap.get(sec)!.join('\n')}`).join('\n\n')
+    return existingTrimmed ? `${existingTrimmed}\n\n${appendix}` : appendix
+  }
+
+  const handleClick = () => {
+    const periodNames = (periodicities || []).map((p) => p.name).join(', ')
+    const fault = `Manutenção Preventiva${periodNames ? ` (${periodNames})` : ''}`
+    const includedIds = (checklist_item_ids || []) as number[]
+    const currentRelatorioId = editing?.id
+    const availableItems = checklistItems.filter((it) => {
+      if (includedIds.includes(it.id)) return true
+      if (currentRelatorioId && it.relatorio_id && it.relatorio_id[0] === currentRelatorioId) return true
+      if (it.check && it.relatorio_id && it.relatorio_id[0] !== currentRelatorioId) return false
+      if (it.relatorio_id && it.relatorio_id[0] !== currentRelatorioId) return false
+      return true
+    })
+    const chosen = availableItems.filter((it) => includedIds.includes(it.id) && it.check)
+    const excluded = availableItems.filter((it) => !includedIds.includes(it.id))
+    const vals = getValues()
+    const currentFault = (vals.fault_description || '').trim()
+    if (!currentFault.toLowerCase().includes(fault.toLowerCase())) {
+      setValue('fault_description', currentFault ? `${currentFault}\n${fault}` : fault, { shouldValidate: true })
+    }
+    const mergedSummary = chosen.length > 0 ? mergeSectioned(vals.service_summary || '', chosen) : vals.service_summary || ''
+    setValue('service_summary', mergedSummary, { shouldValidate: true })
+    let addedPendencies = 0
+    if (excluded.length > 0) {
+      const currentPendency = vals.pendency || ''
+      const mergedPendency = mergeSectioned(currentPendency, excluded)
+      if (mergedPendency !== currentPendency) addedPendencies = excluded.length
+      setValue('pendency', mergedPendency, { shouldValidate: true })
+    }
+    toast.success(
+      addedPendencies > 0
+        ? `Preenchido · ${addedPendencies} pendência${addedPendencies === 1 ? '' : 's'}`
+        : 'Preenchimento automático aplicado'
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-neon-purple/10 to-neon-blue/10 border border-neon-purple/30 text-neon-purple hover:border-neon-purple/50 hover:bg-neon-purple/15 transition-all"
+    >
+      <Wand2 size={12} />
+      Preenchimento automático (Preventiva)
+    </button>
+  )
+}
+
 const BASE_INPUT =
   'w-full px-3 py-2 rounded-xl text-sm bg-white/[0.04] border text-white placeholder:text-white/30 focus:outline-none transition-colors'
 
@@ -467,10 +612,7 @@ function inputClass(hasError: boolean): string {
 }
 
 function Field({
-  label,
-  error,
-  required,
-  children,
+  label, error, required, children,
 }: {
   label: string
   error?: string
@@ -490,10 +632,7 @@ function Field({
 }
 
 function TechnicianPicker({
-  value,
-  onChange,
-  employees,
-  hasError,
+  value, onChange, employees, hasError,
 }: {
   value: number[]
   onChange: (v: number[]) => void
@@ -510,10 +649,7 @@ function TechnicianPicker({
     .filter((e) => !q || (e.name || '').toLowerCase().includes(q) || (e.display_name || '').toLowerCase().includes(q))
     .slice(0, 50)
 
-  const add = (id: number) => {
-    onChange([...value, id])
-    setQuery('')
-  }
+  const add = (id: number) => { onChange([...value, id]); setQuery('') }
   const remove = (id: number) => onChange(value.filter((v) => v !== id))
 
   return (
@@ -531,7 +667,6 @@ function TechnicianPicker({
                 type="button"
                 onClick={() => remove(e.id)}
                 className="p-0.5 rounded hover:bg-neon-blue/20 transition-colors"
-                aria-label={`Remover ${e.name}`}
               >
                 <X size={10} />
               </button>
@@ -539,7 +674,6 @@ function TechnicianPicker({
           ))}
         </div>
       )}
-
       <div className="relative">
         <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
         <input
@@ -551,9 +685,7 @@ function TechnicianPicker({
           placeholder="Buscar técnico..."
           className={clsx(
             'w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white/[0.04] border text-white placeholder:text-white/30 focus:outline-none transition-colors',
-            hasError
-              ? 'border-neon-pink/60 focus:border-neon-pink field-error-glow'
-              : 'border-white/10 focus:border-neon-blue/40'
+            hasError ? 'border-neon-pink/60 focus:border-neon-pink field-error-glow' : 'border-white/10 focus:border-neon-blue/40'
           )}
         />
         {open && filtered.length > 0 && (
@@ -582,11 +714,7 @@ function TechnicianPicker({
 }
 
 function ChecklistField({
-  osId,
-  items,
-  included,
-  onChange,
-  currentRelatorioId,
+  osId, items, included, onChange, currentRelatorioId,
 }: {
   osId: number
   items: OsChecklistItem[]
@@ -597,7 +725,6 @@ function ChecklistField({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  // Items disponíveis (não travados por outro relatório)
   const availableItems = items.filter((it) => {
     if (included.includes(it.id)) return true
     if (currentRelatorioId && it.relatorio_id && it.relatorio_id[0] === currentRelatorioId) return true
@@ -610,10 +737,8 @@ function ChecklistField({
     if (loading) return
     setLoading(true)
     const t = toast.loading('Adicionando checklists ao relatório...')
-    // Auto-inclui todos os disponíveis que ainda não estão na lista
     const merged = Array.from(new Set([...included, ...availableItems.map((i) => i.id)]))
     onChange(merged)
-    // Pequeno delay pra transmitir ao usuário o processo
     await new Promise((r) => setTimeout(r, 400))
     toast.dismiss(t)
     setLoading(false)
@@ -636,7 +761,6 @@ function ChecklistField({
           {included.length} / {availableItems.length} incluídos
         </span>
       </label>
-
       <button
         type="button"
         onClick={handleOpen}
@@ -646,7 +770,7 @@ function ChecklistField({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCheck size={13} className="text-neon-blue/70 flex-shrink-0" />
           <span className="text-sm text-white/80 truncate">
-            {loading ? 'Adicionando...' : 'Check-list'}
+            {loading ? 'Adicionando...' : 'Gerir Check-list'}
           </span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap justify-end flex-shrink-0">
@@ -657,21 +781,16 @@ function ChecklistField({
                 key={name}
                 className={clsx(
                   'text-[10px] px-1.5 py-0.5 rounded-md border',
-                  inc > 0
-                    ? 'text-neon-blue bg-neon-blue/10 border-neon-blue/30'
-                    : 'text-white/40 bg-white/5 border-white/10'
+                  inc > 0 ? 'text-neon-blue bg-neon-blue/10 border-neon-blue/30' : 'text-white/40 bg-white/5 border-white/10'
                 )}
               >
                 {name} {inc}/{its.length}
               </span>
             )
           })}
-          {groups.size > 4 && (
-            <span className="text-[10px] text-white/40">+{groups.size - 4}</span>
-          )}
+          {groups.size > 4 && <span className="text-[10px] text-white/40">+{groups.size - 4}</span>}
         </div>
       </button>
-
       <ChecklistManagerModal
         open={open}
         onClose={() => setOpen(false)}
@@ -682,5 +801,20 @@ function ChecklistField({
         currentRelatorioId={currentRelatorioId}
       />
     </div>
+  )
+}
+
+function PartStateBadge({ state }: { state: OsPartState }) {
+  const colors: Record<OsPartState, string> = {
+    requisitada:    'text-neon-blue bg-neon-blue/10 border-neon-blue/20',
+    autorizada:     'text-neon-green bg-neon-green/10 border-neon-green/20',
+    aplicada:       'text-white/50 bg-white/5 border-white/10',
+    nao_autorizada: 'text-neon-pink bg-neon-pink/10 border-neon-pink/20',
+    cancel:         'text-neon-pink/60 bg-neon-pink/5 border-neon-pink/10',
+  }
+  return (
+    <span className={clsx('text-[10px] px-1.5 py-0.5 rounded-md border font-medium mt-0.5 inline-block', colors[state])}>
+      {OS_PART_STATE_LABEL[state]}
+    </span>
   )
 }

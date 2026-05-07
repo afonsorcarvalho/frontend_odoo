@@ -4,7 +4,7 @@ import { useState, ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
-import { Wrench, Calendar, Clock, User, Building2, ShieldCheck, Info, ClipboardList, FileText, Package, Gauge, History, Pencil, AlertCircle } from 'lucide-react'
+import { Wrench, Calendar, Clock, User, Building2, ShieldCheck, Info, ClipboardList, FileText, Package, Pencil, AlertCircle, HardHat } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { EquipmentAvatar } from '@/components/ui/EquipmentAvatar'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
@@ -35,7 +35,7 @@ const PdfViewerModal = dynamic(
   { ssr: false }
 )
 
-type TabKey = 'geral' | 'checklist' | 'relatorios' | 'pecas' | 'calibracao' | 'historico'
+type TabKey = 'geral' | 'checklist' | 'relatorios' | 'pecas'
 
 interface TabDef {
   key: TabKey
@@ -145,8 +145,6 @@ export function OsDetail({ os }: { os: OdooOs }) {
     { key: 'checklist',   label: 'Check-list',  icon: <ClipboardList size={14} />, count: os.check_list_count || 0 },
     { key: 'relatorios',  label: 'Relatórios',  icon: <FileText size={14} />,      count: os.relatorios_count || 0 },
     { key: 'pecas',       label: 'Peças',       icon: <Package size={14} />,       count: os.request_parts_count || 0 },
-    { key: 'calibracao',  label: 'Calibração',  icon: <Gauge size={14} /> },
-    { key: 'historico',   label: 'Histórico',   icon: <History size={14} /> },
   ]
 
   return (
@@ -167,6 +165,12 @@ export function OsDetail({ os }: { os: OdooOs }) {
               {os.is_warranty && (
                 <span className="inline-flex items-center gap-1 text-xs text-neon-green font-medium">
                   <ShieldCheck size={12} /> Garantia {os.warranty_type === 'fabrica' ? 'Fábrica' : 'Serviço'}
+                </span>
+              )}
+              {os.tecnico_id && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-medium bg-white/[0.04] border border-white/10 text-white/55">
+                  <HardHat size={11} className="text-neon-orange flex-shrink-0" />
+                  {os.tecnico_id[1]}
                 </span>
               )}
             </div>
@@ -242,14 +246,6 @@ export function OsDetail({ os }: { os: OdooOs }) {
           {tab === 'checklist' && <OsChecklistTab os={os} />}
           {tab === 'relatorios' && <OsRelatoriosTab os={os} />}
           {tab === 'pecas' && <OsPecasTab os={os} />}
-          {tab === 'calibracao' && (
-            <TabEmpty
-              icon={<Gauge size={32} />}
-              title="Calibração"
-              extra={os.calibration_id ? `Calibração vinculada: ${os.calibration_id[1]}` : 'Nenhuma calibração vinculada'}
-            />
-          )}
-          {tab === 'historico' && <TabHistorico os={os} />}
         </motion.div>
       </AnimatePresence>
 
@@ -318,40 +314,7 @@ function TabGeral({ os }: { os: OdooOs }) {
   )
 }
 
-function TabEmpty({ icon, title, count, extra, created }: { icon: ReactNode; title: string; count?: number; extra?: string; created?: boolean }) {
-  return (
-    <GlassCard className="p-10 text-center">
-      <div className="w-14 h-14 rounded-full bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center mx-auto mb-3 text-neon-blue/70">
-        {icon}
-      </div>
-      <h3 className="text-white font-semibold mb-1">{title}</h3>
-      {typeof count === 'number' && (
-        <p className="text-sm text-white/50">
-          {count} registro{count === 1 ? '' : 's'}
-          {created !== undefined && ` · ${created ? 'gerado' : 'não gerado'}`}
-        </p>
-      )}
-      {extra && <p className="text-sm text-white/50 mt-1">{extra}</p>}
-      <p className="text-xs text-white/30 mt-3">
-        A edição detalhada deste módulo ainda é feita no Odoo.
-      </p>
-    </GlassCard>
-  )
-}
 
-function TabHistorico({ os }: { os: OdooOs }) {
-  return (
-    <GlassCard className="p-5 space-y-2">
-      <h3 className="text-sm font-semibold text-white/80">Metadados</h3>
-      <div className="text-xs text-white/60 space-y-1">
-        <p>Criada em: {fmt(os.create_date)}</p>
-        <p>Criada por: {os.create_uid ? os.create_uid[1] : '—'}</p>
-        <p>Última atualização: {fmt(os.write_date || false)}</p>
-        <p>Empresa: {os.company_id ? os.company_id[1] : '—'}</p>
-      </div>
-    </GlassCard>
-  )
-}
 
 function TabButton({ active, onClick, icon, label, count }: { active: boolean; onClick: () => void; icon: ReactNode; label: string; count?: number }) {
   return (

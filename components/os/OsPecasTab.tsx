@@ -1,17 +1,19 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import toast from 'react-hot-toast'
 import { Package, Loader2, AlertCircle, Info, FileText } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
-import { useOsParts } from '@/lib/hooks/useOs'
+import { useOsParts, useOsRelatorios } from '@/lib/hooks/useOs'
 import {
   OS_PART_STATE_LABEL,
   type OdooOs,
+  type OsRelatorio,
   type OsRequestPart,
   type OsPartState,
 } from '@/lib/types/os'
 import { clsx } from 'clsx'
+import { OsRelatorioDetailModal } from './OsRelatorioDetailModal'
 
 interface OsPecasTabProps {
   os: OdooOs
@@ -19,6 +21,13 @@ interface OsPecasTabProps {
 
 export function OsPecasTab({ os }: OsPecasTabProps) {
   const { data: parts, isLoading, error } = useOsParts(os.id)
+  const { data: relatorios } = useOsRelatorios(os.id)
+  const [detail, setDetail] = useState<OsRelatorio | null>(null)
+
+  const openRelatorio = (id: number) => {
+    const r = relatorios?.find((r) => r.id === id)
+    if (r) setDetail(r)
+  }
 
   return (
     <GlassCard className="p-5">
@@ -63,12 +72,19 @@ export function OsPecasTab({ os }: OsPecasTabProps) {
           ) : (
             <div className="space-y-2">
               {parts.map((p, i) => (
-                <PartRow key={p.id} part={p} index={i} />
+                <PartRow key={p.id} part={p} index={i} onOpenRelatorio={openRelatorio} />
               ))}
             </div>
           )}
         </>
       )}
+
+      <OsRelatorioDetailModal
+        open={!!detail}
+        onClose={() => setDetail(null)}
+        relatorio={detail}
+        onEdit={() => {}}
+      />
     </GlassCard>
   )
 }
@@ -76,17 +92,12 @@ export function OsPecasTab({ os }: OsPecasTabProps) {
 function PartRow({
   part,
   index,
+  onOpenRelatorio,
 }: {
   part: OsRequestPart
   index: number
+  onOpenRelatorio: (id: number) => void
 }) {
-  const blockEdit = () => {
-    toast.error(
-      'Solicitação/aplicação de peças é feita via Relatório. Abra um relatório na aba Relatórios.',
-      { duration: 5000 }
-    )
-  }
-
   const qty =
     typeof part.product_uom_qty === 'number'
       ? Number.isInteger(part.product_uom_qty)
@@ -101,7 +112,7 @@ function PartRow({
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03, type: 'spring', stiffness: 400, damping: 28 }}
-      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group"
+      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"
     >
       <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center">
         <Package size={13} className="text-neon-blue" />
@@ -109,12 +120,40 @@ function PartRow({
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-white truncate">{part.product_id[1]}</p>
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="flex items-center flex-wrap gap-1.5 mt-1">
           <PartStateBadge state={part.state} />
-          {part.relatorio_request_id && (
-            <span className="text-[10px] text-white/30 truncate">
-              {part.relatorio_request_id[1]}
-            </span>
+          {part.relatorio_request_id !== false && (() => {
+            const reqId = part.relatorio_request_id[0]
+            const applId = part.relatorio_application_id !== false ? part.relatorio_application_id[0] : null
+            const isSame = applId !== null && applId === reqId
+            return isSame ? (
+              <RatBadge
+                label={part.relatorio_request_id[1]}
+                variant="both"
+                onClick={() => onOpenRelatorio(reqId)}
+              />
+            ) : (
+              <RatBadge
+                label={part.relatorio_request_id[1]}
+                variant="req"
+                onClick={() => onOpenRelatorio(reqId)}
+              />
+            )
+          })()}
+          {part.relatorio_application_id !== false && part.relatorio_request_id !== false &&
+            part.relatorio_application_id[0] !== part.relatorio_request_id[0] && (
+            <RatBadge
+              label={part.relatorio_application_id[1]}
+              variant="aplic"
+              onClick={() => onOpenRelatorio((part.relatorio_application_id as [number, string])[0])}
+            />
+          )}
+          {part.relatorio_application_id !== false && part.relatorio_request_id === false && (
+            <RatBadge
+              label={part.relatorio_application_id[1]}
+              variant="aplic"
+              onClick={() => onOpenRelatorio((part.relatorio_application_id as [number, string])[0])}
+            />
           )}
         </div>
       </div>
@@ -123,15 +162,40 @@ function PartRow({
         <p className="text-sm font-semibold text-white tabular-nums">{qty}</p>
         {uom && <p className="text-[10px] text-white/40 uppercase">{uom}</p>}
       </div>
-
-      <button
-        onClick={blockEdit}
-        className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-white/40 hover:text-neon-blue px-2 py-1 rounded-md hover:bg-neon-blue/10"
-        title="Modificado via Relatório"
-      >
-        via Relatório
-      </button>
     </motion.div>
+  )
+}
+
+function RatBadge({
+  label,
+  variant,
+  onClick,
+}: {
+  label: string
+  variant: 'req' | 'aplic' | 'both'
+  onClick: () => void
+}) {
+  const prefix = variant === 'req' ? 'Req' : variant === 'aplic' ? 'Aplic' : 'Req/Aplic'
+  const cls =
+    variant === 'req'
+      ? 'bg-neon-blue/10 border-neon-blue/25 text-neon-blue/80 hover:bg-neon-blue/20'
+      : variant === 'aplic'
+      ? 'bg-neon-green/10 border-neon-green/25 text-neon-green/80 hover:bg-neon-green/20'
+      : 'bg-neon-purple/10 border-neon-purple/25 text-neon-purple/80 hover:bg-neon-purple/20'
+
+  return (
+    <button
+      onClick={onClick}
+      title={`Abrir relatório: ${label}`}
+      className={clsx(
+        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-medium transition-colors cursor-pointer',
+        cls,
+      )}
+    >
+      <FileText size={9} />
+      <span className="text-white/40 mr-0.5">{prefix}:</span>
+      <span className="truncate max-w-[120px]">{label}</span>
+    </button>
   )
 }
 

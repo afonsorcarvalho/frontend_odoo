@@ -15,7 +15,7 @@ const STATE_COLOR: Record<OsState, NeonColor> = {
   under_repair:       'green',
   pause_repair:       'purple',
   reproved:           'gray',
-  done:               'green',
+  done:               'gray',
   cancel:             'gray',
 }
 

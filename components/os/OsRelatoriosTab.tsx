@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Plus, Clock, ClipboardList, Package, Activity, User } from 'lucide-react'
+import { FileText, Plus, Clock, ClipboardList, Package, Activity, User, Info, AlertCircle } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { AnimatedButton } from '@/components/ui/AnimatedButton'
 import { CollectionView, type ViewMode } from '@/components/ui/CollectionView'
@@ -248,6 +248,37 @@ function RelatorioCard({
         </div>
       )}
 
+      {/* Textos do relatório */}
+      {(relatorio.service_summary || relatorio.observations || relatorio.pendency) && (
+        <div className="space-y-1.5">
+          {relatorio.service_summary && (
+            <TextSnippet
+              icon={<FileText size={10} />}
+              label="Serviço"
+              text={relatorio.service_summary}
+              maxLen={200}
+            />
+          )}
+          {relatorio.observations && (
+            <TextSnippet
+              icon={<Info size={10} />}
+              label="Observações"
+              text={relatorio.observations}
+              maxLen={200}
+            />
+          )}
+          {relatorio.pendency && (
+            <TextSnippet
+              icon={<AlertCircle size={10} />}
+              label="Pendências"
+              text={relatorio.pendency}
+              maxLen={200}
+              warn
+            />
+          )}
+        </div>
+      )}
+
       {/* Footer — data + tempo */}
       <div className="flex items-center justify-between text-[11px] text-white/40 pt-2 border-t border-white/5 mt-auto">
         {relatorio.data_atendimento ? (
@@ -262,6 +293,34 @@ function RelatorioCard({
           </span>
         )}
       </div>
+    </div>
+  )
+}
+
+function TextSnippet({
+  icon, label, text, maxLen = 200, warn = false,
+}: {
+  icon: React.ReactNode
+  label: string
+  text: string
+  maxLen?: number
+  warn?: boolean
+}) {
+  const trimmed = text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '…' : text
+  return (
+    <div className={clsx(
+      'rounded-lg p-2 border text-[10px]',
+      warn
+        ? 'bg-neon-orange/5 border-neon-orange/15'
+        : 'bg-white/[0.02] border-white/5',
+    )}>
+      <div className="flex items-center gap-1 mb-0.5">
+        <span className={clsx('flex-shrink-0', warn ? 'text-neon-orange' : 'text-white/40')}>{icon}</span>
+        <span className={clsx('uppercase tracking-wide font-medium', warn ? 'text-neon-orange/70' : 'text-white/35')}>
+          {label}
+        </span>
+      </div>
+      <p className="text-white/60 leading-relaxed whitespace-pre-line">{trimmed}</p>
     </div>
   )
 }
